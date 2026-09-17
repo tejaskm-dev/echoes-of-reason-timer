@@ -8,6 +8,8 @@ interface HeaderProps {
   onOpenRules: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
+  screenMode?: 'semifinals' | 'grand_final';
+  onSelectScreenMode?: (mode: 'semifinals' | 'grand_final') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,6 +19,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenRules,
   isFullscreen,
   onToggleFullscreen,
+  screenMode = 'semifinals',
+  onSelectScreenMode,
 }) => {
   return (
     <header className="relative w-full pt-2 sm:pt-2.5 pb-0.5 px-6 md:px-12 flex items-center justify-between select-none">
@@ -38,7 +42,35 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* 2. Right: Discreet Moderator Tool Icons */}
+      {/* 2. Center: Mode Switcher (Semifinals <-> Grand Finale) */}
+      {onSelectScreenMode && (
+        <div className="hidden md:flex items-center p-0.5 rounded-full bg-[#ede5d8]/85 border border-[#c5a059]/50 shadow-xs backdrop-blur-sm">
+          <button
+            type="button"
+            onClick={() => onSelectScreenMode('semifinals')}
+            className={`px-3 py-1 rounded-full text-[10px] font-cinzel font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
+              screenMode === 'semifinals'
+                ? 'bg-[#18202d] text-amber-200 shadow-xs scale-[1.02]'
+                : 'text-[#5d4a25] hover:text-[#18202d]'
+            }`}
+          >
+            🏛️ Semifinals
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectScreenMode('grand_final')}
+            className={`px-3 py-1 rounded-full text-[10px] font-cinzel font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
+              screenMode === 'grand_final'
+                ? 'bg-[#18202d] text-amber-200 shadow-xs scale-[1.02]'
+                : 'text-[#5d4a25] hover:text-[#18202d]'
+            }`}
+          >
+            👑 Grand Finale
+          </button>
+        </div>
+      )}
+
+      {/* 3. Right: Discreet Moderator Tool Icons */}
       <div className="flex items-center gap-1 sm:gap-2 opacity-85 hover:opacity-100 transition-opacity">
         <button
           onClick={onOpenRules}
