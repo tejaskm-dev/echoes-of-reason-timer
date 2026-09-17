@@ -147,19 +147,16 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
                 </h4>
                 <ul className="space-y-2 list-disc list-inside text-[#333b49] leading-relaxed">
                   <li>
-                    <strong>Timing Window:</strong> Only permitted during the four 4-minute speeches (PM, LO, DPM, DLO), and <strong>only in minutes 1–3</strong> of each (between 03:00 and 01:00 remaining).
+                    <strong>Timing Window:</strong> Points of Information may be offered by the opposing team at any time during an opponent's address while the clock is running.
                   </li>
                   <li>
-                    <strong>Never during Closing Speeches or Grand Final:</strong> Opp Closing, Prop Closing, and the Grand Final rounds have NO POIs permitted.
-                  </li>
-                  <li>
-                    <strong>Offering a POI:</strong> Stand and say <em>“Point of Information”</em>. Do not reveal content before it is accepted.
+                    <strong>Offering a POI:</strong> Stand and say <em>“Point of Information”</em> or signal via the podium button. Do not reveal content before it is accepted.
                   </li>
                   <li>
                     <strong>Forms:</strong> Question, comment, or rebuttal (all are fair game). Always address as <em>“Proposition”</em> or <em>“Opposition”</em>, never by name.
                   </li>
                   <li>
-                    <strong>15-Second Maximum:</strong> Speaker or moderator ends after 15 seconds. If declined, sit down immediately; no one may offer another POI until the next minute.
+                    <strong>15-Second Maximum:</strong> Speaker or moderator ends after 15 seconds. If declined, sit down immediately; the main speaker continues uninterrupted.
                   </li>
                   <li>
                     <strong>Mandatory Acceptance:</strong> Each speaker <strong>must accept at least one POI per speech</strong>; judges enforce this directly. Refusing all POIs lowers the score.

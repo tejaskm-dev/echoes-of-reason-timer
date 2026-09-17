@@ -31,6 +31,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     roleAbbr: 'PM',
     name: 'Speaker 1',
     timeRemaining: SPEAKER_DURATION,
+    totalDuration: SPEAKER_DURATION,
     hasSpoken: false,
     poisAccepted: 0,
   },
@@ -43,6 +44,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     roleAbbr: 'LO',
     name: 'Speaker 1',
     timeRemaining: SPEAKER_DURATION,
+    totalDuration: SPEAKER_DURATION,
     hasSpoken: false,
     poisAccepted: 0,
   },
@@ -55,6 +57,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     roleAbbr: 'DPM',
     name: 'Speaker 2',
     timeRemaining: SPEAKER_DURATION,
+    totalDuration: SPEAKER_DURATION,
     hasSpoken: false,
     poisAccepted: 0,
   },
@@ -67,6 +70,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     roleAbbr: 'DLO',
     name: 'Speaker 2',
     timeRemaining: SPEAKER_DURATION,
+    totalDuration: SPEAKER_DURATION,
     hasSpoken: false,
     poisAccepted: 0,
   },
@@ -79,6 +83,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     roleAbbr: 'Opp Closing',
     name: 'Speaker 3',
     timeRemaining: SPEAKER_DURATION,
+    totalDuration: SPEAKER_DURATION,
     hasSpoken: false,
     poisAccepted: 0,
   },
@@ -91,6 +96,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     roleAbbr: 'Prop Closing',
     name: 'Speaker 3',
     timeRemaining: SPEAKER_DURATION,
+    totalDuration: SPEAKER_DURATION,
     hasSpoken: false,
     poisAccepted: 0,
   },
@@ -126,14 +132,9 @@ export default function App() {
     timeRemaining: POI_DURATION,
   });
 
-  // Check POI eligibility for current speech
-  const isClosing = activeSpeaker.roleAbbr === 'Opp Closing' || activeSpeaker.roleAbbr === 'Prop Closing';
-  const isGrandFinal = roundStage === 'Round 4: Grand Final';
-  const isPoiWindow = !isClosing && !isGrandFinal && activeSpeaker.timeRemaining <= 180 && activeSpeaker.timeRemaining >= 60;
-
-  // Ref tracking for precision timestamp calculation & bell rings at 3:00 / 1:00
+  // Ref tracking for precision timestamp calculation & 1-minute warning bell
   const lastTickRef = useRef<number | null>(null);
-  const rungBellsRef = useRef<{ m3: boolean; m1: boolean }>({ m3: false, m1: false });
+  const rungOneMinWarningRef = useRef<boolean>(false);
 
   // Sound toggle sync
   const toggleSound = useCallback(() => {
@@ -144,18 +145,31 @@ export default function App() {
     });
   }, []);
 
-  // Update a speaker's remaining time properly with bell & state management
-  const updateSpeakerTime = useCallback((speakerId: string, time: number) => {
+  // Update a speaker's remaining time & speech duration properly
+  const updateSpeakerTime = useCallback((speakerId: string, time: number, newTotalDuration?: number) => {
+    const clampedTime = Math.max(0, Math.round(time));
     setSpeakingOrder((prev) =>
-      prev.map((s) => (s.id === speakerId ? { ...s, timeRemaining: time, hasSpoken: time === 0 } : s))
+      prev.map((s) => {
+        if (s.id !== speakerId) return s;
+        const updatedTotal = newTotalDuration !== undefined
+          ? Math.max(clampedTime, Math.round(newTotalDuration))
+          : Math.max(s.totalDuration || SPEAKER_DURATION, clampedTime);
+        return {
+          ...s,
+          timeRemaining: clampedTime,
+          totalDuration: updatedTotal,
+          hasSpoken: clampedTime === 0,
+        };
+      })
     );
     // If setting positive time on completed, restore timer to paused/idle
-    if (time > 0) {
+    if (clampedTime > 0) {
       setTimerStatus((curr) => (curr === 'completed' ? 'paused' : curr));
     }
-    // Reset bell ring markers if adjusted before 3:00 or 1:00 thresholds
-    if (time > 180) rungBellsRef.current.m3 = false;
-    if (time > 60) rungBellsRef.current.m1 = false;
+    // Reset warning bell flag if adjusted back above 60 seconds
+    if (clampedTime > 60) {
+      rungOneMinWarningRef.current = false;
+    }
   }, []);
 
   // Update a speaker's name
@@ -165,9 +179,9 @@ export default function App() {
     );
   }, []);
 
-  // Reset rung bells whenever speaker changes
+  // Reset 1-minute warning bell whenever speaker changes
   useEffect(() => {
-    rungBellsRef.current = { m3: false, m1: false };
+    rungOneMinWarningRef.current = false;
   }, [currentIndex]);
 
   // 1. High-Precision Main Speaker Timer Loop
@@ -191,16 +205,9 @@ export default function App() {
         const prevTime = current.timeRemaining;
         const newTime = Math.max(0, prevTime - delta);
 
-        // Official Parliamentary Bell Rules:
-        // Single bell at 3:00 (180s left) - POIs open
-        if (prevTime > 180 && newTime <= 180 && !rungBellsRef.current.m3) {
-          rungBellsRef.current.m3 = true;
-          playDebateBell(880, 2.0);
-        }
-
-        // Single bell at 1:00 (60s left) - POIs close / protected time begins
-        if (prevTime > 60 && newTime <= 60 && !rungBellsRef.current.m1) {
-          rungBellsRef.current.m1 = true;
+        // General 1-minute remaining warning bell (only if speech total is at least 2 minutes)
+        if (prevTime > 60 && newTime <= 60 && (current.totalDuration || SPEAKER_DURATION) >= 120 && !rungOneMinWarningRef.current) {
+          rungOneMinWarningRef.current = true;
           playDebateBell(880, 2.0);
         }
 
@@ -263,7 +270,8 @@ export default function App() {
       setTimerStatus('paused');
     } else {
       if (activeSpeaker.timeRemaining <= 0) {
-        updateSpeakerTime(activeSpeaker.id, SPEAKER_DURATION);
+        const targetDuration = activeSpeaker.totalDuration || SPEAKER_DURATION;
+        updateSpeakerTime(activeSpeaker.id, targetDuration, targetDuration);
       }
       setTimerStatus('running');
     }
@@ -273,9 +281,10 @@ export default function App() {
   const handleReset = useCallback(() => {
     playTactileClick();
     setTimerStatus('idle');
-    updateSpeakerTime(activeSpeaker.id, SPEAKER_DURATION);
-    rungBellsRef.current = { m3: false, m1: false };
-  }, [activeSpeaker.id, updateSpeakerTime]);
+    const targetDuration = activeSpeaker.totalDuration || SPEAKER_DURATION;
+    updateSpeakerTime(activeSpeaker.id, targetDuration, targetDuration);
+    rungOneMinWarningRef.current = false;
+  }, [activeSpeaker.id, activeSpeaker.totalDuration, updateSpeakerTime]);
 
   // Moderator Controls: Next Speaker (follows official Asian Parliamentary flow)
   const handleNextSpeaker = useCallback(() => {
@@ -290,7 +299,8 @@ export default function App() {
       setCurrentIndex(nextIndex);
       setTimerStatus('idle');
       if (speakingOrder[nextIndex].timeRemaining === 0) {
-        updateSpeakerTime(speakingOrder[nextIndex].id, SPEAKER_DURATION);
+        const nextDuration = speakingOrder[nextIndex].totalDuration || SPEAKER_DURATION;
+        updateSpeakerTime(speakingOrder[nextIndex].id, nextDuration, nextDuration);
       }
     } else {
       // Completed all 6 speeches!
@@ -369,7 +379,8 @@ export default function App() {
     setSpeakingOrder(
       INITIAL_SPEAKERS.map((s) => ({
         ...s,
-        timeRemaining: SPEAKER_DURATION,
+        timeRemaining: s.totalDuration || SPEAKER_DURATION,
+        totalDuration: s.totalDuration || SPEAKER_DURATION,
         hasSpoken: false,
         poisAccepted: 0,
       }))
@@ -520,7 +531,7 @@ export default function App() {
               speakers={propSpeakers}
               activeSpeakerId={activeSpeaker.id}
               isOpposingActiveSpeaker={activeSpeaker.team === 'opposition'}
-              isProtectedTime={!isPoiWindow}
+              activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
               onCallPOI={() => handleTriggerPOIRequest('proposition')}
               onSelectSpeaker={handleSelectSpeaker}
               onUpdateSpeakerName={updateSpeakerName}
@@ -538,13 +549,13 @@ export default function App() {
               }}
               timerStatus={timerStatus}
               timeRemaining={activeSpeaker.timeRemaining}
-              totalDuration={SPEAKER_DURATION}
+              totalDuration={activeSpeaker.totalDuration || SPEAKER_DURATION}
               poiState={poiState}
               onStartPause={handleStartPause}
               onReset={handleReset}
               onNextSpeaker={handleNextSpeaker}
               hasNextSpeaker={currentIndex < speakingOrder.length - 1}
-              onUpdateTime={(newTime) => updateSpeakerTime(activeSpeaker.id, newTime)}
+              onUpdateTime={(newTime, newTotal) => updateSpeakerTime(activeSpeaker.id, newTime, newTotal)}
             />
 
             {/* Stepper positioned directly below the central timer deck */}
@@ -570,7 +581,7 @@ export default function App() {
               speakers={oppSpeakers}
               activeSpeakerId={activeSpeaker.id}
               isOpposingActiveSpeaker={activeSpeaker.team === 'proposition'}
-              isProtectedTime={!isPoiWindow}
+              activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
               onCallPOI={() => handleTriggerPOIRequest('opposition')}
               onSelectSpeaker={handleSelectSpeaker}
               onUpdateSpeakerName={updateSpeakerName}

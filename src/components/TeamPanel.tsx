@@ -11,7 +11,7 @@ interface TeamPanelProps {
   speakers: Speaker[];
   activeSpeakerId: string;
   isOpposingActiveSpeaker: boolean;
-  isProtectedTime: boolean;
+  activeSpeakerTimeRemaining?: number;
   onCallPOI: () => void;
   onSelectSpeaker: (speakerId: string) => void;
   onUpdateSpeakerName: (speakerId: string, newName: string) => void;
@@ -24,7 +24,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   speakers,
   activeSpeakerId,
   isOpposingActiveSpeaker,
-  isProtectedTime,
+  activeSpeakerTimeRemaining,
   onCallPOI,
   onSelectSpeaker,
   onUpdateSpeakerName,
@@ -206,44 +206,33 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
       </div>
 
       {/* 3. Authentic Classical POI Card (Appears on the OPPOSING team's podium) */}
-      {isOpposingActiveSpeaker && (
+      {isOpposingActiveSpeaker && (activeSpeakerTimeRemaining === undefined || activeSpeakerTimeRemaining > 0) && (
         <div className="mt-3.5 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-          {isProtectedTime ? (
-            /* Protected Time Status Pill */
-            <div className="w-full rounded-2xl bg-[#ede5d8]/60 border border-[#c5a059]/30 px-4 py-2.5 flex items-center justify-center gap-2 text-center shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-amber-600/70" />
-              <span className="font-cinzel text-[10px] sm:text-[11px] tracking-wider text-[#63553e] uppercase font-semibold">
-                Protected Time · POIs Closed (Min 1 & 4)
-              </span>
-            </div>
-          ) : (
-            /* Active POI Offer Card */
-            <div className="w-full rounded-2xl bg-[#faf6ee]/95 border-2 border-[#c5a059] px-4 py-3 flex items-center justify-between gap-3 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center gap-3 min-w-0">
-                {/* Gold Seal with Hand Icon */}
-                <div className="w-10 h-10 rounded-full bg-[#1b2230] border border-[#c5a059] flex items-center justify-center text-amber-300 shrink-0 shadow-xs">
-                  <Hand className="w-5 h-5 animate-pulse" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="font-cinzel text-xs font-bold text-[#1b2230] tracking-wider uppercase leading-tight truncate">
-                    Point of Information
-                  </span>
-                  <span className="text-[11px] font-serif-display italic text-[#7a5c24] mt-0.5 truncate">
-                    15s · Allowed (Min 1–3)
-                  </span>
-                </div>
+          <div className="w-full rounded-2xl bg-[#faf6ee]/95 border-2 border-[#c5a059] px-4 py-3 flex items-center justify-between gap-3 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Gold Seal with Hand Icon */}
+              <div className="w-10 h-10 rounded-full bg-[#1b2230] border border-[#c5a059] flex items-center justify-center text-amber-300 shrink-0 shadow-xs">
+                <Hand className="w-5 h-5 animate-pulse" />
               </div>
-
-              {/* Action Button */}
-              <button
-                onClick={onCallPOI}
-                title="Rise to offer a Point of Information (15s)"
-                className="px-4 py-2 rounded-full bg-[#141822] hover:bg-[#252f42] text-amber-200 border border-[#c5a059] font-cinzel text-[11px] tracking-wider uppercase font-bold shadow-md btn-spring cursor-pointer shrink-0 flex items-center gap-1.5"
-              >
-                <span>Offer POI</span>
-              </button>
+              <div className="flex flex-col min-w-0">
+                <span className="font-cinzel text-xs font-bold text-[#1b2230] tracking-wider uppercase leading-tight truncate">
+                  Point of Information
+                </span>
+                <span className="text-[11px] font-serif-display italic text-[#7a5c24] mt-0.5 truncate">
+                  15s Max · Available Now
+                </span>
+              </div>
             </div>
-          )}
+
+            {/* Action Button */}
+            <button
+              onClick={onCallPOI}
+              title="Rise to offer a Point of Information (15s)"
+              className="px-4 py-2 rounded-full bg-[#141822] hover:bg-[#252f42] text-amber-200 border border-[#c5a059] font-cinzel text-[11px] tracking-wider uppercase font-bold shadow-md btn-spring cursor-pointer shrink-0 flex items-center gap-1.5"
+            >
+              <span>Offer POI</span>
+            </button>
+          </div>
         </div>
       )}
     </div>

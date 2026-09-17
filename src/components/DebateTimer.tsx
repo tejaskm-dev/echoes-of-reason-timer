@@ -16,7 +16,7 @@ interface DebateTimerProps {
   onReset: () => void;
   onNextSpeaker: () => void;
   hasNextSpeaker: boolean;
-  onUpdateTime: (newSeconds: number) => void;
+  onUpdateTime: (newSeconds: number, newTotalDuration?: number) => void;
 }
 
 export const DebateTimer: React.FC<DebateTimerProps> = ({
@@ -38,34 +38,67 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
   const isProp = activeSpeaker.team === 'proposition';
   const isPOIActive = poiState.status === 'active';
 
-  // Timer editing state
+  // Timer editing state (using string states to prevent backspace lockup)
   const [isEditingTime, setIsEditingTime] = useState(false);
-  const [editMinutes, setEditMinutes] = useState(Math.floor(timeRemaining / 60));
-  const [editSeconds, setEditSeconds] = useState(Math.floor(timeRemaining % 60));
+  const [minStr, setMinStr] = useState('');
+  const [secStr, setSecStr] = useState('');
+  const minInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleOpenEditTime = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    setEditMinutes(Math.floor(timeRemaining / 60));
-    setEditSeconds(Math.floor(timeRemaining % 60));
+    if (isRunning) {
+      onStartPause(); // Automatically pause when editing begins
+    }
+    const mins = Math.floor(timeRemaining / 60);
+    const secs = Math.floor(timeRemaining % 60);
+    setMinStr(String(mins));
+    setSecStr(String(secs).padStart(2, '0'));
     setIsEditingTime(true);
   };
 
+  // Auto-focus & select minutes when editor opens
+  useEffect(() => {
+    if (isEditingTime) {
+      const timer = setTimeout(() => {
+        minInputRef.current?.focus();
+        minInputRef.current?.select();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isEditingTime]);
+
   const handleApplyTime = React.useCallback(() => {
-    const mins = Math.max(0, isNaN(editMinutes) ? 0 : editMinutes);
-    const secs = Math.max(0, Math.min(59, isNaN(editSeconds) ? 0 : editSeconds));
-    const total = mins * 60 + secs;
-    onUpdateTime(total);
+    const m = Math.max(0, parseInt(minStr, 10) || 0);
+    const s = Math.max(0, Math.min(59, parseInt(secStr, 10) || 0));
+    const total = Math.max(1, m * 60 + s);
+    // Apply total as both the remaining time and the new total duration
+    onUpdateTime(total, total);
     setIsEditingTime(false);
-  }, [editMinutes, editSeconds, onUpdateTime]);
+  }, [minStr, secStr, onUpdateTime]);
 
   const handleQuickAdjust = (deltaSeconds: number) => {
     const next = Math.max(0, timeRemaining + deltaSeconds);
-    onUpdateTime(next);
+    const nextTotal = next > totalDuration ? next : totalDuration;
+    onUpdateTime(next, nextTotal);
   };
 
   const handleSetPreset = (minutes: number, seconds: number) => {
-    setEditMinutes(minutes);
-    setEditSeconds(seconds);
+    setMinStr(String(minutes));
+    setSecStr(String(seconds).padStart(2, '0'));
+  };
+
+  const adjustMinutes = (delta: number) => {
+    const current = parseInt(minStr, 10) || 0;
+    const next = Math.max(0, Math.min(99, current + delta));
+    setMinStr(String(next));
+  };
+
+  const adjustSeconds = (delta: number) => {
+    const current = parseInt(secStr, 10) || 0;
+    let next = current + delta;
+    if (next < 0) next = 59;
+    if (next > 59) next = 0;
+    setSecStr(String(next).padStart(2, '0'));
   };
 
   // Keyboard support during timer editing (Enter to save, Esc to cancel)
@@ -84,13 +117,6 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isEditingTime, handleApplyTime]);
 
-
-  // POI Eligibility based on official rules:
-  const isClosing = activeSpeaker.roleAbbr === 'Opp Closing' || activeSpeaker.roleAbbr === 'Prop Closing';
-  const isGrandFinal = roundStage === 'Round 4: Grand Final';
-  const isPoiWindow = !isClosing && !isGrandFinal && timeRemaining <= 180 && timeRemaining >= 60;
-  const isProtectedTime = !isPoiWindow && timeRemaining > 0;
-
   // Massive SVG circular progress calculation (taking 65-75% screen prominence)
   const size = 640;
   const center = size / 2; // 320
@@ -98,7 +124,8 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
   const radius = 276;
   const circumference = 2 * Math.PI * radius;
 
-  const fraction = Math.max(0, Math.min(1, timeRemaining / totalDuration));
+  const safeTotal = Math.max(1, totalDuration);
+  const fraction = Math.max(0, Math.min(1, timeRemaining / safeTotal));
   const strokeDashoffset = circumference * (1 - fraction);
 
   // Chronometer Head Bead position
@@ -106,19 +133,6 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
   const angleRad = (angleDeg * Math.PI) / 180;
   const beadX = center + radius * Math.cos(angleRad);
   const beadY = center + radius * Math.sin(angleRad);
-
-  // 3:00 and 1:00 POI window markers (Official Asian Parliamentary bells)
-  const marker3MinAngle = (-90 + (180 / 240) * 360) * (Math.PI / 180);
-  const m3X1 = center + (radius - 18) * Math.cos(marker3MinAngle);
-  const m3Y1 = center + (radius - 18) * Math.sin(marker3MinAngle);
-  const m3X2 = center + (radius + 18) * Math.cos(marker3MinAngle);
-  const m3Y2 = center + (radius + 18) * Math.sin(marker3MinAngle);
-
-  const marker1MinAngle = (-90 + (60 / 240) * 360) * (Math.PI / 180);
-  const m1X1 = center + (radius - 18) * Math.cos(marker1MinAngle);
-  const m1Y1 = center + (radius - 18) * Math.sin(marker1MinAngle);
-  const m1X2 = center + (radius + 18) * Math.cos(marker1MinAngle);
-  const m1Y2 = center + (radius + 18) * Math.sin(marker1MinAngle);
 
   // 60 minute chronometer ticks
   const minuteTicks = Array.from({ length: 60 }, (_, i) => {
@@ -268,30 +282,6 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
             opacity="0.35"
           />
 
-          {/* 3:00 POI Open Marker tick (Golden heraldic bar) */}
-          <line
-            x1={m3X1}
-            y1={m3Y1}
-            x2={m3X2}
-            y2={m3Y2}
-            stroke="#c5a059"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-            opacity="0.9"
-          />
-
-          {/* 1:00 POI Close Marker tick (Golden heraldic bar) */}
-          <line
-            x1={m1X1}
-            y1={m1Y1}
-            x2={m1X2}
-            y2={m1Y2}
-            stroke="#c5a059"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-            opacity="0.9"
-          />
-
           {/* Active progress countdown arc (Rotated from 12 o'clock) */}
           <g transform={`rotate(-90 ${center} ${center})`}>
             <circle
@@ -372,7 +362,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
 
           {/* TIMER NUMERALS OR INLINE TIME EDITOR */}
           {isEditingTime ? (
-            <div className="flex flex-col items-center gap-2.5 p-4 sm:p-5 bg-[#faf7f2]/95 backdrop-blur-md rounded-3xl border-2 border-[#c5a059] shadow-2xl animate-in zoom-in-95 duration-200 w-[290px] sm:w-[320px]">
+            <div className="flex flex-col items-center gap-2.5 p-4 sm:p-5 bg-[#faf7f2]/98 backdrop-blur-md rounded-3xl border-2 border-[#c5a059] shadow-2xl animate-in zoom-in-95 duration-200 w-[295px] sm:w-[330px]">
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-[#c5a059]" />
                 <span className="font-cinzel text-xs uppercase font-bold text-[#7a5c24] tracking-widest">
@@ -386,60 +376,76 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                 <div className="flex flex-col items-center">
                   <button
                     type="button"
-                    onClick={() => setEditMinutes((m) => Math.min(59, m + 1))}
+                    onClick={() => adjustMinutes(1)}
                     className="p-1 hover:bg-[#ede5d8] text-[#554325] rounded-full transition-colors cursor-pointer"
                     title="Add 1 minute"
                   >
                     <ChevronUp className="w-4 h-4" />
                   </button>
                   <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={editMinutes}
-                    onChange={(e) => setEditMinutes(parseInt(e.target.value) || 0)}
-                    className="w-16 text-center text-4xl font-num font-bold bg-white/90 border border-[#c5a059]/50 rounded-xl py-1 text-[#12161d] outline-none focus:ring-2 focus:ring-[#c5a059]/40"
+                    ref={minInputRef}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={2}
+                    value={minStr}
+                    onChange={(e) => setMinStr(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                    onFocus={(e) => e.target.select()}
+                    onBlur={() => {
+                      if (!minStr) setMinStr('0');
+                    }}
+                    className="w-16 text-center text-4xl font-num font-bold bg-white border-2 border-[#c5a059]/60 rounded-xl py-1 text-[#12161d] outline-none focus:ring-2 focus:ring-[#c5a059] shadow-inner"
                   />
                   <button
                     type="button"
-                    onClick={() => setEditMinutes((m) => Math.max(0, m - 1))}
+                    onClick={() => adjustMinutes(-1)}
                     className="p-1 hover:bg-[#ede5d8] text-[#554325] rounded-full transition-colors cursor-pointer"
                     title="Subtract 1 minute"
                   >
                     <ChevronDown className="w-4 h-4" />
                   </button>
-                  <span className="text-[10px] font-cinzel text-gray-500 uppercase font-semibold">Mins</span>
+                  <span className="text-[10px] font-cinzel text-gray-500 uppercase font-bold tracking-wider mt-0.5">Mins</span>
                 </div>
 
-                <span className="text-3xl font-num font-bold text-[#c5a059] pb-6">:</span>
+                <span className="text-4xl font-num font-bold text-[#c5a059] pb-6">:</span>
 
                 {/* Seconds Stepper */}
                 <div className="flex flex-col items-center">
                   <button
                     type="button"
-                    onClick={() => setEditSeconds((s) => (s + 5 > 59 ? 0 : s + 5))}
+                    onClick={() => adjustSeconds(5)}
                     className="p-1 hover:bg-[#ede5d8] text-[#554325] rounded-full transition-colors cursor-pointer"
                     title="Add 5 seconds"
                   >
                     <ChevronUp className="w-4 h-4" />
                   </button>
                   <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={editSeconds}
-                    onChange={(e) => setEditSeconds(parseInt(e.target.value) || 0)}
-                    className="w-16 text-center text-4xl font-num font-bold bg-white/90 border border-[#c5a059]/50 rounded-xl py-1 text-[#12161d] outline-none focus:ring-2 focus:ring-[#c5a059]/40"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={2}
+                    value={secStr}
+                    onChange={(e) => setSecStr(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                    onFocus={(e) => e.target.select()}
+                    onBlur={() => {
+                      if (!secStr) {
+                        setSecStr('00');
+                      } else {
+                        const val = Math.min(59, parseInt(secStr, 10) || 0);
+                        setSecStr(String(val).padStart(2, '0'));
+                      }
+                    }}
+                    className="w-16 text-center text-4xl font-num font-bold bg-white border-2 border-[#c5a059]/60 rounded-xl py-1 text-[#12161d] outline-none focus:ring-2 focus:ring-[#c5a059] shadow-inner"
                   />
                   <button
                     type="button"
-                    onClick={() => setEditSeconds((s) => Math.max(0, s - 5))}
+                    onClick={() => adjustSeconds(-5)}
                     className="p-1 hover:bg-[#ede5d8] text-[#554325] rounded-full transition-colors cursor-pointer"
                     title="Subtract 5 seconds"
                   >
                     <ChevronDown className="w-4 h-4" />
                   </button>
-                  <span className="text-[10px] font-cinzel text-gray-500 uppercase font-semibold">Secs</span>
+                  <span className="text-[10px] font-cinzel text-gray-500 uppercase font-bold tracking-wider mt-0.5">Secs</span>
                 </div>
               </div>
 
@@ -449,8 +455,9 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                   { label: '4:00 (Standard)', m: 4, s: 0 },
                   { label: '5:00', m: 5, s: 0 },
                   { label: '3:00', m: 3, s: 0 },
+                  { label: '2:00', m: 2, s: 0 },
                   { label: '1:00', m: 1, s: 0 },
-                  { label: '0:15', m: 0, s: 15 },
+                  { label: '0:30', m: 0, s: 30 },
                 ].map((p, idx) => (
                   <button
                     key={idx}
@@ -519,9 +526,9 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                 </button>
                 <div className="h-3 w-[1px] bg-[#c5a059]/40" />
                 <button
-                  onClick={() => handleOpenEditTime()}
+                  onClick={handleOpenEditTime}
                   title="Click to open time editor"
-                  className="px-2 py-0.5 rounded-full bg-white/80 hover:bg-white text-[10px] font-cinzel font-bold text-[#7a5c24] flex items-center gap-1 shadow-xs transition-colors cursor-pointer"
+                  className="px-2.5 py-0.5 rounded-full bg-white/90 hover:bg-white text-[10px] font-cinzel font-bold text-[#7a5c24] flex items-center gap-1 shadow-xs transition-colors cursor-pointer"
                 >
                   <Edit2 className="w-2.5 h-2.5 text-[#c5a059]" />
                   <span>Edit Time</span>
@@ -545,17 +552,15 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
             </div>
           )}
 
-          {/* Subtitle label with Protected / POI Status */}
+          {/* Subtitle label with Status */}
           <div className="mt-1 sm:mt-1.5 flex flex-col items-center">
             <span className="font-cinzel text-xs sm:text-sm tracking-[0.25em] font-semibold text-[#5a6476] uppercase">
               {isCompleted
                 ? 'TIME EXPIRED'
                 : isPOIActive
-                ? 'MAIN TIMER CONTINUES'
-                : isPoiWindow
-                ? 'POIS OPEN (MINUTES 1–3)'
-                : isProtectedTime
-                ? 'PROTECTED TIME (NO POIS)'
+                ? 'POI IN PROGRESS · 15S MAX'
+                : !isRunning
+                ? 'TIMER PAUSED'
                 : 'SPEAKING TIME'}
             </span>
             <div className="mt-1 flex items-center justify-center gap-2 opacity-70">

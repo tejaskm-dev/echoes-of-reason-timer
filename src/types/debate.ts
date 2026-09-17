@@ -11,6 +11,7 @@ export interface Speaker {
   roleAbbr: RoleAbbr;
   name: string;
   timeRemaining: number; // in seconds (240 = 4 mins)
+  totalDuration: number; // total duration of speech in seconds (defaults to 240)
   hasSpoken: boolean;
   poisAccepted: number; // Rule: Must accept at least one POI per speech in PM, LO, DPM, DLO
 }
