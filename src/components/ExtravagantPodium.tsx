@@ -7,7 +7,9 @@ import {
   ImperialLaurelCrown, 
   BaroqueAcanthusPediment, 
   FiligreeCornerOrnament, 
-  POIMedallionEmblem 
+  POIMedallionEmblem,
+  CorinthianCapitalPilaster,
+  ImperialDebateSeal
 } from './ClassicalDecors';
 
 interface ExtravagantPodiumProps {
@@ -72,6 +74,10 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
         <FiligreeCornerOrnament position="top-right" className="absolute top-2 right-2 w-7 h-7 sm:w-8 sm:h-8 opacity-75" />
         <FiligreeCornerOrnament position="bottom-left" className="absolute bottom-2 left-2 w-7 h-7 sm:w-8 sm:h-8 opacity-75" />
         <FiligreeCornerOrnament position="bottom-right" className="absolute bottom-2 right-2 w-7 h-7 sm:w-8 sm:h-8 opacity-75" />
+
+        {/* Flanking Corinthian Pilaster Capitals */}
+        <CorinthianCapitalPilaster side="left" className="absolute top-3 left-1 w-2.5 sm:w-3 h-[92%] opacity-60 pointer-events-none" />
+        <CorinthianCapitalPilaster side="right" className="absolute top-3 right-1 w-2.5 sm:w-3 h-[92%] opacity-60 pointer-events-none" />
 
         {/* Podium Inner Content */}
         <div className="relative z-10 flex flex-col justify-between">
@@ -265,13 +271,18 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
             </div>
           )}
 
-          {/* Sculpted Plinth Footer Tag */}
-          <div className="text-center pt-2 border-t border-[#c5a059]/25 mt-2 flex items-center justify-center gap-2">
-            <GoldDiamond className="w-2 h-2 opacity-75" />
-            <span className="font-cinzel text-[8px] sm:text-[9px] tracking-[0.25em] text-[#755b28] uppercase font-bold opacity-85">
-              {isProp ? 'ARGUE · EXPLORE · ADVANCE' : 'SCRUTINISE · CHALLENGE · PROTECT'}
-            </span>
-            <GoldDiamond className="w-2 h-2 opacity-75" />
+          {/* Sculpted Plinth Footer Tag with Imperial Seal */}
+          <div className="pt-2 border-t border-[#c5a059]/25 mt-2 flex flex-col items-center gap-1.5">
+            <div className="flex items-center justify-center gap-2">
+              <GoldDiamond className="w-2 h-2 opacity-75" />
+              <span className="font-cinzel text-[8px] sm:text-[9px] tracking-[0.25em] text-[#755b28] uppercase font-bold opacity-85">
+                {isProp ? 'ARGUE · EXPLORE · ADVANCE' : 'SCRUTINISE · CHALLENGE · PROTECT'}
+              </span>
+              <GoldDiamond className="w-2 h-2 opacity-75" />
+            </div>
+            <div className="flex justify-center -mb-0.5 opacity-90 hover:opacity-100 transition-opacity">
+              <ImperialDebateSeal className="w-6 h-6 sm:w-7 sm:h-7" />
+            </div>
           </div>
         </div>
       </div>

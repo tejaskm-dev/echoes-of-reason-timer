@@ -13,7 +13,11 @@ import {
 import type { Speaker, TimerStatus, POIState } from '../types/debate';
 import { formatTime } from '../utils/time';
 import { playTactileClick } from '../utils/audio';
-import { GoldDiamond } from './ClassicalDecors';
+import { 
+  GoldDiamond, 
+  ChronometerLaurelBase, 
+  NeoclassicalMotionCartouche 
+} from './ClassicalDecors';
 import { POIPanel } from './POIPanel';
 import { Header } from './Header';
 import { ExtravagantPodium } from './ExtravagantPodium';
@@ -207,7 +211,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
       />
 
       {/* 2. Top Grand Header: ROUND 4 · GRAND FINAL · THE MOTION BEFORE THE HOUSE */}
-      <section className="relative z-20 w-full max-w-4xl mx-auto px-4 text-center my-0.5 select-none flex flex-col items-center">
+      <section className="relative z-20 w-full max-w-5xl xl:max-w-6xl mx-auto px-4 text-center my-0.5 select-none flex flex-col items-center">
         {/* Hairline Round 4 Tag */}
         <div className="flex items-center gap-2 mb-0.5 opacity-85">
           <div className="h-[0.5px] w-12 bg-gradient-to-r from-transparent to-[#c5a059]" />
@@ -223,7 +227,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
         </h2>
 
         {/* Heraldic Tag */}
-        <div className="flex items-center gap-2 mb-0.5 opacity-90">
+        <div className="flex items-center gap-2 mb-1 opacity-90">
           <div className="h-[0.5px] w-8 sm:w-14 bg-gradient-to-r from-transparent to-[#c5a059]" />
           <GoldDiamond className="w-2 h-2 opacity-90" />
           <span className="font-cinzel text-[9px] tracking-[0.3em] font-extrabold uppercase shimmer-gold-text">
@@ -235,8 +239,8 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
 
         {/* Editable Motion Display */}
         {isEditingMotion ? (
-          <div className="w-full max-w-2xl bg-[#faf7f2]/98 backdrop-blur-md border-2 border-[#c5a059] rounded-2xl p-4 shadow-2xl animate-in zoom-in-95 duration-200 mt-1">
-            <span className="block text-[10px] font-cinzel uppercase tracking-widest text-[#7c5f27] font-bold mb-1">
+          <div className="w-full max-w-4xl bg-[#faf7f2]/98 backdrop-blur-md border-2 border-[#c5a059] rounded-3xl p-5 shadow-2xl animate-in zoom-in-95 duration-200 mt-1">
+            <span className="block text-[11px] font-cinzel uppercase tracking-[0.25em] text-[#7c5f27] font-bold mb-2 text-center">
               Grand Final Debate Motion
             </span>
             <textarea
@@ -253,38 +257,39 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
               }}
               rows={2}
               placeholder="Type official Grand Final motion here..."
-              className="w-full bg-white border border-[#c5a059]/40 rounded-xl p-2.5 font-serif-display text-base sm:text-lg text-[#10141c] text-center italic leading-snug outline-none resize-none focus:border-[#c5a059] focus:ring-2 focus:ring-[#c5a059]/20 transition-all shadow-inner"
+              className="w-full bg-white border border-[#c5a059]/50 rounded-2xl p-3.5 font-serif-display text-xl sm:text-2xl md:text-3xl text-[#0a0e17] text-center italic font-semibold leading-snug outline-none resize-none focus:border-[#c5a059] focus:ring-2 focus:ring-[#c5a059]/20 transition-all shadow-inner"
             />
-            <div className="flex items-center justify-center gap-2.5 mt-2.5">
+            <div className="flex items-center justify-center gap-3 mt-3">
               <button
                 type="button"
                 onClick={() => setIsEditingMotion(false)}
-                className="px-4 py-1 rounded-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-cinzel text-[11px] uppercase font-bold cursor-pointer transition-all active:scale-95"
+                className="px-5 py-1.5 rounded-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-cinzel text-xs uppercase font-bold cursor-pointer transition-all active:scale-95"
               >
-                <X className="w-3 h-3 inline mr-1" /> Cancel
+                <X className="w-3.5 h-3.5 inline mr-1" /> Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveMotion}
-                className="px-5 py-1 rounded-full bg-[#141820] hover:bg-[#283244] text-white font-cinzel text-[11px] uppercase font-bold shadow-md cursor-pointer transition-all active:scale-95"
+                className="px-6 py-1.5 rounded-full bg-[#141820] hover:bg-[#283244] text-white font-cinzel text-xs uppercase font-bold shadow-md cursor-pointer transition-all active:scale-95"
               >
-                <Check className="w-3 h-3 text-amber-300 inline mr-1" /> Apply Motion
+                <Check className="w-3.5 h-3.5 text-amber-300 inline mr-1" /> Apply Motion
               </button>
             </div>
           </div>
         ) : (
-          <div
+          <NeoclassicalMotionCartouche
             onClick={handleOpenEditMotion}
-            title="Click to edit Grand Final motion"
-            className="group cursor-pointer px-4 py-0.5 rounded-2xl hover:bg-white/40 transition-all duration-300 flex flex-col items-center"
+            className="mt-1"
           >
-            <p className="font-serif-display text-lg sm:text-xl md:text-2xl text-[#121620] italic font-normal max-w-3xl leading-snug transition-transform group-hover:scale-[1.008]">
-              “{motion}”
+            <p className="font-serif-display text-xl sm:text-2xl md:text-3xl lg:text-[2.15rem] xl:text-[2.45rem] text-[#0a0e17] font-semibold italic text-center max-w-4xl leading-tight transition-transform group-hover:scale-[1.01] drop-shadow-2xs px-2">
+              <span className="text-[#c5a059] font-serif not-italic mr-1 text-2xl sm:text-3xl md:text-4xl select-none">“</span>
+              {motion}
+              <span className="text-[#c5a059] font-serif not-italic ml-1 text-2xl sm:text-3xl md:text-4xl select-none">”</span>
             </p>
-            <span className="text-[9px] font-cinzel text-[#886729] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex items-center gap-1">
-              <Edit3 className="w-2.5 h-2.5 text-[#c5a059]" /> Click to Edit Motion
+            <span className="text-[10px] font-cinzel text-[#886729] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-1 flex items-center gap-1.5">
+              <Edit3 className="w-3 h-3 text-[#c5a059]" /> Click to Edit Motion
             </span>
-          </div>
+          </NeoclassicalMotionCartouche>
         )}
       </section>
 
@@ -406,6 +411,12 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
               <g transform={`translate(${center - radius - 15} ${center})`}>
                 <polygon points="0,-4 3,0 0,4 -3,0" fill="#c5a059" opacity="0.8" />
               </g>
+
+              {/* Etched Classical Roman Numeral Markers */}
+              <text x={center} y={center - radius + 32} textAnchor="middle" dominantBaseline="middle" fontFamily="'Cinzel', Georgia, serif" fontSize="16" fontWeight="bold" fill="#755f36" opacity="0.85">XII</text>
+              <text x={center + radius - 32} y={center + 1} textAnchor="middle" dominantBaseline="middle" fontFamily="'Cinzel', Georgia, serif" fontSize="16" fontWeight="bold" fill="#755f36" opacity="0.85">III</text>
+              <text x={center} y={center + radius - 30} textAnchor="middle" dominantBaseline="middle" fontFamily="'Cinzel', Georgia, serif" fontSize="16" fontWeight="bold" fill="#755f36" opacity="0.85">VI</text>
+              <text x={center - radius + 32} y={center + 1} textAnchor="middle" dominantBaseline="middle" fontFamily="'Cinzel', Georgia, serif" fontSize="16" fontWeight="bold" fill="#755f36" opacity="0.85">IX</text>
 
               {/* Background circle track */}
               <circle
@@ -643,6 +654,11 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Monumental Symmetrical Dual Laurel Base */}
+          <div className="relative -mt-10 sm:-mt-12 z-0 flex justify-center pointer-events-none select-none">
+            <ChronometerLaurelBase className="w-[330px] sm:w-[390px] md:w-[440px] h-[75px] sm:h-[90px] drop-shadow-sm opacity-95" />
           </div>
 
           {/* Symmetrical 3-Button Control Deck on the Marble Steps */}

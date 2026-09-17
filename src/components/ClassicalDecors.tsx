@@ -356,3 +356,267 @@ export const ClassicalStatueBust: React.FC<{ className?: string; opacity?: numbe
     />
   </svg>
 );
+
+/**
+ * Masterpiece Symmetrical Dual Laurel Base for Central Chronometer
+ * Wraps gracefully around the bottom circumference of the circular dial
+ */
+export const ChronometerLaurelBase: React.FC<{ className?: string }> = ({ className = "w-[380px] h-[95px]" }) => (
+  <svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg" className={`shrink-0 pointer-events-none select-none ${className}`}>
+    <defs>
+      <linearGradient id="chronoLaurelGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#fffdf0" />
+        <stop offset="25%" stopColor="#f7e199" />
+        <stop offset="60%" stopColor="#d4af37" />
+        <stop offset="100%" stopColor="#8d681c" />
+      </linearGradient>
+      <linearGradient id="chronoLaurelGoldDark" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#d4af37" />
+        <stop offset="50%" stopColor="#9a7322" />
+        <stop offset="100%" stopColor="#5e420d" />
+      </linearGradient>
+      <radialGradient id="chronoBerryGold" cx="30%" cy="30%" r="70%">
+        <stop offset="0%" stopColor="#ffffff" />
+        <stop offset="45%" stopColor="#fae5a2" />
+        <stop offset="85%" stopColor="#b38728" />
+        <stop offset="100%" stopColor="#68470a" />
+      </radialGradient>
+      <filter id="chronoLaurelGlow" x="-10%" y="-15%" width="120%" height="135%">
+        <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#1a1408" floodOpacity="0.22" />
+      </filter>
+    </defs>
+    <g filter="url(#chronoLaurelGlow)">
+      {/* Left Laurel Branch sweeping up around the circular dial */}
+      <path 
+        d="M240 92 C200 92, 140 82, 90 54 C58 36, 32 12, 20 -10" 
+        stroke="url(#chronoLaurelGoldDark)" 
+        strokeWidth="3.2" 
+        strokeLinecap="round" 
+      />
+      {/* Left Laurel Leaves */}
+      <path d="M220 86 C210 74, 192 78, 185 86 C198 94, 214 94, 220 86 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M190 80 C182 66, 162 70, 154 78 C168 87, 184 86, 190 80 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M158 68 C152 52, 130 56, 122 65 C136 74, 152 74, 158 68 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M126 54 C120 38, 98 42, 90 51 C104 60, 120 60, 126 54 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M96 40 C90 24, 68 28, 60 37 C74 46, 90 46, 96 40 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M68 26 C62 10, 40 14, 32 23 C46 32, 62 32, 68 26 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M42 12 C36 -4, 16 0, 10 9 C22 18, 38 18, 42 12 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.8" />
+      {/* Outer Counter-Leaves */}
+      <path d="M200 96 C195 106, 180 110, 172 104 C175 94, 190 90, 200 96 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.6" />
+      <path d="M165 90 C158 100, 142 103, 135 96 C139 87, 155 83, 165 90 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.6" />
+      <path d="M130 78 C122 88, 106 90, 100 82 C105 73, 120 70, 130 78 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.6" />
+      <path d="M98 64 C90 73, 74 74, 68 66 C74 58, 88 56, 98 64 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.6" />
+      {/* Berries on Left Branch */}
+      <circle cx="210" cy="80" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="178" cy="72" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="144" cy="58" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="112" cy="44" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="80" cy="30" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="50" cy="16" r="2.8" fill="url(#chronoBerryGold)" />
+
+      {/* Right Laurel Branch (Mirrored) */}
+      <path 
+        d="M260 92 C300 92, 360 82, 410 54 C442 36, 468 12, 480 -10" 
+        stroke="url(#chronoLaurelGoldDark)" 
+        strokeWidth="3.2" 
+        strokeLinecap="round" 
+      />
+      {/* Right Laurel Leaves */}
+      <path d="M280 86 C290 74, 308 78, 315 86 C302 94, 286 94, 280 86 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M310 80 C318 66, 338 70, 346 78 C332 87, 316 86, 310 80 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M342 68 C348 52, 370 56, 378 65 C364 74, 348 74, 342 68 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M374 54 C380 38, 402 42, 410 51 C396 60, 380 60, 374 54 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M404 40 C410 24, 432 28, 440 37 C426 46, 410 46, 404 40 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M432 26 C438 10, 460 14, 468 23 C454 32, 438 32, 432 26 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.8" />
+      <path d="M458 12 C464 -4, 484 0, 490 9 C478 18, 462 18, 458 12 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.8" />
+      {/* Outer Counter-Leaves */}
+      <path d="M300 96 C305 106, 320 110, 328 104 C325 94, 310 90, 300 96 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.6" />
+      <path d="M335 90 C342 100, 358 103, 365 96 C361 87, 345 83, 335 90 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.6" />
+      <path d="M370 78 C378 88, 394 90, 400 82 C395 73, 380 70, 370 78 Z" fill="url(#chronoLaurelGoldLight)" stroke="#7e5d18" strokeWidth="0.6" />
+      <path d="M402 64 C410 73, 426 74, 432 66 C426 58, 412 56, 402 64 Z" fill="url(#chronoLaurelGoldDark)" stroke="#7e5d18" strokeWidth="0.6" />
+      {/* Berries on Right Branch */}
+      <circle cx="290" cy="80" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="322" cy="72" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="356" cy="58" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="388" cy="44" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="420" cy="30" r="2.8" fill="url(#chronoBerryGold)" />
+      <circle cx="450" cy="16" r="2.8" fill="url(#chronoBerryGold)" />
+
+      {/* Central Tie Ribbon Knot & Medallion Rosette */}
+      <path 
+        d="M236 90 C226 95, 215 105, 210 114 C222 110, 235 106, 244 104 C247 108, 253 108, 256 104 C265 106, 278 110, 290 114 C285 105, 274 95, 264 90 Z" 
+        fill="url(#chronoLaurelGoldDark)" 
+        stroke="#5e420d" 
+        strokeWidth="0.8" 
+      />
+      {/* Rosette Center Jewel */}
+      <circle cx="250" cy="92" r="7" fill="url(#chronoLaurelGoldLight)" stroke="#68470a" strokeWidth="1.2" />
+      <polygon points="250,86 252,90 256,92 252,94 250,98 248,94 244,92 248,90" fill="#ffffff" />
+      <circle cx="250" cy="92" r="2" fill="#fffdf0" />
+    </g>
+  </svg>
+);
+
+/**
+ * Grand Neoclassical Motion Cartouche Plaque
+ * Surrounds the debate motion in a carved gilded temple plaque
+ */
+export const NeoclassicalMotionCartouche: React.FC<{ 
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}> = ({ children, className = "", onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`relative group cursor-pointer w-full max-w-5xl mx-auto rounded-2xl sm:rounded-3xl p-4 sm:p-5 transition-all duration-300 ${className}`}
+  >
+    {/* Background Sculpted Marble Plaque with Gold Inset */}
+    <div className="absolute inset-0 bg-[#fefdfa]/92 backdrop-blur-md rounded-2xl sm:rounded-3xl border-2 border-[#c5a059]/60 shadow-[0_16px_40px_-12px_rgba(25,20,12,0.18),0_0_0_1px_rgba(255,255,255,0.9)_inset] group-hover:border-[#c5a059] group-hover:shadow-[0_20px_50px_-10px_rgba(197,160,89,0.32),0_0_0_1px_rgba(255,255,255,0.95)_inset] transition-all duration-300" />
+    
+    {/* Inner Gilded Hairline Inset */}
+    <div className="absolute inset-1.5 sm:inset-2.5 rounded-xl sm:rounded-2xl border border-[#c5a059]/30 pointer-events-none" />
+
+    {/* Classical Corner Flourishes */}
+    <FiligreeCornerOrnament position="top-left" className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 w-6 h-6 sm:w-8 sm:h-8 opacity-75 group-hover:opacity-100 transition-opacity" />
+    <FiligreeCornerOrnament position="top-right" className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-6 h-6 sm:w-8 sm:h-8 opacity-75 group-hover:opacity-100 transition-opacity" />
+    <FiligreeCornerOrnament position="bottom-left" className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 w-6 h-6 sm:w-8 sm:h-8 opacity-75 group-hover:opacity-100 transition-opacity" />
+    <FiligreeCornerOrnament position="bottom-right" className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 w-6 h-6 sm:w-8 sm:h-8 opacity-75 group-hover:opacity-100 transition-opacity" />
+
+    {/* Content */}
+    <div className="relative z-10 flex flex-col items-center">
+      {children}
+    </div>
+  </div>
+);
+
+/**
+ * Classical Fluted Corinthian Pilaster Column Capital
+ * Applied to the flanking edges of the Extravagant Podium for architectural dignity
+ */
+export const CorinthianCapitalPilaster: React.FC<{ 
+  side?: 'left' | 'right';
+  className?: string;
+}> = ({ side = 'left', className = "w-4 h-full" }) => {
+  const isRight = side === 'right';
+  return (
+    <svg 
+      viewBox="0 0 32 300" 
+      preserveAspectRatio="none"
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      className={`shrink-0 pointer-events-none select-none ${className}`}
+      style={{ transform: isRight ? 'scaleX(-1)' : undefined }}
+    >
+      <defs>
+        <linearGradient id="pilasterGold" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#fff6d6" />
+          <stop offset="35%" stopColor="#f3dd9e" />
+          <stop offset="70%" stopColor="#c5a059" />
+          <stop offset="100%" stopColor="#7e5d1d" />
+        </linearGradient>
+        <linearGradient id="pilasterFlute" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#ded5c4" />
+          <stop offset="30%" stopColor="#ffffff" />
+          <stop offset="70%" stopColor="#ded5c4" />
+          <stop offset="100%" stopColor="#b6a892" />
+        </linearGradient>
+      </defs>
+      {/* Abacus Top Slab */}
+      <rect x="2" y="2" width="28" height="6" rx="1.5" fill="url(#pilasterGold)" stroke="#68470a" strokeWidth="0.8" />
+      {/* Corinthian Volute Scroll */}
+      <path 
+        d="M6 8 C2 8, 0 14, 4 18 C8 22, 16 18, 14 12 C12 8, 8 10, 8 12" 
+        stroke="url(#pilasterGold)" 
+        strokeWidth="1.6" 
+        strokeLinecap="round" 
+      />
+      {/* Acanthus Leaf Fan on Capital */}
+      <path d="M12 10 C14 16, 20 20, 26 14 C22 10, 16 8, 12 10 Z" fill="url(#pilasterGold)" />
+      <path d="M16 16 C18 22, 24 24, 28 20 C24 16, 20 15, 16 16 Z" fill="url(#pilasterGold)" opacity="0.85" />
+      {/* Astragal Ring Bead */}
+      <rect x="4" y="26" width="24" height="4" rx="2" fill="url(#pilasterGold)" stroke="#68470a" strokeWidth="0.6" />
+      {/* Fluted Vertical Shaft Lines */}
+      <rect x="5" y="32" width="22" height="250" fill="url(#pilasterFlute)" opacity="0.4" />
+      <line x1="8" y1="32" x2="8" y2="282" stroke="url(#pilasterGold)" strokeWidth="1" opacity="0.7" />
+      <line x1="14" y1="32" x2="14" y2="282" stroke="url(#pilasterGold)" strokeWidth="1.2" opacity="0.8" />
+      <line x1="18" y1="32" x2="18" y2="282" stroke="url(#pilasterGold)" strokeWidth="1.2" opacity="0.8" />
+      <line x1="24" y1="32" x2="24" y2="282" stroke="url(#pilasterGold)" strokeWidth="1" opacity="0.7" />
+      {/* Base Torus Ring & Plinth */}
+      <rect x="4" y="284" width="24" height="5" rx="2" fill="url(#pilasterGold)" stroke="#68470a" strokeWidth="0.6" />
+      <rect x="2" y="290" width="28" height="8" rx="1.5" fill="url(#pilasterGold)" stroke="#68470a" strokeWidth="0.8" />
+    </svg>
+  );
+};
+
+/**
+ * Official Imperial Debate Seal Medallion
+ * Championship wax/gilded stamp with Classical Scales of Justice & Torch of Reason
+ */
+export const ImperialDebateSeal: React.FC<{ className?: string }> = ({ className = "w-12 h-12" }) => (
+  <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={`shrink-0 select-none ${className}`}>
+    <defs>
+      <radialGradient id="sealGoldGrad" cx="35%" cy="30%" r="70%">
+        <stop offset="0%" stopColor="#fffdf0" />
+        <stop offset="25%" stopColor="#fce4a6" />
+        <stop offset="60%" stopColor="#d4af37" />
+        <stop offset="90%" stopColor="#8d681c" />
+        <stop offset="100%" stopColor="#533a0b" />
+      </radialGradient>
+      <linearGradient id="sealRimBevel" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#fff7db" />
+        <stop offset="50%" stopColor="#c5a059" />
+        <stop offset="100%" stopColor="#68470a" />
+      </linearGradient>
+      <filter id="sealShadow" x="-15%" y="-15%" width="130%" height="130%">
+        <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#1a1408" floodOpacity="0.25" />
+      </filter>
+    </defs>
+    <g filter="url(#sealShadow)">
+      {/* Outer Coin Edge Rim */}
+      <circle cx="50" cy="50" r="47" fill="url(#sealRimBevel)" />
+      <circle cx="50" cy="50" r="44" fill="url(#sealGoldGrad)" stroke="#583d0c" strokeWidth="0.8" />
+      
+      {/* Beaded Granulation Ring */}
+      <circle cx="50" cy="50" r="41" fill="none" stroke="#755212" strokeWidth="1.2" strokeDasharray="1.5 2.5" />
+      
+      {/* Inner Concentric Hairline Ring */}
+      <circle cx="50" cy="50" r="38" fill="none" stroke="#68470a" strokeWidth="0.7" />
+
+      {/* Classical Scales of Justice & Torch Iconography */}
+      {/* Vertical Torch Handle */}
+      <path d="M48 24 L52 24 L51 68 L49 68 Z" fill="#4d3408" />
+      {/* Flame of Reason */}
+      <path d="M50 14 C54 18, 55 22, 50 25 C45 22, 46 18, 50 14 Z" fill="#ffffff" stroke="#755212" strokeWidth="0.6" />
+      {/* Horizontal Balance Beam */}
+      <line x1="28" y1="36" x2="72" y2="36" stroke="#4d3408" strokeWidth="2" strokeLinecap="round" />
+      {/* Central Fulcrum Diamond */}
+      <polygon points="50,32 53,36 50,40 47,36" fill="#fff" stroke="#4d3408" strokeWidth="0.8" />
+      {/* Left Pan Chains & Pan */}
+      <line x1="30" y1="36" x2="25" y2="48" stroke="#4d3408" strokeWidth="1" />
+      <line x1="30" y1="36" x2="35" y2="48" stroke="#4d3408" strokeWidth="1" />
+      <path d="M22 48 C25 54, 35 54, 38 48 Z" fill="#4d3408" />
+      {/* Right Pan Chains & Pan */}
+      <line x1="70" y1="36" x2="65" y2="48" stroke="#4d3408" strokeWidth="1" />
+      <line x1="70" y1="36" x2="75" y2="48" stroke="#4d3408" strokeWidth="1" />
+      <path d="M62 48 C65 54, 75 54, 78 48 Z" fill="#4d3408" />
+
+      {/* Lower Laurel Sprigs within Seal */}
+      <path d="M30 68 C38 78, 62 78, 70 68" stroke="#4d3408" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="50" cy="74" r="2.2" fill="#fff" stroke="#4d3408" strokeWidth="0.8" />
+
+      {/* Official Roman Inscription Tag */}
+      <text 
+        x="50" 
+        y="86" 
+        textAnchor="middle" 
+        fontFamily="'Cinzel', Georgia, serif" 
+        fontSize="5.5" 
+        fontWeight="bold" 
+        letterSpacing="0.18em" 
+        fill="#3d2805"
+      >
+        ECHOES OF REASON
+      </text>
+    </g>
+  </svg>
+);
