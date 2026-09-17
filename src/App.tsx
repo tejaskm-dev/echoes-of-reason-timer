@@ -103,9 +103,13 @@ const INITIAL_SPEAKERS: Speaker[] = [
 ];
 
 export default function App() {
-  // Debate Round Stage & Editable Topic Motion
-  const [roundStage, setRoundStage] = useState<RoundStage>('Round 1: Qualifier');
-  const [motion, setMotion] = useState<string>('This House Believes That Scientific Truth Outweighs Societal Consensus');
+  // Debate Round Stage & Editable Topic Motion (Defaults to Semifinals & Official Match 1)
+  const [roundStage, setRoundStage] = useState<RoundStage>('Round 3: Semifinal');
+  const [motion, setMotion] = useState<string>(
+    'This house would let people legally erase specific traumatic memories if the technology existed.'
+  );
+  const [propTeamName, setPropTeamName] = useState<string>('Team Neutron');
+  const [oppTeamName, setOppTeamName] = useState<string>('Team Futures');
 
   // Speakers State in official flow
   const [speakingOrder, setSpeakingOrder] = useState<Speaker[]>(INITIAL_SPEAKERS);
@@ -503,10 +507,15 @@ export default function App() {
         onToggleFullscreen={handleToggleFullscreen}
       />
 
-      {/* 2. Grand Heraldic Motion Banner (Way Bigger Text with Click-to-Edit) */}
+      {/* 2. Grand Heraldic Motion Banner (Way Bigger Text with Click-to-Edit & Semifinal Presets) */}
       <MotionBanner
         motion={motion}
         onUpdateMotion={setMotion}
+        onSelectMatchPreset={(preset) => {
+          setMotion(preset.motion);
+          setPropTeamName(preset.propTeam);
+          setOppTeamName(preset.oppTeam);
+        }}
       />
 
       {/* Prominent POI HUD Overlay (Centered Stage Alert - ONLY visible when called/active) */}
@@ -522,12 +531,12 @@ export default function App() {
       {/* 3. Main Debate Stage: Massive Centered Timer with Symmetrical Podiums on Edges */}
       <main className="w-full flex-1 max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 py-0.5 flex flex-col justify-center items-center">
         <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-3 xl:gap-8">
-          {/* Left Edge Podium: Proposition (Team 1) */}
+          {/* Left Edge Podium: Proposition */}
           <div className="podium-responsive shrink-0 flex justify-center lg:justify-start order-2 lg:order-1">
             <TeamPanel
               teamType="proposition"
-              teamName="Proposition"
-              teamSubtitle="TEAM 1"
+              teamName={propTeamName}
+              teamSubtitle="PROPOSITION"
               speakers={propSpeakers}
               activeSpeakerId={activeSpeaker.id}
               isOpposingActiveSpeaker={activeSpeaker.team === 'opposition'}
@@ -543,6 +552,8 @@ export default function App() {
             <DebateTimer
               activeSpeaker={activeSpeaker}
               roundStage={roundStage}
+              propTeamName={propTeamName}
+              oppTeamName={oppTeamName}
               onSelectRound={(stage) => {
                 playTactileClick();
                 setRoundStage(stage);
@@ -572,12 +583,12 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Edge Podium: Opposition (Team 2) */}
+          {/* Right Edge Podium: Opposition */}
           <div className="podium-responsive shrink-0 flex justify-center lg:justify-end order-3">
             <TeamPanel
               teamType="opposition"
-              teamName="Opposition"
-              teamSubtitle="TEAM 2"
+              teamName={oppTeamName}
+              teamSubtitle="OPPOSITION"
               speakers={oppSpeakers}
               activeSpeakerId={activeSpeaker.id}
               isOpposingActiveSpeaker={activeSpeaker.team === 'proposition'}

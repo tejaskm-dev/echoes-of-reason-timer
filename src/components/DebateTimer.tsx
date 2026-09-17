@@ -8,6 +8,8 @@ import { playTactileClick } from '../utils/audio';
 interface DebateTimerProps {
   activeSpeaker: Speaker;
   roundStage: RoundStage;
+  propTeamName?: string;
+  oppTeamName?: string;
   onSelectRound: (round: RoundStage) => void;
   timerStatus: TimerStatus;
   timeRemaining: number;
@@ -23,6 +25,8 @@ interface DebateTimerProps {
 export const DebateTimer: React.FC<DebateTimerProps> = ({
   activeSpeaker,
   roundStage,
+  propTeamName,
+  oppTeamName,
   onSelectRound,
   timerStatus,
   timeRemaining,
@@ -159,10 +163,10 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
   });
 
   const roundOptions: RoundStage[] = [
-    'Round 1: Qualifier',
-    'Round 2: Qualifier',
     'Round 3: Semifinal',
     'Round 4: Grand Final',
+    'Round 1: Qualifier',
+    'Round 2: Qualifier',
   ];
 
   const handleNextRound = () => {
@@ -177,7 +181,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
       <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-1">
         <button
           onClick={handleNextRound}
-          title="Click to cycle rounds: Qualifier -> Semifinal -> Grand Final"
+          title="Click to cycle rounds: Semifinal -> Grand Final -> Qualifier"
           className="inline-flex items-center justify-center px-3.5 py-0.5 rounded-full bg-[#e8e1d5]/90 hover:bg-[#efe9df] border border-white/80 shadow-xs btn-spring cursor-pointer group"
         >
           <span className="font-cinzel text-[10px] sm:text-[11px] tracking-[0.2em] font-bold text-[#5c4a28] uppercase">
@@ -190,7 +194,9 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
 
         <h3 className="font-cinzel text-xs sm:text-sm md:text-base tracking-[0.2em] uppercase font-bold text-[#141820] flex items-center gap-1.5 text-center">
           <span className={isProp ? 'text-blue-950 font-extrabold' : 'text-rose-950 font-extrabold'}>
-            {isProp ? 'TEAM 1 · PROPOSITION' : 'TEAM 2 · OPPOSITION'}
+            {isProp
+              ? `${(propTeamName || 'TEAM 1').toUpperCase()} · PROPOSITION`
+              : `${(oppTeamName || 'TEAM 2').toUpperCase()} · OPPOSITION`}
           </span>
           <span className="text-[#c5a059] font-normal">·</span>
           <span className="text-[#2b3342]">{activeSpeaker.role.toUpperCase()}</span>
