@@ -528,150 +528,164 @@ export default function App() {
 
   return (
     <>
-      {screenMode === 'grand_final' ? (
-        <GrandFinalScreen
-          soundEnabled={soundEnabled}
-          onToggleSound={toggleSound}
-          onOpenShortcuts={() => setIsShortcutsOpen(true)}
-          onOpenRules={() => setIsRulesOpen(true)}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={handleToggleFullscreen}
-          onSelectScreenMode={handleSelectScreenMode}
-          motion={grandFinalMotion}
-          onUpdateMotion={setGrandFinalMotion}
-          propTeamName={gfPropTeamName}
-          oppTeamName={gfOppTeamName}
-          onUpdatePropTeamName={setGfPropTeamName}
-          onUpdateOppTeamName={setGfOppTeamName}
-          speakingOrder={speakingOrder}
-          currentIndex={currentIndex}
-          onSelectIndex={(idx) => {
-            playTactileClick();
-            setTimerStatus('idle');
-            setCurrentIndex(idx);
-          }}
-          onUpdateSpeakerName={updateSpeakerName}
-          onUpdateSpeakerTime={updateSpeakerTime}
-          timerStatus={timerStatus}
-          onStartPause={handleStartPause}
-          onReset={handleReset}
-          onNextSpeaker={handleNextSpeaker}
-          hasNextSpeaker={currentIndex < speakingOrder.length - 1}
-          poiState={poiState}
-          onTriggerPOIRequest={handleTriggerPOIRequest}
-          onAllowPOI={handleAllowPOI}
-          onDeclinePOI={handleDeclinePOI}
-          onEndPOI={handleEndPOI}
-        />
-      ) : (
-        <div className="h-screen max-h-screen w-full exact-clone-bg flex flex-col justify-between overflow-hidden selection:bg-[#c5a059]/30">
-          {/* 1. Header with Classical Branding, Discreet Controls & Mode Switcher */}
-          <Header
+      <div className="relative w-full h-screen overflow-hidden">
+        {/* 1. Semifinals Mode View */}
+        <div 
+          className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+            screenMode === 'semifinals' ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'
+          }`}
+        >
+          <div className="h-screen max-h-screen w-full exact-clone-bg flex flex-col justify-between overflow-hidden selection:bg-[#c5a059]/30">
+            {/* Header with Classical Branding, Discreet Controls & Mode Switcher */}
+            <Header
+              soundEnabled={soundEnabled}
+              onToggleSound={toggleSound}
+              onOpenShortcuts={() => setIsShortcutsOpen(true)}
+              onOpenRules={() => setIsRulesOpen(true)}
+              isFullscreen={isFullscreen}
+              onToggleFullscreen={handleToggleFullscreen}
+              screenMode={screenMode}
+              onSelectScreenMode={handleSelectScreenMode}
+            />
+
+            {/* Grand Heraldic Motion Banner */}
+            <MotionBanner
+              motion={motion}
+              onUpdateMotion={setMotion}
+              onSelectMatchPreset={(preset) => {
+                setMotion(preset.motion);
+                setPropTeamName(preset.propTeam);
+                setOppTeamName(preset.oppTeam);
+              }}
+            />
+
+            {/* Prominent POI HUD Overlay */}
+            <POIPanel
+              poiState={poiState}
+              activeSpeaker={activeSpeaker}
+              roundStage={roundStage}
+              onAllowPOI={handleAllowPOI}
+              onDeclinePOI={handleDeclinePOI}
+              onEndPOI={handleEndPOI}
+            />
+
+            {/* Main Debate Stage: Massive Centered Timer with Symmetrical Podiums */}
+            <main className="w-full flex-1 max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 py-0.5 flex flex-col justify-center items-center">
+              <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-3 xl:gap-8">
+                {/* Left Edge Podium: Proposition */}
+                <div className="podium-responsive shrink-0 flex justify-center lg:justify-start order-2 lg:order-1">
+                  <TeamPanel
+                    teamType="proposition"
+                    teamName={propTeamName}
+                    teamSubtitle="PROPOSITION"
+                    speakers={propSpeakers}
+                    activeSpeakerId={activeSpeaker.id}
+                    isOpposingActiveSpeaker={activeSpeaker.team === 'opposition'}
+                    activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
+                    onCallPOI={() => handleTriggerPOIRequest('proposition')}
+                    onSelectSpeaker={handleSelectSpeaker}
+                    onUpdateSpeakerName={updateSpeakerName}
+                  />
+                </div>
+
+                {/* Center Stage: Debate Timer */}
+                <div className="flex-1 w-full max-w-[960px] xl:max-w-[1080px] 2xl:max-w-[1160px] flex flex-col items-center justify-center order-1 lg:order-2">
+                  <DebateTimer
+                    activeSpeaker={activeSpeaker}
+                    roundStage={roundStage}
+                    propTeamName={propTeamName}
+                    oppTeamName={oppTeamName}
+                    onSelectRound={handleSelectRound}
+                    timerStatus={timerStatus}
+                    timeRemaining={activeSpeaker.timeRemaining}
+                    totalDuration={activeSpeaker.totalDuration || SPEAKER_DURATION}
+                    poiState={poiState}
+                    onStartPause={handleStartPause}
+                    onReset={handleReset}
+                    onNextSpeaker={handleNextSpeaker}
+                    hasNextSpeaker={currentIndex < speakingOrder.length - 1}
+                    onUpdateTime={(newTime, newTotal) => updateSpeakerTime(activeSpeaker.id, newTime, newTotal)}
+                  />
+
+                  {/* Stepper directly below timer */}
+                  <div className="w-full mt-1.5 sm:mt-2">
+                    <ProgressIndicator
+                      speakingOrder={speakingOrder}
+                      currentIndex={currentIndex}
+                      onSelectIndex={(idx) => {
+                        playTactileClick();
+                        setTimerStatus('idle');
+                        setCurrentIndex(idx);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Right Edge Podium: Opposition */}
+                <div className="podium-responsive shrink-0 flex justify-center lg:justify-end order-3">
+                  <TeamPanel
+                    teamType="opposition"
+                    teamName={oppTeamName}
+                    teamSubtitle="OPPOSITION"
+                    speakers={oppSpeakers}
+                    activeSpeakerId={activeSpeaker.id}
+                    isOpposingActiveSpeaker={activeSpeaker.team === 'proposition'}
+                    activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
+                    onCallPOI={() => handleTriggerPOIRequest('opposition')}
+                    onSelectSpeaker={handleSelectSpeaker}
+                    onUpdateSpeakerName={updateSpeakerName}
+                  />
+                </div>
+              </div>
+            </main>
+
+            {/* Footer */}
+            <Footer />
+          </div>
+        </div>
+
+        {/* 2. Grand Finale Mode View */}
+        <div 
+          className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+            screenMode === 'grand_final' ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'
+          }`}
+        >
+          <GrandFinalScreen
             soundEnabled={soundEnabled}
             onToggleSound={toggleSound}
             onOpenShortcuts={() => setIsShortcutsOpen(true)}
             onOpenRules={() => setIsRulesOpen(true)}
             isFullscreen={isFullscreen}
             onToggleFullscreen={handleToggleFullscreen}
-            screenMode={screenMode}
             onSelectScreenMode={handleSelectScreenMode}
-          />
-
-          {/* 2. Grand Heraldic Motion Banner (Way Bigger Text with Click-to-Edit & Semifinal Presets) */}
-          <MotionBanner
-            motion={motion}
-            onUpdateMotion={setMotion}
-            onSelectMatchPreset={(preset) => {
-              setMotion(preset.motion);
-              setPropTeamName(preset.propTeam);
-              setOppTeamName(preset.oppTeam);
+            motion={grandFinalMotion}
+            onUpdateMotion={setGrandFinalMotion}
+            propTeamName={gfPropTeamName}
+            oppTeamName={gfOppTeamName}
+            onUpdatePropTeamName={setGfPropTeamName}
+            onUpdateOppTeamName={setGfOppTeamName}
+            speakingOrder={speakingOrder}
+            currentIndex={currentIndex}
+            onSelectIndex={(idx) => {
+              playTactileClick();
+              setTimerStatus('idle');
+              setCurrentIndex(idx);
             }}
-          />
-
-          {/* Prominent POI HUD Overlay (Centered Stage Alert - ONLY visible when called/active) */}
-          <POIPanel
+            onUpdateSpeakerName={updateSpeakerName}
+            onUpdateSpeakerTime={updateSpeakerTime}
+            timerStatus={timerStatus}
+            onStartPause={handleStartPause}
+            onReset={handleReset}
+            onNextSpeaker={handleNextSpeaker}
+            hasNextSpeaker={currentIndex < speakingOrder.length - 1}
             poiState={poiState}
-            activeSpeaker={activeSpeaker}
-            roundStage={roundStage}
+            onTriggerPOIRequest={handleTriggerPOIRequest}
             onAllowPOI={handleAllowPOI}
             onDeclinePOI={handleDeclinePOI}
             onEndPOI={handleEndPOI}
           />
-
-          {/* 3. Main Debate Stage: Massive Centered Timer with Symmetrical Podiums on Edges */}
-          <main className="w-full flex-1 max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 py-0.5 flex flex-col justify-center items-center">
-            <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-3 xl:gap-8">
-              {/* Left Edge Podium: Proposition */}
-              <div className="podium-responsive shrink-0 flex justify-center lg:justify-start order-2 lg:order-1">
-                <TeamPanel
-                  teamType="proposition"
-                  teamName={propTeamName}
-                  teamSubtitle="PROPOSITION"
-                  speakers={propSpeakers}
-                  activeSpeakerId={activeSpeaker.id}
-                  isOpposingActiveSpeaker={activeSpeaker.team === 'opposition'}
-                  activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
-                  onCallPOI={() => handleTriggerPOIRequest('proposition')}
-                  onSelectSpeaker={handleSelectSpeaker}
-                  onUpdateSpeakerName={updateSpeakerName}
-                />
-              </div>
-
-              {/* Center Stage: Massive Debate Timer Dominates 65-75% of the Arena (Dead Center) */}
-              <div className="flex-1 w-full max-w-[960px] xl:max-w-[1080px] 2xl:max-w-[1160px] flex flex-col items-center justify-center order-1 lg:order-2">
-                <DebateTimer
-                  activeSpeaker={activeSpeaker}
-                  roundStage={roundStage}
-                  propTeamName={propTeamName}
-                  oppTeamName={oppTeamName}
-                  onSelectRound={handleSelectRound}
-                  timerStatus={timerStatus}
-                  timeRemaining={activeSpeaker.timeRemaining}
-                  totalDuration={activeSpeaker.totalDuration || SPEAKER_DURATION}
-                  poiState={poiState}
-                  onStartPause={handleStartPause}
-                  onReset={handleReset}
-                  onNextSpeaker={handleNextSpeaker}
-                  hasNextSpeaker={currentIndex < speakingOrder.length - 1}
-                  onUpdateTime={(newTime, newTotal) => updateSpeakerTime(activeSpeaker.id, newTime, newTotal)}
-                />
-
-                {/* Stepper positioned directly below the central timer deck */}
-                <div className="w-full mt-1.5 sm:mt-2">
-                  <ProgressIndicator
-                    speakingOrder={speakingOrder}
-                    currentIndex={currentIndex}
-                    onSelectIndex={(idx) => {
-                      playTactileClick();
-                      setTimerStatus('idle');
-                      setCurrentIndex(idx);
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Right Edge Podium: Opposition */}
-              <div className="podium-responsive shrink-0 flex justify-center lg:justify-end order-3">
-                <TeamPanel
-                  teamType="opposition"
-                  teamName={oppTeamName}
-                  teamSubtitle="OPPOSITION"
-                  speakers={oppSpeakers}
-                  activeSpeakerId={activeSpeaker.id}
-                  isOpposingActiveSpeaker={activeSpeaker.team === 'proposition'}
-                  activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
-                  onCallPOI={() => handleTriggerPOIRequest('opposition')}
-                  onSelectSpeaker={handleSelectSpeaker}
-                  onUpdateSpeakerName={updateSpeakerName}
-                />
-              </div>
-            </div>
-          </main>
-
-          {/* 3. Footer */}
-          <Footer />
         </div>
-      )}
+      </div>
 
       {/* Shared Modals */}
       <ShortcutsModal
