@@ -68,7 +68,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
       </div>
 
       {/* 2. Freestanding Carrara Marble Monument Body */}
-      <div className="w-full relative z-10 bg-[#fcfaf6]/94 backdrop-blur-md rounded-b-[26px] border-2 border-[#c5a059]/60 shadow-[0_20px_50px_-10px_rgba(20,16,10,0.22),0_0_0_1px_rgba(255,255,255,0.85)_inset] p-3.5 sm:p-4.5 pt-4">
+      <div className="w-full relative z-10 bg-[#fcfaf6]/94 backdrop-blur-md rounded-b-[24px] border-2 border-[#c5a059]/60 shadow-[0_16px_40px_-10px_rgba(20,16,10,0.22),0_0_0_1px_rgba(255,255,255,0.85)_inset] p-3 sm:p-4 pt-3.5">
         {/* Four Classical Filigree Corner Brackets */}
         <FiligreeCornerOrnament position="top-left" className="absolute top-2 left-2 w-7 h-7 sm:w-8 sm:h-8 opacity-75" />
         <FiligreeCornerOrnament position="top-right" className="absolute top-2 right-2 w-7 h-7 sm:w-8 sm:h-8 opacity-75" />
@@ -137,7 +137,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
           </div>
 
           {/* 3 Opulent Bevelled Speaker Inlays */}
-          <div className="flex flex-col gap-2 my-1">
+          <div className="flex flex-col gap-1.5 my-0.5">
             {speakers.map((sp, idx) => {
               const isActive = sp.id === activeSpeakerId;
               const isEditingSp = editingSpeakerId === sp.id;
@@ -146,11 +146,11 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                 <div
                   key={sp.id}
                   onClick={() => onSelectSpeaker(sp.id)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer transition-all duration-300 ${
+                  className={`flex items-center justify-between px-3 py-1.5 sm:py-2 rounded-xl cursor-pointer transition-all duration-300 ${
                     isActive
                       ? isProp
-                        ? 'bg-gradient-to-r from-white via-[#f0f6ff] to-white border-1.5 border-blue-500/70 shadow-[0_6px_18px_-2px_rgba(59,130,246,0.35),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.02]'
-                        : 'bg-gradient-to-r from-white via-[#fff1f4] to-white border-1.5 border-rose-500/70 shadow-[0_6px_18px_-2px_rgba(225,29,72,0.35),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.02]'
+                        ? 'bg-gradient-to-r from-white via-[#f0f6ff] to-white border-1.5 border-blue-500/70 shadow-[0_4px_14px_-2px_rgba(59,130,246,0.35),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.015]'
+                        : 'bg-gradient-to-r from-white via-[#fff1f4] to-white border-1.5 border-rose-500/70 shadow-[0_4px_14px_-2px_rgba(225,29,72,0.35),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.015]'
                       : 'bg-white/80 hover:bg-white border border-[#c5a059]/30 hover:border-[#c5a059]/60 shadow-2xs hover:shadow-xs'
                   }`}
                 >

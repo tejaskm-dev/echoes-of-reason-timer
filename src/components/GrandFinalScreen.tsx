@@ -94,6 +94,17 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
   const isCompleted = timeRemaining <= 0;
   const isPOIActive = poiState.status === 'active';
 
+  // Dynamic Motion Typography based on character length for zero screen overflow
+  const motionLen = motion.length;
+  const motionFontClass =
+    motionLen > 160
+      ? 'text-xs sm:text-sm md:text-base lg:text-lg'
+      : motionLen > 90
+      ? 'text-sm sm:text-base md:text-lg lg:text-xl'
+      : motionLen > 45
+      ? 'text-base sm:text-lg md:text-xl lg:text-2xl'
+      : 'text-lg sm:text-xl md:text-2xl lg:text-[1.85rem]';
+
   // Motion editing modal
   const [isEditingMotion, setIsEditingMotion] = useState(false);
   const [motionInput, setMotionInput] = useState(motion);
@@ -210,37 +221,23 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
         onSelectScreenMode={onSelectScreenMode}
       />
 
-      {/* 2. Top Grand Header: ROUND 4 · GRAND FINAL · THE MOTION BEFORE THE HOUSE */}
-      <section className="relative z-20 w-full max-w-5xl xl:max-w-6xl mx-auto px-4 text-center my-0.5 select-none flex flex-col items-center">
-        {/* Hairline Round 4 Tag */}
-        <div className="flex items-center gap-2 mb-0.5 opacity-85">
-          <div className="h-[0.5px] w-12 bg-gradient-to-r from-transparent to-[#c5a059]" />
-          <span className="font-cinzel text-[10px] tracking-[0.3em] font-bold text-[#6f5624] uppercase">
-            ROUND 4
+      {/* 2. Top Grand Header: ROUND 4 · GRAND FINAL */}
+      <section className="relative z-20 w-full max-w-4xl xl:max-w-5xl mx-auto px-4 text-center my-0 select-none flex flex-col items-center shrink-0">
+        {/* Compact Regal Grand Final Tag & Title */}
+        <div className="flex items-center gap-2 mb-0.5 select-none opacity-90">
+          <div className="h-[0.5px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#c5a059]" />
+          <GoldDiamond className="w-2 h-2 opacity-80" />
+          <span className="font-cinzel text-[10px] sm:text-xs tracking-[0.28em] font-extrabold text-[#141822] uppercase">
+            ROUND 4 · GRAND FINAL
           </span>
-          <div className="h-[0.5px] w-12 bg-gradient-to-l from-transparent to-[#c5a059]" />
-        </div>
-
-        {/* Majestic GRAND FINAL Title */}
-        <h2 className="font-cinzel text-2xl sm:text-3xl md:text-4xl tracking-[0.25em] font-extrabold uppercase text-[#141822] leading-tight mb-0.5 drop-shadow-xs">
-          GRAND FINAL
-        </h2>
-
-        {/* Heraldic Tag */}
-        <div className="flex items-center gap-2 mb-1 opacity-90">
-          <div className="h-[0.5px] w-8 sm:w-14 bg-gradient-to-r from-transparent to-[#c5a059]" />
-          <GoldDiamond className="w-2 h-2 opacity-90" />
-          <span className="font-cinzel text-[9px] tracking-[0.3em] font-extrabold uppercase shimmer-gold-text">
-            THE MOTION BEFORE THE HOUSE
-          </span>
-          <GoldDiamond className="w-2 h-2 opacity-90" />
-          <div className="h-[0.5px] w-8 sm:w-14 bg-gradient-to-l from-transparent to-[#c5a059]" />
+          <GoldDiamond className="w-2 h-2 opacity-80" />
+          <div className="h-[0.5px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#c5a059]" />
         </div>
 
         {/* Editable Motion Display */}
         {isEditingMotion ? (
-          <div className="w-full max-w-4xl bg-[#faf7f2]/98 backdrop-blur-md border-2 border-[#c5a059] rounded-3xl p-5 shadow-2xl animate-in zoom-in-95 duration-200 mt-1">
-            <span className="block text-[11px] font-cinzel uppercase tracking-[0.25em] text-[#7c5f27] font-bold mb-2 text-center">
+          <div className="w-full max-w-3xl bg-[#faf7f2]/98 backdrop-blur-md border-2 border-[#c5a059] rounded-2xl p-3.5 shadow-2xl animate-in zoom-in-95 duration-200 mt-0.5">
+            <span className="block text-[10px] font-cinzel uppercase tracking-[0.25em] text-[#7c5f27] font-bold mb-1 text-center">
               Grand Final Debate Motion
             </span>
             <textarea
@@ -257,37 +254,39 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
               }}
               rows={2}
               placeholder="Type official Grand Final motion here..."
-              className="w-full bg-white border border-[#c5a059]/50 rounded-2xl p-3.5 font-serif-display text-xl sm:text-2xl md:text-3xl text-[#0a0e17] text-center italic font-semibold leading-snug outline-none resize-none focus:border-[#c5a059] focus:ring-2 focus:ring-[#c5a059]/20 transition-all shadow-inner"
+              className="w-full bg-white border border-[#c5a059]/50 rounded-xl p-2.5 font-serif-display text-base sm:text-lg text-[#0a0e17] text-center italic font-semibold leading-snug outline-none resize-none focus:border-[#c5a059] focus:ring-2 focus:ring-[#c5a059]/20 transition-all shadow-inner"
             />
-            <div className="flex items-center justify-center gap-3 mt-3">
+            <div className="flex items-center justify-center gap-2.5 mt-2">
               <button
                 type="button"
                 onClick={() => setIsEditingMotion(false)}
-                className="px-5 py-1.5 rounded-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-cinzel text-xs uppercase font-bold cursor-pointer transition-all active:scale-95"
+                className="px-4 py-1 rounded-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-cinzel text-xs uppercase font-bold cursor-pointer transition-all active:scale-95"
               >
-                <X className="w-3.5 h-3.5 inline mr-1" /> Cancel
+                <X className="w-3 h-3 inline mr-1" /> Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveMotion}
-                className="px-6 py-1.5 rounded-full bg-[#141820] hover:bg-[#283244] text-white font-cinzel text-xs uppercase font-bold shadow-md cursor-pointer transition-all active:scale-95"
+                className="px-5 py-1 rounded-full bg-[#141820] hover:bg-[#283244] text-white font-cinzel text-xs uppercase font-bold shadow-md cursor-pointer transition-all active:scale-95"
               >
-                <Check className="w-3.5 h-3.5 text-amber-300 inline mr-1" /> Apply Motion
+                <Check className="w-3 h-3 text-amber-300 inline mr-1" /> Apply Motion
               </button>
             </div>
           </div>
         ) : (
           <NeoclassicalMotionCartouche
             onClick={handleOpenEditMotion}
-            className="mt-1"
+            className="mt-0.5"
           >
-            <p className="font-serif-display text-xl sm:text-2xl md:text-3xl lg:text-[2.15rem] xl:text-[2.45rem] text-[#0a0e17] font-semibold italic text-center max-w-4xl leading-tight transition-transform group-hover:scale-[1.01] drop-shadow-2xs px-2">
-              <span className="text-[#c5a059] font-serif not-italic mr-1 text-2xl sm:text-3xl md:text-4xl select-none">“</span>
-              {motion}
-              <span className="text-[#c5a059] font-serif not-italic ml-1 text-2xl sm:text-3xl md:text-4xl select-none">”</span>
-            </p>
-            <span className="text-[10px] font-cinzel text-[#886729] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-1 flex items-center gap-1.5">
-              <Edit3 className="w-3 h-3 text-[#c5a059]" /> Click to Edit Motion
+            <div className="max-h-[72px] sm:max-h-[85px] md:max-h-[96px] overflow-y-auto px-1 sm:px-2 custom-scrollbar flex items-center justify-center w-full">
+              <p className={`font-serif-display ${motionFontClass} text-[#0a0e17] font-semibold italic text-center max-w-4xl leading-snug transition-transform group-hover:scale-[1.008] drop-shadow-2xs`}>
+                <span className="text-[#c5a059] font-serif not-italic mr-1 select-none">“</span>
+                {motion}
+                <span className="text-[#c5a059] font-serif not-italic ml-1 select-none">”</span>
+              </p>
+            </div>
+            <span className="text-[9px] font-cinzel text-[#886729] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex items-center gap-1">
+              <Edit3 className="w-2.5 h-2.5 text-[#c5a059]" /> Click to Edit Motion
             </span>
           </NeoclassicalMotionCartouche>
         )}
@@ -304,7 +303,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
       />
 
       {/* 3. Main Stage: Left Extravagant Podium, Pure Gold Chronometer, Right Extravagant Podium */}
-      <main className="relative z-10 w-full flex-1 max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-0 flex items-center justify-between">
+      <main className="relative z-10 w-full flex-1 min-h-0 max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-0 flex items-center justify-between">
         {/* Left Side: Extravagant Proposition Monument Podium */}
         <ExtravagantPodium
           teamType="proposition"
@@ -654,11 +653,11 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Monumental Symmetrical Dual Laurel Base */}
-          <div className="relative -mt-10 sm:-mt-12 z-0 flex justify-center pointer-events-none select-none">
-            <ChronometerLaurelBase className="w-[330px] sm:w-[390px] md:w-[440px] h-[75px] sm:h-[90px] drop-shadow-sm opacity-95" />
+            {/* Symmetrical Dual Laurel Base attached to bottom rim */}
+            <div className="absolute -bottom-3 sm:-bottom-5 left-1/2 -translate-x-1/2 pointer-events-none select-none z-0">
+              <ChronometerLaurelBase className="w-[280px] sm:w-[340px] md:w-[380px] h-[55px] sm:h-[70px] drop-shadow-sm opacity-95" />
+            </div>
           </div>
 
           {/* Symmetrical 3-Button Control Deck on the Marble Steps */}
@@ -750,8 +749,8 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
       </main>
 
       {/* 4. High-Visibility Bottom Stepper on the Classical Floor */}
-      <div className="relative z-20 w-full flex flex-col items-center justify-center pb-2.5 pt-0.5 select-none">
-        <div className="relative flex items-center justify-center w-full max-w-[460px] sm:max-w-[540px] bg-[#fcfaf5]/90 backdrop-blur-md border border-[#c5a059]/45 rounded-full px-4 sm:px-6 py-2 shadow-sm">
+      <div className="relative z-20 w-full flex flex-col items-center justify-center pb-2 pt-0.5 shrink-0 select-none">
+        <div className="relative flex items-center justify-center w-full max-w-[440px] sm:max-w-[500px] bg-[#fcfaf5]/90 backdrop-blur-md border border-[#c5a059]/45 rounded-full px-4 sm:px-5 py-1.5 shadow-sm">
           {/* Connecting line across discs */}
           <div className="absolute top-[18px] sm:top-[20px] left-8 right-8 h-[1.5px] bg-[#c5a059]/40 z-0" />
           <div

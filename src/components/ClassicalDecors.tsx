@@ -468,22 +468,22 @@ export const NeoclassicalMotionCartouche: React.FC<{
 }> = ({ children, className = "", onClick }) => (
   <div 
     onClick={onClick}
-    className={`relative group cursor-pointer w-full max-w-5xl mx-auto rounded-2xl sm:rounded-3xl p-4 sm:p-5 transition-all duration-300 ${className}`}
+    className={`relative group cursor-pointer w-full max-w-4xl xl:max-w-5xl mx-auto rounded-2xl sm:rounded-3xl px-4 sm:px-6 py-2 sm:py-2.5 transition-all duration-300 ${className}`}
   >
     {/* Background Sculpted Marble Plaque with Gold Inset */}
-    <div className="absolute inset-0 bg-[#fefdfa]/92 backdrop-blur-md rounded-2xl sm:rounded-3xl border-2 border-[#c5a059]/60 shadow-[0_16px_40px_-12px_rgba(25,20,12,0.18),0_0_0_1px_rgba(255,255,255,0.9)_inset] group-hover:border-[#c5a059] group-hover:shadow-[0_20px_50px_-10px_rgba(197,160,89,0.32),0_0_0_1px_rgba(255,255,255,0.95)_inset] transition-all duration-300" />
+    <div className="absolute inset-0 bg-[#fefdfa]/92 backdrop-blur-md rounded-2xl sm:rounded-3xl border-2 border-[#c5a059]/60 shadow-[0_12px_32px_-10px_rgba(25,20,12,0.18),0_0_0_1px_rgba(255,255,255,0.9)_inset] group-hover:border-[#c5a059] group-hover:shadow-[0_16px_40px_-10px_rgba(197,160,89,0.32),0_0_0_1px_rgba(255,255,255,0.95)_inset] transition-all duration-300" />
     
     {/* Inner Gilded Hairline Inset */}
-    <div className="absolute inset-1.5 sm:inset-2.5 rounded-xl sm:rounded-2xl border border-[#c5a059]/30 pointer-events-none" />
+    <div className="absolute inset-1 sm:inset-1.5 rounded-xl sm:rounded-2xl border border-[#c5a059]/30 pointer-events-none" />
 
     {/* Classical Corner Flourishes */}
-    <FiligreeCornerOrnament position="top-left" className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 w-6 h-6 sm:w-8 sm:h-8 opacity-75 group-hover:opacity-100 transition-opacity" />
-    <FiligreeCornerOrnament position="top-right" className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-6 h-6 sm:w-8 sm:h-8 opacity-75 group-hover:opacity-100 transition-opacity" />
-    <FiligreeCornerOrnament position="bottom-left" className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 w-6 h-6 sm:w-8 sm:h-8 opacity-75 group-hover:opacity-100 transition-opacity" />
-    <FiligreeCornerOrnament position="bottom-right" className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 w-6 h-6 sm:w-8 sm:h-8 opacity-75 group-hover:opacity-100 transition-opacity" />
+    <FiligreeCornerOrnament position="top-left" className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 w-5 h-5 sm:w-6 sm:h-6 opacity-75 group-hover:opacity-100 transition-opacity" />
+    <FiligreeCornerOrnament position="top-right" className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-5 h-5 sm:w-6 sm:h-6 opacity-75 group-hover:opacity-100 transition-opacity" />
+    <FiligreeCornerOrnament position="bottom-left" className="absolute bottom-1 left-1 sm:bottom-1.5 sm:left-1.5 w-5 h-5 sm:w-6 sm:h-6 opacity-75 group-hover:opacity-100 transition-opacity" />
+    <FiligreeCornerOrnament position="bottom-right" className="absolute bottom-1 right-1 sm:bottom-1.5 sm:right-1.5 w-5 h-5 sm:w-6 sm:h-6 opacity-75 group-hover:opacity-100 transition-opacity" />
 
     {/* Content */}
-    <div className="relative z-10 flex flex-col items-center">
+    <div className="relative z-10 flex flex-col items-center w-full">
       {children}
     </div>
   </div>
