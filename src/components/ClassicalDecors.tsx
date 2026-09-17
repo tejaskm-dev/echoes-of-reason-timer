@@ -468,7 +468,7 @@ export const NeoclassicalMotionCartouche: React.FC<{
 }> = ({ children, className = "", onClick }) => (
   <div 
     onClick={onClick}
-    className={`relative group cursor-pointer w-full max-w-4xl xl:max-w-5xl mx-auto rounded-2xl sm:rounded-3xl px-4 sm:px-6 py-2 sm:py-2.5 transition-all duration-300 ${className}`}
+    className={`relative group cursor-pointer w-full max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto rounded-2xl sm:rounded-3xl px-4 sm:px-8 py-2.5 sm:py-3 transition-all duration-300 ${className}`}
   >
     {/* Background Sculpted Marble Plaque with Gold Inset */}
     <div className="absolute inset-0 bg-[#fefdfa]/92 backdrop-blur-md rounded-2xl sm:rounded-3xl border-2 border-[#c5a059]/60 shadow-[0_12px_32px_-10px_rgba(25,20,12,0.18),0_0_0_1px_rgba(255,255,255,0.9)_inset] group-hover:border-[#c5a059] group-hover:shadow-[0_16px_40px_-10px_rgba(197,160,89,0.32),0_0_0_1px_rgba(255,255,255,0.95)_inset] transition-all duration-300" />

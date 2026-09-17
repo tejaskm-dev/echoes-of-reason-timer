@@ -55,7 +55,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
   };
 
   return (
-    <div className="w-[315px] sm:w-[340px] xl:w-[375px] 2xl:w-[400px] flex flex-col items-center shrink-0 select-none transition-all duration-300">
+    <div className="w-[325px] sm:w-[355px] md:w-[385px] lg:w-[415px] xl:w-[445px] 2xl:w-[475px] flex flex-col items-center shrink-0 select-none transition-all duration-300">
       {/* 1. Sculpted Gilded Neoclassical Pediment Crown */}
       <div className="w-full relative z-20 -mb-2.5">
         <BaroqueAcanthusPediment teamType={teamType} className="w-full drop-shadow-md" />
@@ -146,7 +146,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                 <div
                   key={sp.id}
                   onClick={() => onSelectSpeaker(sp.id)}
-                  className={`flex items-center justify-between px-3 py-1.5 sm:py-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                  className={`flex items-center justify-between px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl cursor-pointer transition-all duration-300 ${
                     isActive
                       ? isProp
                         ? 'bg-gradient-to-r from-white via-[#f0f6ff] to-white border-1.5 border-blue-500/70 shadow-[0_4px_14px_-2px_rgba(59,130,246,0.35),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.015]'
@@ -155,14 +155,14 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                   }`}
                 >
                   {/* Left: Medallion Number, Name, Role Badge, Active Equalizer */}
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     {/* Gilded Roman Number Medallion */}
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center shadow-2xs ${
+                    <div className={`w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-full border flex items-center justify-center shadow-2xs ${
                       isActive 
                         ? 'border-[#c5a059] bg-gradient-to-b from-[#f5e09b] to-[#c5a059] text-[#121620]'
                         : 'border-[#c5a059]/40 bg-[#faf7f2] text-[#554325]'
                     }`}>
-                      <span className="font-cinzel text-[10px] font-black leading-none">
+                      <span className="font-cinzel text-[10px] sm:text-[11px] font-black leading-none">
                         {String(idx + 1).padStart(2, '0')}
                       </span>
                     </div>
@@ -195,14 +195,14 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                       </div>
                     ) : (
                       <div className="flex items-center gap-1.5 min-w-0 group/sp">
-                        <span className={`text-sm font-serif-display font-semibold truncate max-w-[110px] ${
+                        <span className={`text-sm sm:text-base font-serif-display font-semibold truncate max-w-[125px] sm:max-w-[160px] xl:max-w-[185px] ${
                           isActive ? 'text-[#0c1017] font-bold' : 'text-[#2b3342]'
                         }`}>
                           {sp.name}
                         </span>
 
                         {/* Heraldic Role Badge */}
-                        <span className={`text-[9px] font-cinzel font-bold uppercase px-1.5 py-0.2 rounded border ${
+                        <span className={`text-[9px] sm:text-[10px] font-cinzel font-bold uppercase px-1.5 py-0.5 rounded border ${
                           isProp 
                             ? 'bg-blue-50 text-blue-950 border-blue-200' 
                             : 'bg-rose-50 text-rose-950 border-rose-200'
@@ -213,8 +213,8 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                         {/* Active Soundwave Indicator */}
                         {isActive && (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-amber-400/25 text-[#7c5b1d] text-[8px] font-cinzel font-bold border border-amber-400/40">
-                            <Mic className="w-2 h-2" />
-                            <div className="flex items-end gap-[1.5px] h-2 w-2 pb-0.5">
+                            <Mic className="w-2.5 h-2.5" />
+                            <div className="flex items-end gap-[1.5px] h-2.5 w-2.5 pb-0.5">
                               <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-1" />
                               <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-2" />
                               <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-3" />

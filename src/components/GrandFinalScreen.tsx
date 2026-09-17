@@ -94,16 +94,37 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
   const isCompleted = timeRemaining <= 0;
   const isPOIActive = poiState.status === 'active';
 
-  // Dynamic Motion Typography based on character length for zero screen overflow
-  const motionLen = motion.length;
-  const motionFontClass =
-    motionLen > 160
-      ? 'text-xs sm:text-sm md:text-base lg:text-lg'
-      : motionLen > 90
-      ? 'text-sm sm:text-base md:text-lg lg:text-xl'
-      : motionLen > 45
-      ? 'text-base sm:text-lg md:text-xl lg:text-2xl'
-      : 'text-lg sm:text-xl md:text-2xl lg:text-[1.85rem]';
+  // Algorithmic Motion Typography Calculator
+  // Dynamically balances maximum grandeur with zero screen overflow
+  const optimalMotionStyle = (() => {
+    const len = motion.trim().length;
+    if (len <= 55) {
+      return {
+        fontSize: 'clamp(1.45rem, 1.15rem + 1.2vw, 2.35rem)',
+        lineHeight: '1.2',
+      };
+    } else if (len <= 95) {
+      return {
+        fontSize: 'clamp(1.25rem, 1.0rem + 1.0vw, 2.05rem)',
+        lineHeight: '1.22',
+      };
+    } else if (len <= 150) {
+      return {
+        fontSize: 'clamp(1.1rem, 0.88rem + 0.8vw, 1.75rem)',
+        lineHeight: '1.24',
+      };
+    } else if (len <= 220) {
+      return {
+        fontSize: 'clamp(1.0rem, 0.82rem + 0.6vw, 1.45rem)',
+        lineHeight: '1.26',
+      };
+    } else {
+      return {
+        fontSize: 'clamp(0.9rem, 0.75rem + 0.45vw, 1.25rem)',
+        lineHeight: '1.28',
+      };
+    }
+  })();
 
   // Motion editing modal
   const [isEditingMotion, setIsEditingMotion] = useState(false);
@@ -278,8 +299,14 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
             onClick={handleOpenEditMotion}
             className="mt-0.5"
           >
-            <div className="max-h-[72px] sm:max-h-[85px] md:max-h-[96px] overflow-y-auto px-1 sm:px-2 custom-scrollbar flex items-center justify-center w-full">
-              <p className={`font-serif-display ${motionFontClass} text-[#0a0e17] font-semibold italic text-center max-w-4xl leading-snug transition-transform group-hover:scale-[1.008] drop-shadow-2xs`}>
+            <div className="max-h-[85px] sm:max-h-[105px] md:max-h-[125px] overflow-y-auto px-1 sm:px-3 custom-scrollbar flex items-center justify-center w-full">
+              <p 
+                style={{ 
+                  fontSize: optimalMotionStyle.fontSize, 
+                  lineHeight: optimalMotionStyle.lineHeight 
+                }}
+                className="font-serif-display text-[#0a0e17] font-semibold italic text-center leading-snug transition-transform group-hover:scale-[1.008] drop-shadow-2xs"
+              >
                 <span className="text-[#c5a059] font-serif not-italic mr-1 select-none">“</span>
                 {motion}
                 <span className="text-[#c5a059] font-serif not-italic ml-1 select-none">”</span>
@@ -303,7 +330,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
       />
 
       {/* 3. Main Stage: Left Extravagant Podium, Pure Gold Chronometer, Right Extravagant Podium */}
-      <main className="relative z-10 w-full flex-1 min-h-0 max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-0 flex items-center justify-between">
+      <main className="relative z-10 w-full flex-1 min-h-0 max-w-[1920px] mx-auto px-2 sm:px-4 lg:px-6 xl:px-10 py-0 flex items-center justify-between gap-2 sm:gap-4">
         {/* Left Side: Extravagant Proposition Monument Podium */}
         <ExtravagantPodium
           teamType="proposition"
@@ -319,7 +346,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
         />
 
         {/* Center Arena: Pure Gold Metallic Chronometer & Symmetrical Control Deck */}
-        <div className="flex-1 flex flex-col items-center justify-center max-w-[760px] px-2">
+        <div className="flex-1 flex flex-col items-center justify-center max-w-[820px] xl:max-w-[880px] px-1 sm:px-2">
           {/* Circular Chronometer Dial */}
           <div className="relative clock-dial-responsive flex items-center justify-center my-0.5">
             {/* Ambient Halo Face */}
@@ -655,8 +682,8 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
             </div>
 
             {/* Symmetrical Dual Laurel Base attached to bottom rim */}
-            <div className="absolute -bottom-3 sm:-bottom-5 left-1/2 -translate-x-1/2 pointer-events-none select-none z-0">
-              <ChronometerLaurelBase className="w-[280px] sm:w-[340px] md:w-[380px] h-[55px] sm:h-[70px] drop-shadow-sm opacity-95" />
+            <div className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 pointer-events-none select-none z-0">
+              <ChronometerLaurelBase className="w-[320px] sm:w-[390px] md:w-[450px] lg:w-[490px] h-[65px] sm:h-[80px] md:h-[95px] drop-shadow-sm opacity-95" />
             </div>
           </div>
 
