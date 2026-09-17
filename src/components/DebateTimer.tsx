@@ -82,7 +82,10 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
     e.stopPropagation();
     playTactileClick();
     const next = Math.max(0, timeRemaining + deltaSeconds);
-    const nextTotal = next > totalDuration ? next : totalDuration;
+    // Before timer starts (idle), adjusting the time sets the total speech duration!
+    const nextTotal = timerStatus === 'idle'
+      ? next
+      : (deltaSeconds > 0 ? totalDuration + deltaSeconds : totalDuration);
     onUpdateTime(next, nextTotal);
   };
 
