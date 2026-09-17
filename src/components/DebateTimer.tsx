@@ -3,6 +3,7 @@ import { RotateCcw, SkipForward, Hand, Edit2, Check, X, ChevronUp, ChevronDown, 
 import type { Speaker, TimerStatus, RoundStage, POIState } from '../types/debate';
 import { formatTime } from '../utils/time';
 import { GoldDiamond } from './ClassicalDecors';
+import { playTactileClick } from '../utils/audio';
 
 interface DebateTimerProps {
   activeSpeaker: Speaker;
@@ -76,13 +77,17 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
     setIsEditingTime(false);
   }, [minStr, secStr, onUpdateTime]);
 
-  const handleQuickAdjust = (deltaSeconds: number) => {
+  const handleQuickAdjust = (e: React.MouseEvent, deltaSeconds: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    playTactileClick();
     const next = Math.max(0, timeRemaining + deltaSeconds);
     const nextTotal = next > totalDuration ? next : totalDuration;
     onUpdateTime(next, nextTotal);
   };
 
   const handleSetPreset = (minutes: number, seconds: number) => {
+    playTactileClick();
     setMinStr(String(minutes));
     setSecStr(String(seconds).padStart(2, '0'));
   };
@@ -489,15 +494,16 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
               </div>
             </div>
           ) : (
-            /* Clickable Numerals to edit time directly */
-            <div className="group relative flex flex-col items-center">
+            /* Clickable Numerals & Quick Adjustment Bar */
+            <div className="relative z-20 flex flex-col items-center select-none">
               <button
+                type="button"
                 onClick={handleOpenEditTime}
-                title="Click to manually adjust timer"
-                className="cursor-pointer group-hover:opacity-85 transition-opacity outline-none"
+                title="Click to manually edit speech time"
+                className="cursor-pointer hover:opacity-85 transition-opacity outline-none block"
               >
                 <div
-                  className={`font-num font-normal tracking-tight numerals-responsive select-text transition-colors duration-300 ${
+                  className={`font-num font-normal tracking-tight numerals-responsive select-none transition-colors duration-300 ${
                     isCompleted
                       ? 'text-rose-600 animate-bounce'
                       : timeRemaining <= 30
@@ -508,43 +514,66 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                 </div>
               </button>
 
-              {/* Discreet Time Adjustment Bar */}
-              <div className="flex items-center gap-1.5 mt-2 bg-[#ede5d8]/85 border border-[#c5a059]/30 rounded-full px-2.5 py-1 shadow-xs transition-all duration-200">
+              {/* Prominent Classical Quick Time Adjustment Controls */}
+              <div 
+                className="relative z-30 flex items-center justify-center gap-1.5 sm:gap-2 mt-3 sm:mt-3.5 bg-[#ede4d4]/95 border border-[#c5a059]/50 rounded-full px-2 py-1.5 shadow-sm backdrop-blur-xs"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* -1m */}
                 <button
-                  onClick={() => handleQuickAdjust(-60)}
-                  title="Subtract 1 minute"
-                  className="px-1.5 py-0.5 rounded-full hover:bg-white/70 text-[10px] font-cinzel font-bold text-[#444f62] transition-colors cursor-pointer"
+                  type="button"
+                  onClick={(e) => handleQuickAdjust(e, -60)}
+                  title="Subtract 1 minute (-1m)"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs active:scale-90 transition-all cursor-pointer flex items-center justify-center min-w-[42px] sm:min-w-[46px]"
                 >
                   -1m
                 </button>
+
+                {/* -30s */}
                 <button
-                  onClick={() => handleQuickAdjust(-30)}
-                  title="Subtract 30 seconds"
-                  className="px-1.5 py-0.5 rounded-full hover:bg-white/70 text-[10px] font-cinzel font-bold text-[#444f62] transition-colors cursor-pointer"
+                  type="button"
+                  onClick={(e) => handleQuickAdjust(e, -30)}
+                  title="Subtract 30 seconds (-30s)"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs active:scale-90 transition-all cursor-pointer flex items-center justify-center min-w-[44px] sm:min-w-[48px]"
                 >
                   -30s
                 </button>
-                <div className="h-3 w-[1px] bg-[#c5a059]/40" />
+
+                <div className="h-4 w-[1px] bg-[#c5a059]/50 mx-0.5" />
+
+                {/* Edit Time Button */}
                 <button
-                  onClick={handleOpenEditTime}
-                  title="Click to open time editor"
-                  className="px-2.5 py-0.5 rounded-full bg-white/90 hover:bg-white text-[10px] font-cinzel font-bold text-[#7a5c24] flex items-center gap-1 shadow-xs transition-colors cursor-pointer"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    playTactileClick();
+                    handleOpenEditTime(e);
+                  }}
+                  title="Click to open manual MM:SS editor"
+                  className="px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#161e2b] hover:bg-[#253245] text-amber-200 hover:text-amber-100 border border-[#c5a059] text-xs font-cinzel font-bold tracking-wider shadow-xs hover:shadow-md active:scale-90 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  <Edit2 className="w-2.5 h-2.5 text-[#c5a059]" />
+                  <Edit2 className="w-3 h-3 text-[#c5a059]" />
                   <span>Edit Time</span>
                 </button>
-                <div className="h-3 w-[1px] bg-[#c5a059]/40" />
+
+                <div className="h-4 w-[1px] bg-[#c5a059]/50 mx-0.5" />
+
+                {/* +30s */}
                 <button
-                  onClick={() => handleQuickAdjust(30)}
-                  title="Add 30 seconds"
-                  className="px-1.5 py-0.5 rounded-full hover:bg-white/70 text-[10px] font-cinzel font-bold text-[#444f62] transition-colors cursor-pointer"
+                  type="button"
+                  onClick={(e) => handleQuickAdjust(e, 30)}
+                  title="Add 30 seconds (+30s)"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs active:scale-90 transition-all cursor-pointer flex items-center justify-center min-w-[44px] sm:min-w-[48px]"
                 >
                   +30s
                 </button>
+
+                {/* +1m */}
                 <button
-                  onClick={() => handleQuickAdjust(60)}
-                  title="Add 1 minute"
-                  className="px-1.5 py-0.5 rounded-full hover:bg-white/70 text-[10px] font-cinzel font-bold text-[#444f62] transition-colors cursor-pointer"
+                  type="button"
+                  onClick={(e) => handleQuickAdjust(e, 60)}
+                  title="Add 1 minute (+1m)"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs active:scale-90 transition-all cursor-pointer flex items-center justify-center min-w-[42px] sm:min-w-[46px]"
                 >
                   +1m
                 </button>
