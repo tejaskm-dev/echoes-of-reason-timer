@@ -6,18 +6,17 @@ import {
   X, 
   RotateCcw, 
   SkipForward, 
-  Hand, 
-  Mic, 
   Clock, 
   ChevronUp, 
   ChevronDown 
 } from 'lucide-react';
 import type { Speaker, TimerStatus, POIState } from '../types/debate';
-import { formatTime, formatTimeCompact } from '../utils/time';
+import { formatTime } from '../utils/time';
 import { playTactileClick } from '../utils/audio';
 import { GoldDiamond } from './ClassicalDecors';
 import { POIPanel } from './POIPanel';
 import { Header } from './Header';
+import { ExtravagantPodium } from './ExtravagantPodium';
 
 interface GrandFinalScreenProps {
   soundEnabled: boolean;
@@ -89,10 +88,9 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
   const timeRemaining = activeSpeaker.timeRemaining;
   const totalDuration = activeSpeaker.totalDuration || 240;
   const isCompleted = timeRemaining <= 0;
-  const isProp = activeSpeaker.team === 'proposition';
   const isPOIActive = poiState.status === 'active';
 
-  // Motion editing modal (Freeform Grand Final entry)
+  // Motion editing modal
   const [isEditingMotion, setIsEditingMotion] = useState(false);
   const [motionInput, setMotionInput] = useState(motion);
   const motionTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -102,14 +100,6 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
   const [minStr, setMinStr] = useState('');
   const [secStr, setSecStr] = useState('');
   const minInputRef = useRef<HTMLInputElement>(null);
-
-  // Speaker name editing
-  const [editingSpeakerId, setEditingSpeakerId] = useState<string | null>(null);
-  const [editSpeakerNameVal, setEditSpeakerNameVal] = useState('');
-
-  // Team name editing
-  const [editingTeam, setEditingTeam] = useState<'prop' | 'opp' | null>(null);
-  const [editTeamNameVal, setEditTeamNameVal] = useState('');
 
   const propSpeakers = speakingOrder
     .filter((s) => s.team === 'proposition')
@@ -308,177 +298,25 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
         onEndPOI={onEndPOI}
       />
 
-      {/* 3. Main Stage: Mapped directly to the Background's 3D Slanted Marble Boards */}
+      {/* 3. Main Stage: Left Extravagant Podium, Pure Gold Chronometer, Right Extravagant Podium */}
       <main className="relative z-10 w-full flex-1 max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-0 flex items-center justify-between">
-        {/* Left Board: TEAM 1 · Proposition (Mapped under Blue Drape with 3D Perspective Slant) */}
-        <div className="w-[305px] sm:w-[325px] lg:w-[345px] xl:w-[365px] 2xl:w-[380px] board-slant-left shrink-0">
-          <div className="grand-final-tablet rounded-[22px] p-3.5 sm:p-4.5 flex flex-col justify-between transition-all duration-300">
-            {/* Header */}
-            <div className="text-center border-b border-[#c5a059]/30 pb-2 mb-2 relative z-10">
-              <span className="font-cinzel text-[10px] tracking-[0.25em] text-[#554734] uppercase font-bold block mb-0.5">
-                TEAM 1
-              </span>
-              {editingTeam === 'prop' ? (
-                <div className="flex items-center justify-center gap-1.5 my-1">
-                  <input
-                    type="text"
-                    value={editTeamNameVal}
-                    onChange={(e) => setEditTeamNameVal(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        if (editTeamNameVal.trim()) onUpdatePropTeamName(editTeamNameVal.trim());
-                        setEditingTeam(null);
-                      } else if (e.key === 'Escape') setEditingTeam(null);
-                    }}
-                    autoFocus
-                    className="bg-white text-[#0f1f38] text-lg font-serif-display font-bold px-2 py-0.5 rounded border border-[#c5a059] outline-none text-center w-40 shadow-inner"
-                  />
-                  <button
-                    onClick={() => {
-                      if (editTeamNameVal.trim()) onUpdatePropTeamName(editTeamNameVal.trim());
-                      setEditingTeam(null);
-                    }}
-                    className="p-1 rounded bg-[#c5a059]/20 text-[#8a6828]"
-                  >
-                    <Check className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <h3
-                  onClick={() => {
-                    setEditingTeam('prop');
-                    setEditTeamNameVal(propTeamName);
-                  }}
-                  title="Click to edit team name"
-                  className="font-serif-display text-2xl sm:text-3xl font-medium text-[#0f1f38] cursor-pointer hover:text-[#8a6828] transition-colors leading-tight tracking-tight drop-shadow-xs"
-                >
-                  {propTeamName}
-                </h3>
-              )}
-              <div className="flex items-center justify-center gap-1.5 mt-0.5 opacity-90">
-                <span className="font-serif-display italic text-xs text-[#6e5322] tracking-wide">
-                  TRUTH SEEKS BOLDER QUESTIONS
-                </span>
-              </div>
-            </div>
+        {/* Left Side: Extravagant Proposition Monument Podium */}
+        <ExtravagantPodium
+          teamType="proposition"
+          teamName={propTeamName}
+          onUpdateTeamName={onUpdatePropTeamName}
+          speakers={propSpeakers}
+          activeSpeakerId={activeSpeaker.id}
+          isOpposingActiveSpeaker={activeSpeaker.team === 'opposition'}
+          activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
+          onCallPOI={() => onTriggerPOIRequest('proposition')}
+          onSelectSpeaker={(id) => onSelectIndex(speakingOrder.findIndex((s) => s.id === id))}
+          onUpdateSpeakerName={onUpdateSpeakerName}
+        />
 
-            {/* 3 Proposition Speaker Rows */}
-            <div className="flex flex-col gap-1.5 sm:gap-2 my-1 relative z-10">
-              {propSpeakers.map((sp, idx) => {
-                const isActive = sp.id === activeSpeaker.id;
-                const isEditingSp = editingSpeakerId === sp.id;
-
-                return (
-                  <div
-                    key={sp.id}
-                    onClick={() => onSelectIndex(speakingOrder.findIndex((s) => s.id === sp.id))}
-                    className={`flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-xl cursor-pointer transition-all duration-300 ${
-                      isActive ? 'grand-final-tablet-row-active' : 'grand-final-tablet-row-inactive'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="font-cinzel text-xs font-black text-[#0f1f38]">
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      {isEditingSp ? (
-                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                          <input
-                            type="text"
-                            value={editSpeakerNameVal}
-                            onChange={(e) => setEditSpeakerNameVal(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                if (editSpeakerNameVal.trim()) onUpdateSpeakerName(sp.id, editSpeakerNameVal.trim());
-                                setEditingSpeakerId(null);
-                              } else if (e.key === 'Escape') setEditingSpeakerId(null);
-                            }}
-                            autoFocus
-                            className="bg-white text-xs px-2 py-0.5 rounded border border-[#c5a059] outline-none w-24 font-sans-ui"
-                          />
-                          <button
-                            onClick={() => {
-                              if (editSpeakerNameVal.trim()) onUpdateSpeakerName(sp.id, editSpeakerNameVal.trim());
-                              setEditingSpeakerId(null);
-                            }}
-                            className="p-1 text-[#8a6828]"
-                          >
-                            <Check className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 min-w-0 group/sp">
-                          <span className={`text-sm font-serif-display font-semibold truncate max-w-[110px] ${isActive ? 'text-[#0c1017] font-bold' : 'text-[#2b3342]'}`}>
-                            {sp.name}
-                          </span>
-                          <span className="text-[9px] font-cinzel font-bold uppercase px-1.5 py-0.2 rounded bg-blue-50/90 text-blue-950 border border-blue-200">
-                            {sp.roleAbbr}
-                          </span>
-                          {isActive && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-amber-400/25 text-[#7c5b1d] text-[8px] font-cinzel font-bold border border-amber-400/40">
-                              <Mic className="w-2 h-2" />
-                              <div className="flex items-end gap-[1.5px] h-2 w-2 pb-0.5">
-                                <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-1" />
-                                <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-2" />
-                                <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-3" />
-                              </div>
-                            </span>
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingSpeakerId(sp.id);
-                              setEditSpeakerNameVal(sp.name);
-                            }}
-                            className="opacity-0 group-hover/sp:opacity-100 p-0.5 text-gray-400 hover:text-black transition-opacity"
-                          >
-                            <Edit2 className="w-2.5 h-2.5" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {isActive ? (
-                        <span className="w-3 h-3 rounded-full border-2 border-blue-600 bg-white flex items-center justify-center shadow-xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
-                        </span>
-                      ) : (
-                        <span className="w-2.5 h-2.5 rounded-full bg-slate-400/60" />
-                      )}
-                      <span className="font-num text-sm font-semibold tabular-nums text-[#0c1017]">
-                        {formatTimeCompact(sp.timeRemaining)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Offer POI button (if Opposition is speaking) */}
-            {!isProp && (timeRemaining > 0) && (
-              <div className="mt-2 pt-1.5 border-t border-[#c5a059]/25 relative z-10">
-                <button
-                  onClick={() => onTriggerPOIRequest('proposition')}
-                  className="w-full py-1.5 rounded-xl bg-[#101b2a] hover:bg-[#1f2e45] text-amber-200 border border-[#c5a059] font-cinzel text-[10px] tracking-wider uppercase font-bold shadow-sm flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
-                >
-                  <Hand className="w-3 h-3 text-amber-300 animate-pulse" />
-                  <span>Offer POI (15s)</span>
-                </button>
-              </div>
-            )}
-
-            {/* Footer Tag */}
-            <div className="text-center pt-1.5 border-t border-[#c5a059]/25 mt-1.5 relative z-10">
-              <span className="font-cinzel text-[8px] sm:text-[9px] tracking-[0.25em] text-[#755b28] uppercase font-bold opacity-80">
-                ARGUE · EXPLORE · ADVANCE
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Center Arena: Pure Gold Chronometer & Symmetrical Control Deck */}
+        {/* Center Arena: Pure Gold Metallic Chronometer & Symmetrical Control Deck */}
         <div className="flex-1 flex flex-col items-center justify-center max-w-[760px] px-2">
-          {/* Circular Chronometer Dial (Brushed Antique Gold) */}
+          {/* Circular Chronometer Dial */}
           <div className="relative clock-dial-responsive flex items-center justify-center my-0.5">
             {/* Ambient Halo Face */}
             <div 
@@ -880,174 +718,22 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
           </div>
         </div>
 
-        {/* Right Board: TEAM 2 · Opposition (Mapped under Red Drape with 3D Perspective Slant) */}
-        <div className="w-[305px] sm:w-[325px] lg:w-[345px] xl:w-[365px] 2xl:w-[380px] board-slant-right shrink-0">
-          <div className="grand-final-tablet rounded-[22px] p-3.5 sm:p-4.5 flex flex-col justify-between transition-all duration-300">
-            {/* Header */}
-            <div className="text-center border-b border-[#c5a059]/30 pb-2 mb-2 relative z-10">
-              <span className="font-cinzel text-[10px] tracking-[0.25em] text-[#554734] uppercase font-bold block mb-0.5">
-                TEAM 2
-              </span>
-              {editingTeam === 'opp' ? (
-                <div className="flex items-center justify-center gap-1.5 my-1">
-                  <input
-                    type="text"
-                    value={editTeamNameVal}
-                    onChange={(e) => setEditTeamNameVal(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        if (editTeamNameVal.trim()) onUpdateOppTeamName(editTeamNameVal.trim());
-                        setEditingTeam(null);
-                      } else if (e.key === 'Escape') setEditingTeam(null);
-                    }}
-                    autoFocus
-                    className="bg-white text-[#380d17] text-lg font-serif-display font-bold px-2 py-0.5 rounded border border-[#c5a059] outline-none text-center w-40 shadow-inner"
-                  />
-                  <button
-                    onClick={() => {
-                      if (editTeamNameVal.trim()) onUpdateOppTeamName(editTeamNameVal.trim());
-                      setEditingTeam(null);
-                    }}
-                    className="p-1 rounded bg-[#c5a059]/20 text-[#8a6828]"
-                  >
-                    <Check className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <h3
-                  onClick={() => {
-                    setEditingTeam('opp');
-                    setEditTeamNameVal(oppTeamName);
-                  }}
-                  title="Click to edit team name"
-                  className="font-serif-display text-2xl sm:text-3xl font-medium text-[#380d17] cursor-pointer hover:text-[#8a6828] transition-colors leading-tight tracking-tight drop-shadow-xs"
-                >
-                  {oppTeamName}
-                </h3>
-              )}
-              <div className="flex items-center justify-center gap-1.5 mt-0.5 opacity-90">
-                <span className="font-serif-display italic text-xs text-[#6e5322] tracking-wide">
-                  A STRONGER TOMORROW QUESTIONS TODAY
-                </span>
-              </div>
-            </div>
-
-            {/* 3 Opposition Speaker Rows */}
-            <div className="flex flex-col gap-1.5 sm:gap-2 my-1 relative z-10">
-              {oppSpeakers.map((sp, idx) => {
-                const isActive = sp.id === activeSpeaker.id;
-                const isEditingSp = editingSpeakerId === sp.id;
-
-                return (
-                  <div
-                    key={sp.id}
-                    onClick={() => onSelectIndex(speakingOrder.findIndex((s) => s.id === sp.id))}
-                    className={`flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-xl cursor-pointer transition-all duration-300 ${
-                      isActive ? 'grand-final-tablet-row-active' : 'grand-final-tablet-row-inactive'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="font-cinzel text-xs font-black text-[#380d17]">
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      {isEditingSp ? (
-                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                          <input
-                            type="text"
-                            value={editSpeakerNameVal}
-                            onChange={(e) => setEditSpeakerNameVal(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                if (editSpeakerNameVal.trim()) onUpdateSpeakerName(sp.id, editSpeakerNameVal.trim());
-                                setEditingSpeakerId(null);
-                              } else if (e.key === 'Escape') setEditingSpeakerId(null);
-                            }}
-                            autoFocus
-                            className="bg-white text-xs px-2 py-0.5 rounded border border-[#c5a059] outline-none w-24 font-sans-ui"
-                          />
-                          <button
-                            onClick={() => {
-                              if (editSpeakerNameVal.trim()) onUpdateSpeakerName(sp.id, editSpeakerNameVal.trim());
-                              setEditingSpeakerId(null);
-                            }}
-                            className="p-1 text-[#8a6828]"
-                          >
-                            <Check className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 min-w-0 group/sp">
-                          <span className={`text-sm font-serif-display font-semibold truncate max-w-[110px] ${isActive ? 'text-[#0c1017] font-bold' : 'text-[#2b3342]'}`}>
-                            {sp.name}
-                          </span>
-                          <span className="text-[9px] font-cinzel font-bold uppercase px-1.5 py-0.2 rounded bg-rose-50/90 text-rose-950 border border-rose-200">
-                            {sp.roleAbbr}
-                          </span>
-                          {isActive && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-amber-400/25 text-[#7c5b1d] text-[8px] font-cinzel font-bold border border-amber-400/40">
-                              <Mic className="w-2 h-2" />
-                              <div className="flex items-end gap-[1.5px] h-2 w-2 pb-0.5">
-                                <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-1" />
-                                <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-2" />
-                                <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-3" />
-                              </div>
-                            </span>
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingSpeakerId(sp.id);
-                              setEditSpeakerNameVal(sp.name);
-                            }}
-                            className="opacity-0 group-hover/sp:opacity-100 p-0.5 text-gray-400 hover:text-black transition-opacity"
-                          >
-                            <Edit2 className="w-2.5 h-2.5" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {isActive ? (
-                        <span className="w-3 h-3 rounded-full border-2 border-rose-700 bg-white flex items-center justify-center shadow-xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-700" />
-                        </span>
-                      ) : (
-                        <span className="w-2.5 h-2.5 rounded-full bg-slate-400/60" />
-                      )}
-                      <span className="font-num text-sm font-semibold tabular-nums text-[#0c1017]">
-                        {formatTimeCompact(sp.timeRemaining)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Offer POI button (if Proposition is speaking) */}
-            {isProp && (timeRemaining > 0) && (
-              <div className="mt-2 pt-1.5 border-t border-[#c5a059]/25 relative z-10">
-                <button
-                  onClick={() => onTriggerPOIRequest('opposition')}
-                  className="w-full py-1.5 rounded-xl bg-[#101b2a] hover:bg-[#1f2e45] text-amber-200 border border-[#c5a059] font-cinzel text-[10px] tracking-wider uppercase font-bold shadow-sm flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
-                >
-                  <Hand className="w-3 h-3 text-amber-300 animate-pulse" />
-                  <span>Offer POI (15s)</span>
-                </button>
-              </div>
-            )}
-
-            {/* Footer Tag */}
-            <div className="text-center pt-1.5 border-t border-[#c5a059]/25 mt-1.5 relative z-10">
-              <span className="font-cinzel text-[8px] sm:text-[9px] tracking-[0.25em] text-[#755b28] uppercase font-bold opacity-80">
-                SCRUTINISE · CHALLENGE · REFINE · PROTECT
-              </span>
-            </div>
-          </div>
-        </div>
+        {/* Right Side: Extravagant Opposition Monument Podium */}
+        <ExtravagantPodium
+          teamType="opposition"
+          teamName={oppTeamName}
+          onUpdateTeamName={onUpdateOppTeamName}
+          speakers={oppSpeakers}
+          activeSpeakerId={activeSpeaker.id}
+          isOpposingActiveSpeaker={activeSpeaker.team === 'proposition'}
+          activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
+          onCallPOI={() => onTriggerPOIRequest('opposition')}
+          onSelectSpeaker={(id) => onSelectIndex(speakingOrder.findIndex((s) => s.id === id))}
+          onUpdateSpeakerName={onUpdateSpeakerName}
+        />
       </main>
 
-      {/* 4. High-Visibility Bottom Stepper */}
+      {/* 4. High-Visibility Bottom Stepper on the Classical Floor */}
       <div className="relative z-20 w-full flex flex-col items-center justify-center pb-2.5 pt-0.5 select-none">
         <div className="relative flex items-center justify-center w-full max-w-[460px] sm:max-w-[540px] bg-[#fcfaf5]/90 backdrop-blur-md border border-[#c5a059]/45 rounded-full px-4 sm:px-6 py-2 shadow-sm">
           {/* Connecting line across discs */}
