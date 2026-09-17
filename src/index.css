@@ -216,3 +216,213 @@
   }
 }
 
+/* ==========================================================================
+   RICH FLUID ANIMATION SYSTEM (KEYFRAMES & UTILITIES)
+   ========================================================================== */
+
+/* 1. Ambient Clock Halo Breathing Glow */
+@keyframes ambientGlowPulse {
+  0%, 100% {
+    box-shadow: 
+      0 24px 60px -12px rgba(30, 25, 18, 0.12),
+      0 0 24px rgba(197, 160, 89, 0.12),
+      inset 0 2px 18px rgba(0, 0, 0, 0.03);
+    opacity: 0.72;
+  }
+  50% {
+    box-shadow: 
+      0 28px 75px -10px rgba(30, 25, 18, 0.18),
+      0 0 50px rgba(197, 160, 89, 0.32),
+      inset 0 2px 22px rgba(197, 160, 89, 0.08);
+    opacity: 0.92;
+  }
+}
+
+.animate-halo-breathing {
+  animation: ambientGlowPulse 4s ease-in-out infinite;
+}
+
+/* 2. Play Button Radar Ripple Wave */
+@keyframes radarRipple {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.8;
+    box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.7);
+  }
+  65% {
+    transform: scale(1.35);
+    opacity: 0;
+    box-shadow: 0 0 0 28px rgba(197, 160, 89, 0);
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+    box-shadow: 0 0 0 0 rgba(197, 160, 89, 0);
+  }
+}
+
+.animate-radar-ripple {
+  animation: radarRipple 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* 3. Speaking Equalizer Soundwave Micro-Animations */
+@keyframes soundwave1 {
+  0%, 100% { height: 30%; }
+  50% { height: 100%; }
+}
+
+@keyframes soundwave2 {
+  0%, 100% { height: 90%; }
+  50% { height: 35%; }
+}
+
+@keyframes soundwave3 {
+  0%, 100% { height: 45%; }
+  50% { height: 95%; }
+}
+
+.animate-soundwave-1 {
+  animation: soundwave1 0.85s ease-in-out infinite;
+}
+
+.animate-soundwave-2 {
+  animation: soundwave2 0.75s ease-in-out infinite 0.15s;
+}
+
+.animate-soundwave-3 {
+  animation: soundwave3 0.95s ease-in-out infinite 0.3s;
+}
+
+/* 4. Active Speaker Podium Card Breathing Glow */
+@keyframes activeSpeakerGlowProp {
+  0%, 100% {
+    box-shadow: 
+      0 16px 36px -4px rgba(37, 99, 235, 0.45),
+      0 0 22px rgba(59, 130, 246, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  50% {
+    box-shadow: 
+      0 20px 45px -4px rgba(37, 99, 235, 0.65),
+      0 0 38px rgba(96, 165, 250, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+@keyframes activeSpeakerGlowOpp {
+  0%, 100% {
+    box-shadow: 
+      0 16px 36px -4px rgba(225, 29, 72, 0.45),
+      0 0 22px rgba(244, 63, 94, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  50% {
+    box-shadow: 
+      0 20px 45px -4px rgba(225, 29, 72, 0.65),
+      0 0 38px rgba(251, 113, 133, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+.speaker-pill-active-prop {
+  background: linear-gradient(90deg, #101a25 0%, #0c131d 100%);
+  border: 1.5px solid rgba(96, 165, 250, 0.65);
+  transform: scale(1.055);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: activeSpeakerGlowProp 3.5s ease-in-out infinite;
+}
+
+.speaker-pill-active-opp {
+  background: linear-gradient(90deg, #2b1016 0%, #1a080d 100%);
+  border: 1.5px solid rgba(244, 63, 94, 0.65);
+  transform: scale(1.055);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: activeSpeakerGlowOpp 3.5s ease-in-out infinite;
+}
+
+/* 5. Delicate Heraldic Floating Emblems */
+@keyframes subtleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+.animate-subtle-float {
+  animation: subtleFloat 3.8s ease-in-out infinite;
+}
+
+/* 6. Active Progress Stepper Pulse Halo */
+@keyframes progressPingSlow {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.animate-progress-ping {
+  animation: progressPingSlow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* 7. Gold Shimmer Sheen */
+@keyframes shimmerWave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-gold-text {
+  background: linear-gradient(90deg, #886729 0%, #d5b36e 50%, #886729 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerWave 6s linear infinite;
+}
+
+/* 8. Fluid Fade In Up for Entry Transitions */
+@keyframes fluidFadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fluid-in {
+  animation: fluidFadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 9. Soft Fluid Transitions for All Interactive Elements */
+.transition-spring {
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.transition-fluid {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-elevation-spring {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-elevation-spring:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.hover-elevation-spring:active {
+  transform: scale(0.94);
+}
+
+

@@ -140,12 +140,6 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
   const fraction = Math.max(0, Math.min(1, timeRemaining / safeTotal));
   const strokeDashoffset = circumference * (1 - fraction);
 
-  // Chronometer Head Bead position
-  const angleDeg = -90 + fraction * 360;
-  const angleRad = (angleDeg * Math.PI) / 180;
-  const beadX = center + radius * Math.cos(angleRad);
-  const beadY = center + radius * Math.sin(angleRad);
-
   // 60 minute chronometer ticks
   const minuteTicks = Array.from({ length: 60 }, (_, i) => {
     const tickAngle = (i * 6 - 90) * (Math.PI / 180);
@@ -207,9 +201,11 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
       <div className="relative clock-dial-responsive flex items-center justify-center my-0.5">
         {/* Ambient Frosted Halo Face */}
         <div 
-          className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-500 pointer-events-none ${
+          className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-700 pointer-events-none ${
             isPOIActive 
               ? 'ring-4 ring-rose-500/50 shadow-[0_0_60px_rgba(225,29,72,0.3)]' 
+              : isRunning
+              ? 'animate-halo-breathing'
               : 'shadow-[0_24px_60px_-12px_rgba(30,25,18,0.12)]'
           }`} 
         />
@@ -314,27 +310,34 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
               strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
-              className="transition-all duration-300 ease-linear"
+              style={{
+                transition: 'stroke-dashoffset 0.3s linear, stroke 0.5s ease',
+              }}
             />
           </g>
 
-          {/* EXQUISITE LUXURY CHRONOMETER INDICATOR BEAD */}
-          {fraction > 0.005 && (
-            <g className="transition-all duration-300 ease-linear">
+          {/* EXQUISITE LUXURY CHRONOMETER INDICATOR BEAD (Hardware GPU Accelerated Fluid Rotation) */}
+          {fraction > 0.003 && (
+            <g
+              transform={`rotate(${fraction * 360} ${center} ${center})`}
+              style={{
+                transition: 'transform 0.3s linear',
+              }}
+            >
               {/* Outer Radiant Glow Halo */}
               <circle
-                cx={beadX}
-                cy={beadY}
+                cx={center}
+                cy={center - radius}
                 r={strokeWidth + 4}
                 fill={isProp ? '#3b82f6' : '#e11d48'}
-                opacity="0.25"
+                opacity="0.28"
                 filter="url(#luxuryBeadGlow)"
               />
 
               {/* Polished Metallic Bezel Ring */}
               <circle
-                cx={beadX}
-                cy={beadY}
+                cx={center}
+                cy={center - radius}
                 r={strokeWidth / 2 + 5}
                 fill="#ffffff"
                 stroke="#c5a059"
@@ -344,16 +347,16 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
 
               {/* Inner Radiant Chronometer Jewel Core */}
               <circle
-                cx={beadX}
-                cy={beadY}
+                cx={center}
+                cy={center - radius}
                 r={strokeWidth / 2 + 1.5}
                 fill="url(#beadJewelGradient)"
               />
 
               {/* Center Specular Glint Highlight */}
               <circle
-                cx={beadX - 2}
-                cy={beadY - 2}
+                cx={center - 2}
+                cy={center - radius - 2}
                 r="2"
                 fill="#ffffff"
                 opacity="0.9"
@@ -509,14 +512,16 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                 type="button"
                 onClick={handleOpenEditTime}
                 title="Click to manually edit speech time"
-                className="cursor-pointer hover:opacity-85 transition-opacity outline-none block"
+                className="cursor-pointer hover:opacity-90 hover:scale-[1.015] transition-all duration-300 outline-none block"
               >
                 <div
-                  className={`font-num font-normal tracking-tight numerals-responsive select-none transition-colors duration-300 ${
+                  className={`font-num font-normal tracking-tight numerals-responsive select-none transition-all duration-300 ${
                     isCompleted
                       ? 'text-rose-600 animate-bounce'
                       : timeRemaining <= 30
                       ? 'text-amber-700 animate-pulse'
+                      : isRunning
+                      ? 'text-[#0a0e16] drop-shadow-xs'
                       : 'text-[#0e1219]'
                   }`}>
                   {formatTime(timeRemaining)}
@@ -525,7 +530,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
 
               {/* Prominent Classical Quick Time Adjustment Controls */}
               <div 
-                className="relative z-30 flex items-center justify-center gap-1.5 sm:gap-2 mt-3 sm:mt-3.5 bg-[#ede4d4]/95 border border-[#c5a059]/50 rounded-full px-2 py-1.5 shadow-sm backdrop-blur-xs"
+                className="relative z-30 flex items-center justify-center gap-1.5 sm:gap-2 mt-3 sm:mt-3.5 bg-[#ede4d4]/95 border border-[#c5a059]/50 rounded-full px-2 py-1.5 shadow-sm backdrop-blur-xs transition-transform duration-300 hover:scale-[1.02]"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* -1m */}
@@ -533,7 +538,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                   type="button"
                   onClick={(e) => handleQuickAdjust(e, -60)}
                   title="Subtract 1 minute (-1m)"
-                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs active:scale-90 transition-all cursor-pointer flex items-center justify-center min-w-[42px] sm:min-w-[46px]"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs hover:scale-105 active:scale-90 transition-all duration-200 cursor-pointer flex items-center justify-center min-w-[42px] sm:min-w-[46px]"
                 >
                   -1m
                 </button>
@@ -543,7 +548,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                   type="button"
                   onClick={(e) => handleQuickAdjust(e, -30)}
                   title="Subtract 30 seconds (-30s)"
-                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs active:scale-90 transition-all cursor-pointer flex items-center justify-center min-w-[44px] sm:min-w-[48px]"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs hover:scale-105 active:scale-90 transition-all duration-200 cursor-pointer flex items-center justify-center min-w-[44px] sm:min-w-[48px]"
                 >
                   -30s
                 </button>
@@ -559,7 +564,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                     handleOpenEditTime(e);
                   }}
                   title="Click to open manual MM:SS editor"
-                  className="px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#161e2b] hover:bg-[#253245] text-amber-200 hover:text-amber-100 border border-[#c5a059] text-xs font-cinzel font-bold tracking-wider shadow-xs hover:shadow-md active:scale-90 transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#161e2b] hover:bg-[#253245] text-amber-200 hover:text-amber-100 border border-[#c5a059] text-xs font-cinzel font-bold tracking-wider shadow-xs hover:shadow-md hover:scale-105 active:scale-90 transition-all duration-200 cursor-pointer flex items-center gap-1.5"
                 >
                   <Edit2 className="w-3 h-3 text-[#c5a059]" />
                   <span>Edit Time</span>
@@ -572,7 +577,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                   type="button"
                   onClick={(e) => handleQuickAdjust(e, 30)}
                   title="Add 30 seconds (+30s)"
-                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs active:scale-90 transition-all cursor-pointer flex items-center justify-center min-w-[44px] sm:min-w-[48px]"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs hover:scale-105 active:scale-90 transition-all duration-200 cursor-pointer flex items-center justify-center min-w-[44px] sm:min-w-[48px]"
                 >
                   +30s
                 </button>
@@ -582,7 +587,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                   type="button"
                   onClick={(e) => handleQuickAdjust(e, 60)}
                   title="Add 1 minute (+1m)"
-                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs active:scale-90 transition-all cursor-pointer flex items-center justify-center min-w-[42px] sm:min-w-[46px]"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#fdfbf7] hover:bg-white text-[#2a3342] hover:text-[#0a0d13] border border-[#c5a059]/40 hover:border-[#c5a059] text-xs font-cinzel font-extrabold tracking-wider shadow-2xs hover:shadow-xs hover:scale-105 active:scale-90 transition-all duration-200 cursor-pointer flex items-center justify-center min-w-[42px] sm:min-w-[46px]"
                 >
                   +1m
                 </button>
@@ -603,7 +608,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
             </span>
             <div className="mt-1 flex items-center justify-center gap-2 opacity-70">
               <div className="h-[0.5px] w-6 bg-gradient-to-r from-transparent to-[#c5a059]" />
-              <GoldDiamond className="w-2.5 h-2.5" />
+              <GoldDiamond className="w-2.5 h-2.5 animate-subtle-float" />
               <div className="h-[0.5px] w-6 bg-gradient-to-l from-transparent to-[#c5a059]" />
             </div>
           </div>
@@ -617,22 +622,25 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
           <button
             onClick={onReset}
             title="Reset timer to 04:00 (R)"
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#eae3d6]/85 hover:bg-white border border-white/80 shadow-xs flex items-center justify-center text-[#373f4e] hover:text-[#11151c] btn-spring cursor-pointer"
+            className="group w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#eae3d6]/85 hover:bg-white border border-white/80 shadow-xs hover:shadow-md flex items-center justify-center text-[#373f4e] hover:text-[#11151c] transition-all duration-200 active:scale-90 cursor-pointer"
             aria-label="Reset Timer"
           >
-            <RotateCcw className="w-5 h-5" />
+            <RotateCcw className="w-5 h-5 transition-transform duration-300 group-hover:-rotate-45" />
           </button>
           <span className="font-cinzel text-[10px] tracking-widest text-[#697384] uppercase font-semibold">
             Reset
           </span>
         </div>
 
-        {/* Large Prominent Start / Pause Button (With Optically Centered Play Triangle) */}
-        <div className="flex flex-col items-center gap-1">
+        {/* Large Prominent Start / Pause Button (With Optically Centered Play Triangle & Radar Pulse Wave) */}
+        <div className="flex flex-col items-center gap-1 relative">
+          {isRunning && (
+            <span className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-16 sm:w-20 sm:h-20 rounded-full animate-radar-ripple pointer-events-none" />
+          )}
           <button
             onClick={onStartPause}
             title={isRunning ? 'Pause timer (Space)' : 'Start timer (Space)'}
-            className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center cursor-pointer btn-halo ${
+            className={`relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center cursor-pointer btn-halo transition-all duration-300 active:scale-90 ${
               isRunning
                 ? 'bg-[#12161d] text-white hover:bg-[#202733]'
                 : isCompleted
@@ -651,7 +659,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
             ) : (
               /* Optically centered play triangle inside circle */
               <div className="flex items-center justify-center w-full h-full">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 sm:w-9 sm:h-9 fill-current translate-x-0.5" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 sm:w-9 sm:h-9 fill-current translate-x-0.5 transition-transform duration-200 hover:scale-110" xmlns="http://www.w3.org/2000/svg">
                   <polygon points="7,4 19.5,12 7,20" strokeLinejoin="round" />
                 </svg>
               </div>
@@ -668,14 +676,14 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
             onClick={onNextSpeaker}
             disabled={!hasNextSpeaker}
             title={hasNextSpeaker ? 'Move to next speaker (N)' : 'Debate completed'}
-            className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center btn-spring cursor-pointer ${
+            className={`group w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-200 active:scale-90 ${
               hasNextSpeaker
-                ? 'bg-[#eae3d6]/85 hover:bg-white border border-white/80 shadow-xs text-[#373f4e] hover:text-[#11151c]'
-                : 'bg-white/30 border border-black/5 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#eae3d6]/85 hover:bg-white border border-white/80 shadow-xs hover:shadow-md text-[#373f4e] hover:text-[#11151c] cursor-pointer'
+                : 'bg-[#e2ddd5]/40 border border-black/5 text-[#9ea7b5] cursor-not-allowed opacity-50'
             }`}
             aria-label="Next Speaker"
           >
-            <SkipForward className="w-5 h-5" />
+            <SkipForward className={`w-5 h-5 transition-transform duration-300 ${hasNextSpeaker ? 'group-hover:translate-x-0.5' : ''}`} />
           </button>
           <span className="font-cinzel text-[10px] tracking-widest text-[#697384] uppercase font-semibold">
             Next

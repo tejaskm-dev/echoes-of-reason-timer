@@ -83,10 +83,10 @@ export const MotionBanner: React.FC<MotionBannerProps> = ({ motion, onUpdateMoti
   return (
     <section className="w-full max-w-5xl mx-auto px-4 sm:px-6 my-0.5 sm:my-1 select-none flex flex-col items-center justify-center">
       {/* 1. Compact Classical Heraldic Tag */}
-      <div className="flex items-center gap-2.5 opacity-85 mb-0.5">
+      <div className="flex items-center gap-2.5 opacity-90 mb-0.5 animate-subtle-float">
         <div className="h-[0.5px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#c5a059]" />
         <GoldDiamond className="w-2 h-2 opacity-80" />
-        <span className="font-cinzel text-[9px] sm:text-[10px] tracking-[0.3em] font-extrabold uppercase text-[#886729]">
+        <span className="font-cinzel text-[9px] sm:text-[10px] tracking-[0.3em] font-extrabold uppercase shimmer-gold-text">
           THE MOTION BEFORE THE HOUSE
         </span>
         <GoldDiamond className="w-2 h-2 opacity-80" />
@@ -112,10 +112,10 @@ export const MotionBanner: React.FC<MotionBannerProps> = ({ motion, onUpdateMoti
                   key={preset.id}
                   type="button"
                   onClick={() => handleChoosePreset(preset)}
-                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                  className={`p-2.5 rounded-xl border text-left transition-all duration-200 hover:scale-[1.01] active:scale-[0.98] cursor-pointer flex flex-col justify-between ${
                     isCurrent
                       ? 'bg-[#18202d] text-white border-[#c5a059] shadow-sm ring-1 ring-[#c5a059]/40'
-                      : 'bg-[#ede5d8]/70 hover:bg-[#ede5d8] text-[#2c3342] border-[#c5a059]/30'
+                      : 'bg-[#ede5d8]/70 hover:bg-[#ede5d8] text-[#2c3342] border-[#c5a059]/30 hover:shadow-xs'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
@@ -160,14 +160,14 @@ export const MotionBanner: React.FC<MotionBannerProps> = ({ motion, onUpdateMoti
                 setIsEditing(false);
                 setInputVal(motion);
               }}
-              className="px-4 py-1.5 rounded-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-cinzel text-[11px] uppercase font-bold flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-4 py-1.5 rounded-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-cinzel text-[11px] uppercase font-bold flex items-center gap-1 transition-all duration-200 active:scale-95 cursor-pointer"
             >
               <X className="w-3 h-3" /> Cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="px-5 py-1.5 rounded-full bg-[#141820] hover:bg-[#283244] text-white font-cinzel text-[11px] uppercase font-bold shadow-md flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-5 py-1.5 rounded-full bg-[#141820] hover:bg-[#283244] text-white font-cinzel text-[11px] uppercase font-bold shadow-md flex items-center gap-1 transition-all duration-200 active:scale-95 cursor-pointer"
             >
               <Check className="w-3 h-3 text-amber-300" /> Apply Motion
             </button>
@@ -177,15 +177,15 @@ export const MotionBanner: React.FC<MotionBannerProps> = ({ motion, onUpdateMoti
         <div
           onClick={handleOpenEdit}
           title="Click to edit debate motion"
-          className="group relative cursor-pointer px-4 py-1 rounded-2xl hover:bg-white/40 transition-all duration-200 flex flex-col items-center"
+          className="group relative cursor-pointer px-5 py-1.5 rounded-2xl hover:bg-white/50 border border-transparent hover:border-[#c5a059]/30 shadow-none hover:shadow-md transition-all duration-300 flex flex-col items-center"
         >
           {/* Big Majestic Motion Display without excessive vertical footprint */}
-          <h2 className="font-serif-display motion-text-responsive font-normal text-[#0d1118] italic text-center max-w-4xl tracking-tight transition-transform group-hover:scale-[1.006]">
+          <h2 className="font-serif-display motion-text-responsive font-normal text-[#0d1118] italic text-center max-w-4xl tracking-tight transition-all duration-300 group-hover:scale-[1.01] group-hover:text-black">
             “{motion}”
           </h2>
 
-          {/* Subdued hover edit prompt */}
-          <div className="flex items-center gap-1 text-[10px] font-cinzel text-[#886729] font-bold mt-0.5 opacity-0 group-hover:opacity-100 transition-all duration-150">
+          {/* Subdued hover edit prompt with spring entrance */}
+          <div className="flex items-center gap-1 text-[10px] font-cinzel text-[#886729] font-bold mt-0.5 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-1 group-hover:translate-y-0">
             <Edit3 className="w-2.5 h-2.5 text-[#c5a059]" />
             <span>Click to Edit</span>
           </div>

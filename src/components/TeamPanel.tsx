@@ -159,9 +159,14 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
 
                     {/* Speaking Now beacon tag when active */}
                     {isActive && (
-                      <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[9px] font-cinzel font-bold border border-amber-400/40 animate-pulse">
+                      <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[9px] font-cinzel font-bold border border-amber-400/40 shadow-xs">
                         <Mic className="w-2.5 h-2.5" />
-                        Speaking
+                        <span>Speaking</span>
+                        <div className="flex items-end gap-[2px] h-2.5 w-3 ml-0.5 pb-0.5">
+                          <span className="w-0.5 bg-amber-300 rounded-full animate-soundwave-1" />
+                          <span className="w-0.5 bg-amber-300 rounded-full animate-soundwave-2" />
+                          <span className="w-0.5 bg-amber-300 rounded-full animate-soundwave-3" />
+                        </div>
                       </span>
                     )}
 
@@ -183,8 +188,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     isActive
                       ? isProposition
-                        ? 'bg-blue-400 shadow-[0_0_12px_#60a5fa] ring-4 ring-blue-400/35 animate-ping-short'
-                        : 'bg-rose-400 shadow-[0_0_12px_#fb7185] ring-4 ring-rose-400/35 animate-ping-short'
+                        ? 'bg-blue-400 shadow-[0_0_14px_#60a5fa] ring-4 ring-blue-400/40'
+                        : 'bg-rose-400 shadow-[0_0_14px_#fb7185] ring-4 ring-rose-400/40'
                       : !isProposition && index === 0
                       ? 'bg-[#d97788]'
                       : 'bg-[#9ea6b5]'
@@ -228,8 +233,12 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             <button
               onClick={onCallPOI}
               title="Rise to offer a Point of Information (15s)"
-              className="px-4 py-2 rounded-full bg-[#141822] hover:bg-[#252f42] text-amber-200 border border-[#c5a059] font-cinzel text-[11px] tracking-wider uppercase font-bold shadow-md btn-spring cursor-pointer shrink-0 flex items-center gap-1.5"
+              className="px-4 py-2 rounded-full bg-[#141822] hover:bg-[#252f42] text-amber-200 hover:text-white border border-[#c5a059] font-cinzel text-[11px] tracking-wider uppercase font-bold shadow-md hover:shadow-xl hover:shadow-[#c5a059]/20 btn-spring cursor-pointer shrink-0 flex items-center gap-1.5"
             >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+              </span>
               <span>Offer POI</span>
             </button>
           </div>

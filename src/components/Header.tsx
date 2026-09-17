@@ -43,17 +43,17 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={onOpenRules}
           title="Official Rules & Regulations"
-          className="px-2.5 py-1 rounded-full hover:bg-black/5 text-[#475266] transition-all btn-spring cursor-pointer flex items-center gap-1 text-[11px] font-cinzel tracking-wider uppercase border border-transparent hover:border-[#c5a059]/30"
+          className="px-2.5 py-1 rounded-full hover:bg-black/5 text-[#475266] hover:text-[#11151c] transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1 text-[11px] font-cinzel tracking-wider uppercase border border-transparent hover:border-[#c5a059]/30"
           aria-label="View Rules"
         >
-          <BookOpen className="w-3.5 h-3.5 text-[#9e7939]" />
+          <BookOpen className="w-3.5 h-3.5 text-[#9e7939] transition-transform duration-200 group-hover:scale-110" />
           <span className="hidden sm:inline text-[10px] font-bold">Rules</span>
         </button>
 
         <button
           onClick={onToggleSound}
           title={soundEnabled ? 'Mute debate bell (M)' : 'Unmute debate bell (M)'}
-          className="p-1.5 rounded-full hover:bg-black/5 text-[#475266] transition-all btn-spring cursor-pointer"
+          className="p-1.5 rounded-full hover:bg-black/5 text-[#475266] hover:text-[#11151c] transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer"
           aria-label="Toggle sound"
         >
           {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-[#475266]" /> : <VolumeX className="w-3.5 h-3.5 text-red-700" />}
@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={onOpenShortcuts}
           title="Keyboard shortcuts (?)"
-          className="p-1.5 rounded-full hover:bg-black/5 text-[#475266] transition-all btn-spring cursor-pointer"
+          className="p-1.5 rounded-full hover:bg-black/5 text-[#475266] hover:text-[#11151c] transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer"
           aria-label="Keyboard shortcuts"
         >
           <Keyboard className="w-3.5 h-3.5" />
@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={onToggleFullscreen}
           title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen stage mode'}
-          className="p-1.5 rounded-full hover:bg-black/5 text-[#475266] transition-all btn-spring cursor-pointer"
+          className="p-1.5 rounded-full hover:bg-black/5 text-[#475266] hover:text-[#11151c] transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer"
           aria-label="Toggle fullscreen"
         >
           {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
