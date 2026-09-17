@@ -59,12 +59,6 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
       {/* 1. Sculpted Gilded Neoclassical Pediment Crown */}
       <div className="w-full relative z-20 -mb-2.5">
         <BaroqueAcanthusPediment teamType={teamType} className="w-full drop-shadow-md" />
-        {/* Ribbon Title Overlay */}
-        <div className="absolute top-[52px] sm:top-[56px] left-0 right-0 flex items-center justify-center pointer-events-none">
-          <span className="font-cinzel text-[9px] sm:text-[10px] font-black tracking-[0.28em] text-amber-200 uppercase drop-shadow-xs">
-            {isProp ? 'PROPOSITION · TEAM 1' : 'OPPOSITION · TEAM 2'}
-          </span>
-        </div>
       </div>
 
       {/* 2. Freestanding Carrara Marble Monument Body */}
@@ -88,6 +82,13 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
 
           {/* Team Name Header (Editable) */}
           <div className="text-center pb-2 mb-2 border-b border-[#c5a059]/35">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <div className="h-[1px] w-6 bg-gradient-to-r from-transparent to-[#c5a059]" />
+              <span className="font-cinzel text-[9px] sm:text-[10px] tracking-[0.25em] text-[#8d6928] uppercase font-bold opacity-95">
+                {isProp ? 'AFFIRMATIVE BENCH' : 'NEGATIVE BENCH'}
+              </span>
+              <div className="h-[1px] w-6 bg-gradient-to-l from-transparent to-[#c5a059]" />
+            </div>
             {isEditingTeam ? (
               <div className="flex items-center justify-center gap-1.5 my-0.5">
                 <input
@@ -99,7 +100,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                     else if (e.key === 'Escape') setIsEditingTeam(false);
                   }}
                   autoFocus
-                  className="bg-white text-lg font-serif-display font-bold px-2 py-0.5 rounded border border-[#c5a059] outline-none text-center w-44 shadow-inner text-[#0c1017]"
+                  className="bg-white text-lg font-serif-display font-bold px-2 py-0.5 rounded border border-[#c5a059] outline-none text-center w-48 shadow-inner text-[#0c1017]"
                 />
                 <button
                   type="button"
@@ -116,7 +117,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                   setIsEditingTeam(true);
                 }}
                 title="Click to edit team name"
-                className={`font-serif-display text-2xl sm:text-3xl font-bold tracking-tight cursor-pointer hover:text-[#8a6828] transition-colors leading-tight drop-shadow-xs ${
+                className={`font-serif-display text-2xl sm:text-3xl xl:text-[32px] font-bold tracking-tight cursor-pointer hover:text-[#8a6828] transition-colors leading-tight drop-shadow-xs ${
                   isProp ? 'text-[#0a1c36]' : 'text-[#360914]'
                 }`}
               >
@@ -146,12 +147,12 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                 <div
                   key={sp.id}
                   onClick={() => onSelectSpeaker(sp.id)}
-                  className={`flex items-center justify-between px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl cursor-pointer transition-all duration-300 ${
+                  className={`flex items-center justify-between px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl cursor-pointer speaker-card-fluid ${
                     isActive
                       ? isProp
-                        ? 'bg-gradient-to-r from-white via-[#f0f6ff] to-white border-1.5 border-blue-500/70 shadow-[0_4px_14px_-2px_rgba(59,130,246,0.35),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.015]'
-                        : 'bg-gradient-to-r from-white via-[#fff1f4] to-white border-1.5 border-rose-500/70 shadow-[0_4px_14px_-2px_rgba(225,29,72,0.35),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.015]'
-                      : 'bg-white/80 hover:bg-white border border-[#c5a059]/30 hover:border-[#c5a059]/60 shadow-2xs hover:shadow-xs'
+                        ? 'bg-gradient-to-r from-white via-[#f0f6ff] to-white border-1.5 border-blue-500/70 shadow-[0_6px_20px_-2px_rgba(59,130,246,0.38),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.025] speaker-row-active-anim'
+                        : 'bg-gradient-to-r from-white via-[#fff1f4] to-white border-1.5 border-rose-500/70 shadow-[0_6px_20px_-2px_rgba(225,29,72,0.38),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.025] speaker-row-active-anim'
+                      : 'bg-white/80 hover:bg-white border border-[#c5a059]/30 hover:border-[#c5a059]/60 shadow-2xs hover:shadow-xs hover:translate-y-[-1px]'
                   }`}
                 >
                   {/* Left: Medallion Number, Name, Role Badge, Active Equalizer */}

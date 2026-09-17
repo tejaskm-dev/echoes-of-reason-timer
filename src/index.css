@@ -231,31 +231,77 @@
 
 /* Fluid Responsive Desktop & Laptop Viewport Adaptation */
 .clock-dial-responsive {
-  width: min(640px, 47vh, 40vw);
-  height: min(640px, 47vh, 40vw);
-  min-width: 270px;
-  min-height: 270px;
+  width: min(720px, 52vh, 44vw);
+  height: min(720px, 52vh, 44vw);
+  min-width: 280px;
+  min-height: 280px;
 }
 
 @media (min-height: 900px) and (min-width: 1400px) {
   .clock-dial-responsive {
-    width: min(720px, 51vh, 43vw);
-    height: min(720px, 51vh, 43vw);
+    width: min(780px, 56vh, 46vw);
+    height: min(780px, 56vh, 46vw);
   }
 }
 
 @media (max-height: 780px) {
   .clock-dial-responsive {
-    width: min(450px, 39vh, 33vw);
-    height: min(450px, 39vh, 33vw);
-    min-width: 240px;
-    min-height: 240px;
+    width: min(480px, 42vh, 36vw);
+    height: min(480px, 42vh, 36vw);
+    min-width: 250px;
+    min-height: 250px;
   }
 }
 
 .numerals-responsive {
-  font-size: clamp(3.8rem, 13vh, 10.5rem);
+  font-size: clamp(4.2rem, 14.5vh, 12rem);
   line-height: 0.92;
+}
+
+/* ==========================================================================
+   BUTTERY SMOOTH SPEAKER SWITCHING & SELECTION TRANSITIONS
+   ========================================================================== */
+
+@keyframes numeralCrossfade {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.96) translateY(-4px);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-numeral-crossfade {
+  animation: numeralCrossfade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes speakerActivateSpring {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.038);
+  }
+  100% {
+    transform: scale(1.025);
+  }
+}
+
+.speaker-row-active-anim {
+  animation: speakerActivateSpring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.speaker-card-fluid {
+  transition: 
+    background 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.35s ease;
 }
 
 .motion-text-responsive {

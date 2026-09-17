@@ -90,7 +90,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             <div
               key={speaker.id}
               onClick={() => onSelectSpeaker(speaker.id)}
-              className={`group relative flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl cursor-pointer podium-speaker-row ${
+              className={`group relative flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl cursor-pointer podium-speaker-row speaker-card-fluid ${
                 isActive
                   ? isProposition
                     ? 'speaker-pill-active-prop text-white'

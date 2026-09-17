@@ -224,6 +224,23 @@ export const BaroqueAcanthusPediment: React.FC<{
           strokeOpacity="0.65" 
         />
 
+        {/* Central Inscription in SVG Ribbon */}
+        <text
+          x="200"
+          y="67"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontFamily="'Cinzel', Georgia, serif"
+          fontSize="11.5"
+          fontWeight="bold"
+          letterSpacing="0.22em"
+          fill="#fff5d6"
+          stroke="#261703"
+          strokeWidth="0.2"
+        >
+          {isProp ? 'PROPOSITION' : 'OPPOSITION'}
+        </text>
+
         {/* 5. Center Imperial Star Jewel atop the Pediment */}
         <g transform="translate(200, 12)">
           <circle cx="0" cy="0" r="16" fill="url(#pedimentGold)" opacity="0.25" filter="blur(3px)" />

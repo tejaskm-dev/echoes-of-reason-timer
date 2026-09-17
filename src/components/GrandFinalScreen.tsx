@@ -471,7 +471,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                   strokeLinecap="round"
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
-                  style={{ transition: 'stroke-dashoffset 0.3s linear, stroke 0.5s ease' }}
+                  style={{ transition: 'stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s ease' }}
                 />
               </g>
 
@@ -479,7 +479,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
               {fraction > 0.003 && (
                 <g
                   transform={`rotate(${fraction * 360} ${center} ${center})`}
-                  style={{ transition: 'transform 0.3s linear' }}
+                  style={{ transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}
                 >
                   <circle
                     cx={center}
@@ -598,7 +598,8 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                     className="cursor-pointer hover:opacity-90 hover:scale-[1.015] transition-all duration-300 outline-none block"
                   >
                     <div
-                      className={`font-num font-normal tracking-tight numerals-responsive select-none transition-all duration-300 ${
+                      key={activeSpeaker.id}
+                      className={`font-num font-normal tracking-tight numerals-responsive select-none animate-numeral-crossfade ${
                         isCompleted
                           ? 'text-rose-600 animate-bounce'
                           : timeRemaining <= 30

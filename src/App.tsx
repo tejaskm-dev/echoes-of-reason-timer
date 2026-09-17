@@ -119,8 +119,8 @@ export default function App() {
   const [grandFinalMotion, setGrandFinalMotion] = useState<string>(
     'This House Believes That Scientific Truth Outweighs Societal Consensus'
   );
-  const [gfPropTeamName, setGfPropTeamName] = useState<string>('Proposition');
-  const [gfOppTeamName, setGfOppTeamName] = useState<string>('Opposition');
+  const [gfPropTeamName, setGfPropTeamName] = useState<string>('Team 1');
+  const [gfOppTeamName, setGfOppTeamName] = useState<string>('Team 2');
 
   const handleSelectScreenMode = useCallback((mode: 'semifinals' | 'grand_final') => {
     playTactileClick();

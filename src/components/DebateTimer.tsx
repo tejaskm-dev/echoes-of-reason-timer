@@ -186,7 +186,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
 
         <span className="text-[#c5a059] opacity-60 font-serif text-xs">·</span>
 
-        <h3 className="font-cinzel text-xs sm:text-sm md:text-base tracking-[0.2em] uppercase font-bold text-[#141820] flex items-center gap-1.5 text-center">
+        <h3 key={activeSpeaker.id} className="animate-numeral-crossfade font-cinzel text-xs sm:text-sm md:text-base tracking-[0.2em] uppercase font-bold text-[#141820] flex items-center gap-1.5 text-center">
           <span className={isProp ? 'text-blue-950 font-extrabold' : 'text-rose-950 font-extrabold'}>
             {isProp
               ? `${(propTeamName || 'TEAM 1').toUpperCase()} · PROPOSITION`
@@ -311,7 +311,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               style={{
-                transition: 'stroke-dashoffset 0.3s linear, stroke 0.5s ease',
+                transition: 'stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s ease',
               }}
             />
           </g>
@@ -321,7 +321,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
             <g
               transform={`rotate(${fraction * 360} ${center} ${center})`}
               style={{
-                transition: 'transform 0.3s linear',
+                transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
             >
               {/* Outer Radiant Glow Halo */}
@@ -515,7 +515,8 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                 className="cursor-pointer hover:opacity-90 hover:scale-[1.015] transition-all duration-300 outline-none block"
               >
                 <div
-                  className={`font-num font-normal tracking-tight numerals-responsive select-none transition-all duration-300 ${
+                  key={activeSpeaker.id}
+                  className={`font-num font-normal tracking-tight numerals-responsive select-none animate-numeral-crossfade ${
                     isCompleted
                       ? 'text-rose-600 animate-bounce'
                       : timeRemaining <= 30
