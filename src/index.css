@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-cream: #f6f2ea;
+    --text-charcoal: #14171e;
+    --gold-primary: #c5a059;
+    --gold-deep: #a8833e;
+    --prop-navy-dark: #121c27;
+    --prop-navy-light: #1b2a3a;
+    --opp-wine-dark: #2f1219;
+    --opp-wine-light: #441a24;
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-fluid: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  body {
+    background-color: #f7f3ec;
+    color: var(--text-charcoal);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Background exact clone image styling */
+.exact-clone-bg {
+  background-image: url('/background.jpg');
+  background-size: 100% 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 1024px) {
+  .exact-clone-bg {
+    background-size: cover;
+  }
+}
+
+/* Custom font utilities */
+.font-serif-display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-num {
+  font-family: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', Georgia, serif;
+  letter-spacing: 0.1em;
+}
+
+.font-sans-ui {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Proposition Top Arch */
+.arch-proposition {
+  background: linear-gradient(180deg, #131d27 0%, #0c141c 100%);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  box-shadow: 0 16px 36px -10px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(197, 160, 89, 0.15);
+}
+
+/* Opposition Top Arch */
+.arch-opposition {
+  background: linear-gradient(180deg, #2e1219 0%, #1c0a0f 100%);
+  border: 1px solid rgba(225, 29, 72, 0.25);
+  box-shadow: 0 16px 36px -10px rgba(69, 10, 22, 0.45), 0 0 0 1px rgba(197, 160, 89, 0.15);
+}
+
+/* Inactive Speaker Pill (Light Cream / Stone) */
+.speaker-pill-inactive {
+  background: rgba(235, 227, 216, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px -2px rgba(32, 28, 23, 0.06);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.speaker-pill-inactive:hover {
+  background: rgba(244, 238, 228, 0.95);
+  border-color: rgba(197, 160, 89, 0.45);
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* Active Proposition Speaker Pill (POPS OUT with Spring Elevation) */
+.speaker-pill-active-prop {
+  background: linear-gradient(90deg, #101a25 0%, #0c131d 100%);
+  border: 1.5px solid rgba(96, 165, 250, 0.6);
+  box-shadow: 
+    0 16px 36px -4px rgba(37, 99, 235, 0.45),
+    0 0 24px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: scale(1.055);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Active Opposition Speaker Pill (POPS OUT with Spring Elevation) */
+.speaker-pill-active-opp {
+  background: linear-gradient(90deg, #2b1016 0%, #1a080d 100%);
+  border: 1.5px solid rgba(244, 63, 94, 0.6);
+  box-shadow: 
+    0 16px 36px -4px rgba(225, 29, 72, 0.45),
+    0 0 24px rgba(244, 63, 94, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: scale(1.055);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Center Clock Face Ambient Circle */
+.clock-face-halo {
+  background: rgba(246, 241, 233, 0.68);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    0 24px 60px -12px rgba(30, 25, 18, 0.12),
+    inset 0 2px 18px rgba(0, 0, 0, 0.03);
+}
+
+/* Center Play Button Halo */
+.btn-halo {
+  box-shadow: 
+    0 0 32px 4px rgba(197, 160, 89, 0.45),
+    0 14px 28px -4px rgba(18, 22, 29, 0.38);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-halo:hover {
+  box-shadow: 
+    0 0 45px 8px rgba(197, 160, 89, 0.65),
+    0 18px 34px -4px rgba(18, 22, 29, 0.48);
+  transform: scale(1.06);
+}
+
+.btn-halo:active {
+  transform: scale(0.92);
+}
+
+/* Fluid interactive buttons */
+.btn-spring {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-spring:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.btn-spring:active {
+  transform: scale(0.92);
+}
+
+/* POI Floating Card */
+.poi-card-frosted {
+  background: rgba(235, 227, 216, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px -4px rgba(35, 28, 20, 0.1);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.poi-card-frosted:hover {
+  border-color: rgba(197, 160, 89, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Fluid Responsive Desktop & Laptop Viewport Adaptation */
+.clock-dial-responsive {
+  width: min(650px, 49vh, 42vw);
+  height: min(650px, 49vh, 42vw);
+  min-width: 290px;
+  min-height: 290px;
+}
+
+@media (min-height: 880px) and (min-width: 1280px) {
+  .clock-dial-responsive {
+    width: min(680px, 54vh, 45vw);
+    height: min(680px, 54vh, 45vw);
+  }
+}
+
+@media (max-height: 760px) {
+  .clock-dial-responsive {
+    width: min(440px, 45vh, 36vw);
+    height: min(440px, 45vh, 36vw);
+    min-width: 260px;
+    min-height: 260px;
+  }
+}
+
+.numerals-responsive {
+  font-size: clamp(3.5rem, 13vh, 10.5rem);
+  line-height: 0.96;
+}
+
+.motion-text-responsive {
+  font-size: clamp(1.15rem, 1.95vw, 2.35rem);
+  line-height: 1.15;
+}
+
+.podium-responsive {
+  width: clamp(260px, 19.5vw, 360px);
+}
+
+@media (max-height: 780px) {
+  .podium-speaker-row {
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+  }
+  .podium-arch {
+    padding-top: 1rem !important;
+    padding-bottom: 0.85rem !important;
+  }
+}
+
