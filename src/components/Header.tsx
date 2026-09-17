@@ -70,16 +70,16 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       )}
 
-      {/* 3. Right: Science Club ASIET & Moderator Tool Icons */}
-      <div className="flex items-center gap-1.5 sm:gap-3">
-        <span className="hidden lg:inline font-cinzel text-[10px] tracking-[0.25em] text-[#554734] uppercase font-bold opacity-85">
+      {/* 3. Right: Science Club ASIET & Moderator Tool Icons in Frosted Glass Capsule */}
+      <div className="flex items-center gap-1 sm:gap-2.5 bg-[#fdfaf5]/85 border border-[#c5a059]/40 shadow-xs backdrop-blur-md rounded-full px-2.5 sm:px-3 py-1">
+        <span className="hidden lg:inline font-cinzel text-[10px] tracking-[0.25em] text-[#4d3d1f] uppercase font-bold pr-1 border-r border-[#c5a059]/30">
           SCIENCE CLUB · ASIET
         </span>
-        <div className="flex items-center gap-1 opacity-85 hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 text-[#2c3442]">
           <button
             onClick={onOpenRules}
             title="Official Rules & Regulations"
-            className="p-1.5 sm:px-2.5 sm:py-1 rounded-full hover:bg-black/5 text-[#475266] hover:text-[#11151c] transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1 text-[11px] font-cinzel tracking-wider uppercase"
+            className="p-1 sm:px-2 sm:py-0.5 rounded-full hover:bg-black/5 text-[#2c3442] hover:text-[#0c1017] transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1 text-[11px] font-cinzel tracking-wider uppercase"
             aria-label="View Rules"
           >
             <BookOpen className="w-3.5 h-3.5 text-[#8d6928]" />
@@ -89,16 +89,16 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onToggleSound}
             title={soundEnabled ? 'Mute debate bell (M)' : 'Unmute debate bell (M)'}
-            className="p-1.5 rounded-full hover:bg-black/5 text-[#475266] hover:text-[#11151c] transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer"
+            className="p-1 rounded-full hover:bg-black/5 text-[#2c3442] hover:text-[#0c1017] transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer"
             aria-label="Toggle sound"
           >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-[#475266]" /> : <VolumeX className="w-3.5 h-3.5 text-red-700" />}
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-[#2c3442]" /> : <VolumeX className="w-3.5 h-3.5 text-red-700" />}
           </button>
 
           <button
             onClick={onOpenShortcuts}
             title="Keyboard shortcuts (?)"
-            className="p-1.5 rounded-full hover:bg-black/5 text-[#475266] hover:text-[#11151c] transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer"
+            className="p-1 rounded-full hover:bg-black/5 text-[#2c3442] hover:text-[#0c1017] transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer"
             aria-label="Keyboard shortcuts"
           >
             <Keyboard className="w-3.5 h-3.5" />
@@ -107,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onToggleFullscreen}
             title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen stage mode'}
-            className="p-1.5 rounded-full hover:bg-black/5 text-[#475266] hover:text-[#11151c] transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer"
+            className="p-1 rounded-full hover:bg-black/5 text-[#2c3442] hover:text-[#0c1017] transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer"
             aria-label="Toggle fullscreen"
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
