@@ -214,21 +214,6 @@
   transform: scale(0.92);
 }
 
-/* POI Floating Card */
-.poi-card-frosted {
-  background: rgba(235, 227, 216, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 24px -4px rgba(35, 28, 20, 0.1);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.poi-card-frosted:hover {
-  border-color: rgba(197, 160, 89, 0.45);
-  transform: translateY(-1px);
-}
-
 /* Fluid Responsive Desktop & Laptop Viewport Adaptation */
 .clock-dial-responsive {
   width: min(720px, 52vh, 44vw);

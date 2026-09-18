@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { Edit2, Check, Mic } from 'lucide-react';
-import type { Speaker, TeamType } from '../types/debate';
+import { Edit2, Check, MessagesSquare, Mic } from 'lucide-react';
+import type { DebateSegment, Speaker, TeamType } from '../types/debate';
 import { formatTimeCompact } from '../utils/time';
+import {
+  SEGMENT_GLYPHS,
+  SEGMENT_SHORT_LABELS,
+  segmentsForSpeaker,
+  speakerDisplaySegment,
+} from '../utils/segments';
 import { 
   GoldDiamond, 
   ImperialLaurelCrown, 
   BaroqueAcanthusPediment, 
   FiligreeCornerOrnament, 
-  POIMedallionEmblem,
+  CrossExamMedallionEmblem,
   CorinthianCapitalPilaster,
   ImperialDebateSeal
 } from './ClassicalDecors';
@@ -17,11 +23,11 @@ interface ExtravagantPodiumProps {
   teamName: string;
   onUpdateTeamName: (name: string) => void;
   speakers: Speaker[];
+  segments: DebateSegment[];
+  activeSegment: DebateSegment;
   activeSpeakerId: string;
-  isOpposingActiveSpeaker: boolean;
-  activeSpeakerTimeRemaining: number;
-  onCallPOI: () => void;
   onSelectSpeaker: (id: string) => void;
+  onSelectSegment: (segmentId: string) => void;
   onUpdateSpeakerName: (id: string, name: string) => void;
 }
 
@@ -30,14 +36,22 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
   teamName,
   onUpdateTeamName,
   speakers,
+  segments,
+  activeSegment,
   activeSpeakerId,
-  isOpposingActiveSpeaker,
-  activeSpeakerTimeRemaining,
-  onCallPOI,
   onSelectSpeaker,
+  onSelectSegment,
   onUpdateSpeakerName,
 }) => {
   const isProp = teamType === 'proposition';
+
+  // This bench asks the questions whenever the floor belongs to the other side
+  const isOpposingActiveSpeaker = !speakers.some((s) => s.id === activeSpeakerId);
+  const crossSegment = segments.find(
+    (seg) => seg.speakerId === activeSpeakerId && seg.kind === 'cross'
+  );
+  const showCrossCard = isOpposingActiveSpeaker && Boolean(crossSegment);
+  const isCrossLive = activeSegment.kind === 'cross';
 
   // Team Name Editing State
   const [isEditingTeam, setIsEditingTeam] = useState(false);
@@ -142,6 +156,8 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
             {speakers.map((sp, idx) => {
               const isActive = sp.id === activeSpeakerId;
               const isEditingSp = editingSpeakerId === sp.id;
+              const ownSegments = segmentsForSpeaker(segments, sp.id);
+              const display = speakerDisplaySegment(segments, sp.id, activeSegment.id);
 
               return (
                 <div
@@ -214,7 +230,12 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                         {/* Active Soundwave Indicator */}
                         {isActive && (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-amber-400/25 text-[#7c5b1d] text-[8px] font-cinzel font-bold border border-amber-400/40">
-                            <Mic className="w-2.5 h-2.5" />
+                            {activeSegment.kind === 'cross' ? (
+                              <MessagesSquare className="w-2.5 h-2.5" />
+                            ) : (
+                              <Mic className="w-2.5 h-2.5" />
+                            )}
+                            <span>{SEGMENT_SHORT_LABELS[activeSegment.kind]}</span>
                             <div className="flex items-end gap-[1.5px] h-2.5 w-2.5 pb-0.5">
                               <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-1" />
                               <span className="w-0.5 bg-amber-600 rounded-full animate-soundwave-2" />
@@ -238,19 +259,35 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                     )}
                   </div>
 
-                  {/* Right: Jewel Status Dot & Remaining Speech Time */}
+                  {/* Right: Phase Pips (S/Q/R) & Remaining Time of the Live Phase */}
                   <div className="flex items-center gap-2 shrink-0">
-                    {isActive ? (
-                      <span className={`w-3.5 h-3.5 rounded-full border-2 bg-white flex items-center justify-center shadow-xs ${
-                        isProp ? 'border-blue-600' : 'border-rose-600'
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full animate-ping ${isProp ? 'bg-blue-600' : 'bg-rose-600'}`} />
-                      </span>
-                    ) : (
-                      <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
-                    )}
+                    <div className="flex items-center gap-0.5">
+                      {ownSegments.map((seg) => {
+                        const isSegActive = seg.id === activeSegment.id;
+                        return (
+                          <button
+                            key={seg.id}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectSegment(seg.id);
+                            }}
+                            title={`${SEGMENT_SHORT_LABELS[seg.kind]} · ${formatTimeCompact(seg.timeRemaining)}`}
+                            className={`w-4 h-4 rounded-full flex items-center justify-center font-cinzel text-[7px] font-black leading-none transition-all duration-200 cursor-pointer hover:scale-125 ${
+                              isSegActive
+                                ? 'bg-gradient-to-b from-[#f5e09b] to-[#c5a059] text-[#121620] ring-2 ring-[#c5a059]/45'
+                                : seg.hasRun
+                                ? 'bg-[#c5a059]/70 text-[#3b2f14]'
+                                : 'bg-[#ece5d6] text-[#7b6c4f]'
+                            }`}
+                          >
+                            {SEGMENT_GLYPHS[seg.kind]}
+                          </button>
+                        );
+                      })}
+                    </div>
                     <span className="font-num text-sm font-semibold tabular-nums text-[#0c1017]">
-                      {formatTimeCompact(sp.timeRemaining)}
+                      {formatTimeCompact(display?.timeRemaining ?? 0)}
                     </span>
                   </div>
                 </div>
@@ -258,16 +295,23 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
             })}
           </div>
 
-          {/* Imperial Brass POI Seal Button (Active when opposing team is speaking) */}
-          {isOpposingActiveSpeaker && activeSpeakerTimeRemaining > 0 && (
+          {/* Imperial Brass Cross-Questioning Seal (this bench holds the questions) */}
+          {showCrossCard && crossSegment && (
             <div className="mt-2.5 pt-2 border-t border-[#c5a059]/30">
               <button
                 type="button"
-                onClick={onCallPOI}
-                className="w-full py-2 rounded-xl bg-gradient-to-r from-[#121c2b] via-[#1c2c44] to-[#121c2b] hover:from-[#18263a] hover:to-[#18263a] text-amber-200 border-2 border-[#c5a059] font-cinzel text-[10px] tracking-wider uppercase font-bold shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
+                onClick={() => onSelectSegment(crossSegment.id)}
+                title="Go to the 1-minute cross-questioning phase"
+                className={`w-full py-2 rounded-xl text-amber-200 border-2 border-[#c5a059] font-cinzel text-[10px] tracking-wider uppercase font-bold shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 ${
+                  isCrossLive
+                    ? 'bg-gradient-to-r from-[#4a3207] via-[#6b4c12] to-[#4a3207] animate-pulse'
+                    : 'bg-gradient-to-r from-[#121c2b] via-[#1c2c44] to-[#121c2b] hover:from-[#18263a] hover:to-[#18263a]'
+                }`}
               >
-                <POIMedallionEmblem className="w-4 h-4" />
-                <span>Offer Point of Information (15s)</span>
+                <CrossExamMedallionEmblem className="w-4 h-4" />
+                <span>
+                  {isCrossLive ? 'Cross-Questioning · Live' : 'Cross-Questioning (1:00)'}
+                </span>
               </button>
             </div>
           )}

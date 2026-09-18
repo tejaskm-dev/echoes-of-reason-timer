@@ -302,26 +302,29 @@ export const FiligreeCornerOrnament: React.FC<{
 };
 
 /**
- * Imperial Brass POI Medallion Emblem
+ * Imperial Brass Cross-Questioning Medallion Emblem
  */
-export const POIMedallionEmblem: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+export const CrossExamMedallionEmblem: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
   <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={`shrink-0 ${className}`}>
     <defs>
-      <radialGradient id="poiMedallionGrad" cx="35%" cy="35%" r="65%">
+      <radialGradient id="crossExamMedallionGrad" cx="35%" cy="35%" r="65%">
         <stop offset="0%" stopColor="#fff8e1" />
         <stop offset="40%" stopColor="#f5df9b" />
         <stop offset="75%" stopColor="#d4af37" />
         <stop offset="100%" stopColor="#7a5513" />
       </radialGradient>
     </defs>
-    <circle cx="16" cy="16" r="15" fill="url(#poiMedallionGrad)" stroke="#c5a059" strokeWidth="1.5" />
+    <circle cx="16" cy="16" r="15" fill="url(#crossExamMedallionGrad)" stroke="#c5a059" strokeWidth="1.5" />
     <circle cx="16" cy="16" r="12" fill="none" stroke="#68470c" strokeWidth="1" strokeDasharray="1.5 2" />
-    {/* Roman Laurel Accent inside Seal */}
-    <path d="M9 16 C9 12, 12 9, 16 9 C20 9, 23 12, 23 16" stroke="#4a3207" strokeWidth="1.2" strokeLinecap="round" />
-    {/* Raised Hand of Interjection */}
-    <path 
-      d="M14 11 C14 10.4, 14.4 10, 15 10 C15.6 10, 16 10.4, 16 11 L16 15 L17 13 C17.3 12.5, 17.9 12.3, 18.4 12.6 C18.8 12.9, 19 13.4, 18.9 13.9 L18 17 C17.6 18.5, 16.3 19.5, 14.7 19.5 L13 19.5 C11.9 19.5, 11 18.6, 11 17.5 L11 14 C11 13.4, 11.4 13, 12 13 C12.6 13, 13 13.4, 13 14 L13 15" 
-      fill="#4a3207" 
+    {/* Two opposed speech cartouches: the question and the reply */}
+    <path
+      d="M9.5 12.5 C9.5 11.7, 10.2 11, 11 11 L17.5 11 C18.3 11, 19 11.7, 19 12.5 L19 15.5 C19 16.3, 18.3 17, 17.5 17 L13 17 L10.5 19 L10.5 17 C9.9 17 9.5 16.5, 9.5 15.9 Z"
+      fill="#4a3207"
+    />
+    <path
+      d="M22.5 16 C22.5 15.4, 22.1 15, 21.5 15 L16.5 15 C15.9 15, 15.5 15.4, 15.5 16 L15.5 19 C15.5 19.6, 15.9 20, 16.5 20 L20 20 L22 21.8 L22 20 C22.3 20, 22.5 19.6, 22.5 19.2 Z"
+      fill="#7a5513"
+      opacity="0.85"
     />
   </svg>
 );

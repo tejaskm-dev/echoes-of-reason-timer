@@ -1,8 +1,14 @@
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { X, Award, RotateCcw } from 'lucide-react';
-import type { Speaker } from '../types/debate';
+import type { DebateSegment, Speaker } from '../types/debate';
 import { formatTimeCompact } from '../utils/time';
+import {
+  SEGMENT_SHORT_LABELS,
+  segmentsForSpeaker,
+  totalElapsedSeconds,
+  totalScheduledSeconds,
+} from '../utils/segments';
 import { GoldDiamond } from './ClassicalDecors';
 
 interface DebateCompletedModalProps {
@@ -10,6 +16,7 @@ interface DebateCompletedModalProps {
   onClose: () => void;
   onRestartDebate: () => void;
   speakers: Speaker[];
+  segments: DebateSegment[];
 }
 
 export const DebateCompletedModal: React.FC<DebateCompletedModalProps> = ({
@@ -17,6 +24,7 @@ export const DebateCompletedModal: React.FC<DebateCompletedModalProps> = ({
   onClose,
   onRestartDebate,
   speakers,
+  segments,
 }) => {
   useEffect(() => {
     if (isOpen) {
@@ -34,6 +42,48 @@ export const DebateCompletedModal: React.FC<DebateCompletedModalProps> = ({
 
   const propSpeakers = speakers.filter((s) => s.team === 'proposition');
   const oppSpeakers = speakers.filter((s) => s.team === 'opposition');
+
+  const scheduled = totalScheduledSeconds(segments);
+  const used = totalElapsedSeconds(segments);
+
+  const renderBench = (bench: Speaker[], isProp: boolean) => (
+    <div>
+      <h4
+        className={`font-cinzel tracking-wider text-[11px] font-bold uppercase pb-1 mb-2 border-b ${
+          isProp ? 'text-blue-900 border-blue-900/10' : 'text-rose-900 border-rose-900/10'
+        }`}
+      >
+        {isProp ? 'Proposition' : 'Opposition'}
+      </h4>
+      <div className="space-y-2 font-sans-ui text-[#293241]">
+        {bench.map((sp) => {
+          const own = segmentsForSpeaker(segments, sp.id);
+          return (
+            <div key={sp.id} className="flex flex-col gap-0.5">
+              <span className="truncate font-medium">
+                {sp.name}
+                <span className="text-[10px] font-cinzel text-[#7b8393] ml-1.5 uppercase">
+                  {sp.roleAbbr}
+                </span>
+              </span>
+              <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 pl-0.5">
+                {own.map((seg) => (
+                  <span key={seg.id} className="text-[10px] text-[#5d6678] whitespace-nowrap">
+                    {SEGMENT_SHORT_LABELS[seg.kind]}{' '}
+                    <span
+                      className={`font-num font-medium ${isProp ? 'text-blue-950' : 'text-rose-950'}`}
+                    >
+                      {formatTimeCompact(seg.timeRemaining)}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-300 select-none">
@@ -62,36 +112,22 @@ export const DebateCompletedModal: React.FC<DebateCompletedModalProps> = ({
           “Reason prevails — all speakers have concluded their arguments.”
         </p>
 
-        {/* Recap Table */}
-        <div className="grid grid-cols-2 gap-4 text-left p-4 rounded-2xl bg-[#ede6da]/70 border border-[#c5a059]/20 mb-6 text-xs">
-          {/* Proposition Recap */}
-          <div>
-            <h4 className="font-cinzel tracking-wider text-[11px] font-bold text-blue-900 uppercase border-b border-blue-900/10 pb-1 mb-2">
-              Proposition
-            </h4>
-            <div className="space-y-1.5 font-sans-ui text-[#293241]">
-              {propSpeakers.map((sp) => (
-                <div key={sp.id} className="flex justify-between items-center">
-                  <span className="truncate pr-1">{sp.name}</span>
-                  <span className="font-num text-[11px] text-blue-950 font-medium">{formatTimeCompact(sp.timeRemaining)} left</span>
-                </div>
-              ))}
-            </div>
+        {/* Recap Table: time left on every phase of every speech */}
+        <div className="text-left p-4 rounded-2xl bg-[#ede6da]/70 border border-[#c5a059]/20 mb-6 text-xs">
+          <div className="grid grid-cols-2 gap-4">
+            {renderBench(propSpeakers, true)}
+            {renderBench(oppSpeakers, false)}
           </div>
 
-          {/* Opposition Recap */}
-          <div>
-            <h4 className="font-cinzel tracking-wider text-[11px] font-bold text-rose-900 uppercase border-b border-rose-900/10 pb-1 mb-2">
-              Opposition
-            </h4>
-            <div className="space-y-1.5 font-sans-ui text-[#293241]">
-              {oppSpeakers.map((sp) => (
-                <div key={sp.id} className="flex justify-between items-center">
-                  <span className="truncate pr-1">{sp.name}</span>
-                  <span className="font-num text-[11px] text-rose-950 font-medium">{formatTimeCompact(sp.timeRemaining)} left</span>
-                </div>
-              ))}
-            </div>
+          <div className="mt-3 pt-2.5 border-t border-[#c5a059]/25 flex items-center justify-between text-[11px] text-[#5d6678] font-sans-ui">
+            <span>
+              Floor time used{' '}
+              <strong className="font-num text-[#293241]">{formatTimeCompact(used)}</strong> of{' '}
+              <strong className="font-num text-[#293241]">{formatTimeCompact(scheduled)}</strong>
+            </span>
+            <span className="font-cinzel tracking-wider uppercase text-[10px]">
+              {segments.length} phases
+            </span>
           </div>
         </div>
 
