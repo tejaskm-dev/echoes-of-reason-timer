@@ -225,7 +225,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
       </div>
 
       {/* 3. Massive Circular Timer Display (65-75% Dominant Central Focal Point) */}
-      <div className="relative clock-dial-responsive flex items-center justify-center my-0 group/timer">
+      <div className="relative clock-dial-responsive flex items-center justify-center my-0 group/timer timer-morph-dial cursor-default">
         {/* Ambient Frosted Halo Face */}
         <div 
           className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-700 pointer-events-none ${
@@ -546,7 +546,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
             </div>
           ) : (
             /* Clickable Numerals & Quick Adjustment Bar */
-            <div className="relative z-20 flex flex-col items-center select-none">
+            <div className="relative z-20 flex flex-col items-center select-none timer-morph-content">
               <button
                 type="button"
                 onClick={handleOpenEditTime}

@@ -256,6 +256,31 @@
 }
 
 /* ==========================================================================
+   SLOW LUXURY HOVER MORPH SYSTEM
+   Timer is larger at rest and slowly, smoothly morphs to interactive mode on hover
+   ========================================================================== */
+
+.timer-morph-dial {
+  transform: scale(1.045);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.65s ease;
+  will-change: transform;
+}
+
+.group\/timer:hover .timer-morph-dial {
+  transform: scale(1);
+}
+
+.timer-morph-content {
+  transform: scale(1.06);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.group\/timer:hover .timer-morph-content {
+  transform: scale(1) translateY(-4px);
+}
+
+/* ==========================================================================
    BUTTERY SMOOTH SPEAKER SWITCHING & SELECTION TRANSITIONS
    ========================================================================== */
 

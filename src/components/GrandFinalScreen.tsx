@@ -357,7 +357,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
         {/* Center Arena: Pure Gold Metallic Chronometer & Symmetrical Control Deck */}
         <div className="flex-1 flex flex-col items-center justify-center max-w-[820px] xl:max-w-[880px] px-1 sm:px-2">
           {/* Circular Chronometer Dial */}
-          <div className="relative clock-dial-responsive flex items-center justify-center my-0.5 group/timer">
+          <div className="relative clock-dial-responsive flex items-center justify-center my-0.5 group/timer timer-morph-dial cursor-default">
             {/* Ambient Halo Face */}
             <div 
               className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-700 pointer-events-none ${
@@ -598,7 +598,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="relative z-20 flex flex-col items-center select-none">
+                <div className="relative z-20 flex flex-col items-center select-none timer-morph-content">
                   {/* High-Contrast Numerals (Deep Onyx #0a0d14) */}
                   <button
                     type="button"
