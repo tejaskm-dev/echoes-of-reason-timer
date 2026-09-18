@@ -357,7 +357,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
         {/* Center Arena: Pure Gold Metallic Chronometer & Symmetrical Control Deck */}
         <div className="flex-1 flex flex-col items-center justify-center max-w-[820px] xl:max-w-[880px] px-1 sm:px-2">
           {/* Circular Chronometer Dial */}
-          <div className="relative clock-dial-responsive flex items-center justify-center my-0.5">
+          <div className="relative clock-dial-responsive flex items-center justify-center my-0.5 group/timer">
             {/* Ambient Halo Face */}
             <div 
               className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-700 pointer-events-none ${
@@ -640,9 +640,13 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                     </div>
                   </div>
 
-                  {/* Sleek High-Contrast Quick Adjust Buttons Bar */}
+                  {/* Sleek High-Contrast Quick Adjust Buttons Bar - revealed on timer hover */}
                   <div 
-                    className="relative z-30 flex items-center justify-center gap-1 mt-2 bg-[#fdfaf5]/90 border border-[#c5a059]/45 rounded-full px-2 py-0.5 shadow-2xs backdrop-blur-xs transition-transform duration-300 hover:scale-[1.02]"
+                    className={`relative z-30 flex items-center justify-center gap-1 mt-2 bg-[#fdfaf5]/90 border border-[#c5a059]/45 rounded-full px-2 py-0.5 shadow-2xs backdrop-blur-xs transition-all duration-300 ${
+                      isEditingTime
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 translate-y-1.5 scale-95 pointer-events-none group-hover/timer:opacity-100 group-hover/timer:translate-y-0 group-hover/timer:scale-100 group-hover/timer:pointer-events-auto'
+                    }`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button

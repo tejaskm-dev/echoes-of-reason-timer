@@ -93,20 +93,20 @@ export default function App() {
   // Screen Mode: 'semifinals' | 'grand_final'
   const [screenMode, setScreenMode] = useState<'semifinals' | 'grand_final'>('semifinals');
 
-  // Debate Round Stage & Editable Topic Motion (Defaults to Semifinals & Official Match 1)
+  // Debate Round Stage & Editable Topic Motion (Defaults to Semifinal 2: Utopia vs She He He)
   const [roundStage, setRoundStage] = useState<RoundStage>('Round 3: Semifinal');
   const [motion, setMotion] = useState<string>(
-    'This house would let people legally erase specific traumatic memories if the technology existed.'
+    'This house would allow open borders—permitting anyone to migrate and work in any country, with no restrictions on citizenship or labor market access.'
   );
-  const [propTeamName, setPropTeamName] = useState<string>('Team Neutron');
-  const [oppTeamName, setOppTeamName] = useState<string>('Team Futures');
+  const [propTeamName, setPropTeamName] = useState<string>('Team Utopia');
+  const [oppTeamName, setOppTeamName] = useState<string>('Team She He He');
 
-  // Grand Final state (No preset questions, purely freeform custom entry for the finals)
+  // Grand Final state (Defaults to Team Utopia vs Team She He He)
   const [grandFinalMotion, setGrandFinalMotion] = useState<string>(
-    'This House Believes That Scientific Truth Outweighs Societal Consensus'
+    'This house would allow open borders—permitting anyone to migrate and work in any country, with no restrictions on citizenship or labor market access.'
   );
-  const [gfPropTeamName, setGfPropTeamName] = useState<string>('Team 1');
-  const [gfOppTeamName, setGfOppTeamName] = useState<string>('Team 2');
+  const [gfPropTeamName, setGfPropTeamName] = useState<string>('Team Utopia');
+  const [gfOppTeamName, setGfOppTeamName] = useState<string>('Team She He He');
 
   const handleSelectScreenMode = useCallback((mode: 'semifinals' | 'grand_final') => {
     playTactileClick();

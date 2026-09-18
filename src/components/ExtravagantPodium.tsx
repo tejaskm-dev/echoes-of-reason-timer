@@ -69,7 +69,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
   };
 
   return (
-    <div className="w-[325px] sm:w-[355px] md:w-[385px] lg:w-[415px] xl:w-[445px] 2xl:w-[475px] flex flex-col items-center shrink-0 select-none transition-all duration-300">
+    <div className="w-[290px] sm:w-[315px] md:w-[335px] lg:w-[360px] xl:w-[385px] 2xl:w-[415px] flex flex-col items-center shrink-0 select-none transition-all duration-300">
       {/* 1. Sculpted Gilded Neoclassical Pediment Crown */}
       <div className="w-full relative z-20 -mb-2.5">
         <BaroqueAcanthusPediment teamType={teamType} className="w-full drop-shadow-md" />
