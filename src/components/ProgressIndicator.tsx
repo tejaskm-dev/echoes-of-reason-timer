@@ -25,7 +25,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   );
 
   return (
-    <div className="flex flex-col items-center justify-center my-1 sm:my-1.5 select-none">
+    <div className="flex flex-col items-center justify-center my-0.5 select-none">
       <div className="relative flex items-center justify-center w-full max-w-[420px] sm:max-w-[560px]">
         {/* Background track horizontal line */}
         <div className="absolute top-1/2 left-4 right-4 -translate-y-1/2 h-[1.5px] bg-[#c5a059]/25 z-0" />
@@ -58,7 +58,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
                       title={`${idx + 1}. ${speaker.role} (${isProp ? 'Proposition' : 'Opposition'}) · ${
                         SEGMENT_SHORT_LABELS[seg.kind]
                       }`}
-                      className="group relative flex items-center justify-center focus:outline-none cursor-pointer p-1 transition-transform duration-200 hover:scale-110 active:scale-95"
+                      className="group relative flex items-center justify-center focus:outline-none cursor-pointer p-0.5 transition-transform duration-200 hover:scale-110 active:scale-95"
                       aria-label={`Go to ${speaker.role} ${SEGMENT_SHORT_LABELS[seg.kind]}`}
                     >
                       {isActive ? (

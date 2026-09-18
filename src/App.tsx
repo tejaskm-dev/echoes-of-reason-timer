@@ -508,7 +508,7 @@ export default function App() {
             )}
 
             {/* Main Debate Stage: Massive Centered Timer with Symmetrical Podiums */}
-            <main className="w-full flex-1 max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 py-0.5 flex flex-col justify-center items-center">
+            <main className="w-full flex-1 max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 py-0 flex flex-col justify-center items-center">
               <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-3 xl:gap-8">
                 {/* Left Edge Podium: Proposition */}
                 <div className="podium-responsive shrink-0 flex justify-center lg:justify-start order-2 lg:order-1">
@@ -551,7 +551,7 @@ export default function App() {
                   />
 
                   {/* Stepper directly below timer */}
-                  <div className="w-full mt-1.5 sm:mt-2">
+                  <div className="w-full mt-0.5">
                     <ProgressIndicator
                       speakingOrder={speakingOrder}
                       segments={segments}

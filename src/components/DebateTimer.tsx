@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { RotateCcw, SkipForward, MessagesSquare, Mic, Edit2, Check, X, ChevronUp, ChevronDown, Clock } from 'lucide-react';
 import type { Speaker, TimerStatus, RoundStage, DebateSegment } from '../types/debate';
 import { formatTime } from '../utils/time';
-import { SEGMENT_LABELS, SEGMENT_SHORT_LABELS } from '../utils/segments';
+import { SEGMENT_SHORT_LABELS } from '../utils/segments';
 import { GoldDiamond } from './ClassicalDecors';
 import { playTactileClick } from '../utils/audio';
 
@@ -50,10 +50,11 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
   const isReply = activeSegment.kind === 'reply';
 
   // During cross-questioning the opposing bench holds the floor, not the speaker
-  const propLabel = `${(propTeamName || 'TEAM 1').toUpperCase()} · PROPOSITION`;
-  const oppLabel = `${(oppTeamName || 'TEAM 2').toUpperCase()} · OPPOSITION`;
   const floorIsProp = isCrossExam ? !isProp : isProp;
-  const floorLabel = floorIsProp ? propLabel : oppLabel;
+  const floorTeam = floorIsProp
+    ? (propTeamName || 'Team 1').toUpperCase()
+    : (oppTeamName || 'Team 2').toUpperCase();
+  const floorSide = floorIsProp ? 'PROPOSITION' : 'OPPOSITION';
 
   // Timer editing state (using string states to prevent backspace lockup)
   const [isEditingTime, setIsEditingTime] = useState(false);
@@ -182,9 +183,9 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center select-none py-0.5 px-2 w-full max-w-[860px] xl:max-w-[960px]">
+    <div className="flex flex-col items-center justify-center select-none py-0 px-2 w-full max-w-[860px] xl:max-w-[960px]">
       {/* 1. Single Compact Integrated Round & Active Speaker Headline */}
-      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-1">
+      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 sm:gap-x-3 mb-1">
         <button
           onClick={handleNextRound}
           title="Click to cycle rounds: Semifinal -> Grand Final -> Qualifier"
@@ -198,30 +199,33 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
 
         <span className="text-[#c5a059] opacity-60 font-serif text-xs">·</span>
 
-        <h3 key={activeSegment.id} className="animate-numeral-crossfade font-cinzel text-xs sm:text-sm md:text-base tracking-[0.2em] uppercase font-bold text-[#141820] flex flex-wrap items-center justify-center gap-1.5 text-center">
+        <h3 key={activeSegment.id} className="animate-numeral-crossfade font-cinzel text-[11px] lg:text-xs xl:text-sm 2xl:text-base tracking-[0.16em] xl:tracking-[0.2em] uppercase font-bold text-[#141820] flex items-center justify-center gap-1.5 text-center whitespace-nowrap">
           <span className={floorIsProp ? 'text-blue-950 font-extrabold' : 'text-rose-950 font-extrabold'}>
-            {floorLabel}
+            {/* The team name lives on the podium a few inches away, so it is
+                dropped here below 1440px rather than wrapping the whole row */}
+            <span className="hidden min-[1440px]:inline">{floorTeam} · </span>
+            {floorSide}
           </span>
           <span className="text-[#c5a059] font-normal">·</span>
           <span className="text-[#2b3342]">
             {isCrossExam ? `QUESTIONS ${activeSpeaker.roleAbbr.toUpperCase()}` : activeSpeaker.role.toUpperCase()}
           </span>
-          <span
-            className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] tracking-[0.18em] font-extrabold border ${
-              isCrossExam
-                ? 'bg-amber-400/20 text-[#6b4c12] border-amber-500/50'
-                : isReply
-                ? 'bg-[#1b2230]/10 text-[#2b3342] border-[#c5a059]/60'
-                : 'bg-white/70 text-[#5c4a28] border-[#c5a059]/40'
-            }`}
-          >
-            {SEGMENT_LABELS[activeSegment.kind].toUpperCase()}
-          </span>
+          {activeSegment.kind !== 'speech' && (
+            <span
+              className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] tracking-[0.18em] font-extrabold border ${
+                isCrossExam
+                  ? 'bg-amber-400/20 text-[#6b4c12] border-amber-500/50'
+                  : 'bg-[#1b2230]/10 text-[#2b3342] border-[#c5a059]/60'
+              }`}
+            >
+              {SEGMENT_SHORT_LABELS[activeSegment.kind].toUpperCase()}
+            </span>
+          )}
         </h3>
       </div>
 
       {/* 3. Massive Circular Timer Display (65-75% Dominant Central Focal Point) */}
-      <div className="relative clock-dial-responsive flex items-center justify-center my-0.5">
+      <div className="relative clock-dial-responsive flex items-center justify-center my-0">
         {/* Ambient Frosted Halo Face */}
         <div 
           className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-700 pointer-events-none ${

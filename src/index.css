@@ -215,26 +215,28 @@
 }
 
 /* Fluid Responsive Desktop & Laptop Viewport Adaptation */
+/*
+ * The dial claims every pixel the rest of the stage does not need, rather than
+ * a guessed slice of the viewport. --stage-chrome is the measured height of
+ * everything above and below it (header, motion, headline, control deck,
+ * stepper, footer and their gaps), so the dial grows to fill tall displays
+ * without ever pushing the stepper or footer off a short one.
+ */
+:root {
+  --stage-chrome: calc(316px + 4vw);
+}
+
 .clock-dial-responsive {
-  width: min(720px, 52vh, 44vw);
-  height: min(720px, 52vh, 44vw);
-  min-width: 280px;
-  min-height: 280px;
+  width: min(900px, calc(100vh - var(--stage-chrome)), 46vw);
+  height: min(900px, calc(100vh - var(--stage-chrome)), 46vw);
+  min-width: 260px;
+  min-height: 260px;
 }
 
-@media (min-height: 900px) and (min-width: 1400px) {
+@media (max-height: 860px) {
   .clock-dial-responsive {
-    width: min(780px, 56vh, 46vw);
-    height: min(780px, 56vh, 46vw);
-  }
-}
-
-@media (max-height: 780px) {
-  .clock-dial-responsive {
-    width: min(480px, 42vh, 36vw);
-    height: min(480px, 42vh, 36vw);
-    min-width: 250px;
-    min-height: 250px;
+    min-width: 240px;
+    min-height: 240px;
   }
 }
 
