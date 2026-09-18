@@ -1,5 +1,5 @@
 /**
- * Formats seconds into MM:SS (e.g. 240 -> "04:00", 9 -> "00:09")
+ * Formats seconds into MM:SS (e.g. 180 -> "03:00", 9 -> "00:09")
  */
 export const formatTime = (seconds: number): string => {
   const clamped = Math.max(0, Math.floor(seconds));
@@ -9,7 +9,7 @@ export const formatTime = (seconds: number): string => {
 };
 
 /**
- * Formats seconds into M:SS for compact speaker lists (e.g. 240 -> "4:00")
+ * Formats seconds into M:SS for compact speaker lists (e.g. 180 -> "3:00")
  */
 export const formatTimeCompact = (seconds: number): string => {
   const clamped = Math.max(0, Math.floor(seconds));

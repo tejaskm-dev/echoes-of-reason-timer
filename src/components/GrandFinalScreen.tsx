@@ -10,15 +10,16 @@ import {
   ChevronUp, 
   ChevronDown 
 } from 'lucide-react';
-import type { Speaker, TimerStatus, POIState } from '../types/debate';
+import type { DebateSegment, Speaker, TimerStatus } from '../types/debate';
 import { formatTime } from '../utils/time';
+import { SEGMENT_GLYPHS, SEGMENT_SHORT_LABELS } from '../utils/segments';
 import { playTactileClick } from '../utils/audio';
 import { 
   GoldDiamond, 
   ChronometerLaurelBase, 
   NeoclassicalMotionCartouche 
 } from './ClassicalDecors';
-import { POIPanel } from './POIPanel';
+import { CrossExamPanel } from './CrossExamPanel';
 import { Header } from './Header';
 import { ExtravagantPodium } from './ExtravagantPodium';
 
@@ -39,22 +40,21 @@ interface GrandFinalScreenProps {
   onUpdateOppTeamName: (name: string) => void;
 
   speakingOrder: Speaker[];
-  currentIndex: number;
+  segments: DebateSegment[];
+  currentSegmentIndex: number;
   onSelectIndex: (idx: number) => void;
+  onSelectSpeaker: (speakerId: string) => void;
   onUpdateSpeakerName: (id: string, name: string) => void;
-  onUpdateSpeakerTime: (id: string, time: number, totalDuration?: number) => void;
+  onUpdateSegmentTime: (segmentId: string, time: number, totalDuration?: number) => void;
 
   timerStatus: TimerStatus;
   onStartPause: () => void;
   onReset: () => void;
-  onNextSpeaker: () => void;
-  hasNextSpeaker: boolean;
+  onNextSegment: () => void;
+  /** False once the final phase has been run and the debate is closed out. */
+  canAdvance: boolean;
+  nextSegmentLabel?: string;
 
-  poiState: POIState;
-  onTriggerPOIRequest: (team: 'proposition' | 'opposition') => void;
-  onAllowPOI: () => void;
-  onDeclinePOI: () => void;
-  onEndPOI: () => void;
 }
 
 export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
@@ -72,27 +72,30 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
   onUpdatePropTeamName,
   onUpdateOppTeamName,
   speakingOrder,
-  currentIndex,
+  segments,
+  currentSegmentIndex,
   onSelectIndex,
+  onSelectSpeaker,
   onUpdateSpeakerName,
-  onUpdateSpeakerTime,
+  onUpdateSegmentTime,
   timerStatus,
   onStartPause,
   onReset,
-  onNextSpeaker,
-  hasNextSpeaker,
-  poiState,
-  onTriggerPOIRequest,
-  onAllowPOI,
-  onDeclinePOI,
-  onEndPOI,
+  onNextSegment,
+  canAdvance,
+  nextSegmentLabel,
 }) => {
   const isRunning = timerStatus === 'running';
-  const activeSpeaker = speakingOrder[currentIndex] || speakingOrder[0];
-  const timeRemaining = activeSpeaker.timeRemaining;
-  const totalDuration = activeSpeaker.totalDuration || 240;
+  const activeSegment = segments[currentSegmentIndex] ?? segments[0];
+  const activeSpeaker =
+    speakingOrder.find((s) => s.id === activeSegment.speakerId) || speakingOrder[0];
+  const timeRemaining = activeSegment.timeRemaining;
+  const totalDuration = activeSegment.totalDuration;
   const isCompleted = timeRemaining <= 0;
-  const isPOIActive = poiState.status === 'active';
+  const isCrossExam = activeSegment.kind === 'cross';
+  const isReply = activeSegment.kind === 'reply';
+  // Cross-questioning and reply take the motion cartouche's slot while they run
+  const isQuestionPhase = activeSegment.kind !== 'speech';
 
   // Algorithmic Motion Typography Calculator
   // Dynamically balances maximum grandeur with zero screen overflow
@@ -189,7 +192,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
     const m = Math.max(0, parseInt(minStr, 10) || 0);
     const s = Math.max(0, Math.min(59, parseInt(secStr, 10) || 0));
     const total = Math.max(1, m * 60 + s);
-    onUpdateSpeakerTime(activeSpeaker.id, total, timerStatus === 'idle' ? total : undefined);
+    onUpdateSegmentTime(activeSegment.id, total, timerStatus === 'idle' ? total : undefined);
     setIsEditingTime(false);
   };
 
@@ -198,7 +201,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
     playTactileClick();
     const next = Math.max(1, timeRemaining + deltaSeconds);
     const nextTotal = timerStatus === 'idle' ? next : undefined;
-    onUpdateSpeakerTime(activeSpeaker.id, next, nextTotal);
+    onUpdateSegmentTime(activeSegment.id, next, nextTotal);
   };
 
   // Circular Chronometer Math
@@ -226,7 +229,10 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
     };
   });
 
-  const progressPercent = Math.min(100, Math.max(0, (currentIndex / (speakingOrder.length - 1 || 1)) * 100));
+  const progressPercent = Math.min(
+    100,
+    Math.max(0, (currentSegmentIndex / (segments.length - 1 || 1)) * 100)
+  );
 
   return (
     <div className="h-screen max-h-screen w-full grand-final-bg flex flex-col justify-between overflow-hidden relative selection:bg-[#c5a059]/30">
@@ -255,8 +261,19 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
           <div className="h-[0.5px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#c5a059]" />
         </div>
 
-        {/* Editable Motion Display */}
-        {isEditingMotion ? (
+        {/* Editable Motion Display — yields to the phase banner during
+            cross-questioning and reply, so nothing is ever overlaid */}
+        {isQuestionPhase ? (
+          <div className="w-full mt-0.5">
+            <CrossExamPanel
+              activeSegment={activeSegment}
+              activeSpeaker={activeSpeaker}
+              nextSegmentLabel={nextSegmentLabel}
+              onAdvance={onNextSegment}
+              variant="grand"
+            />
+          </div>
+        ) : isEditingMotion ? (
           <div className="w-full max-w-3xl bg-[#faf7f2]/98 backdrop-blur-md border-2 border-[#c5a059] rounded-2xl p-3.5 shadow-2xl animate-in zoom-in-95 duration-200 mt-0.5">
             <span className="block text-[10px] font-cinzel uppercase tracking-[0.25em] text-[#7c5f27] font-bold mb-1 text-center">
               Grand Final Debate Motion
@@ -319,16 +336,6 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
         )}
       </section>
 
-      {/* Prominent POI HUD Overlay */}
-      <POIPanel
-        poiState={poiState}
-        activeSpeaker={activeSpeaker}
-        roundStage="Round 4: Grand Final"
-        onAllowPOI={onAllowPOI}
-        onDeclinePOI={onDeclinePOI}
-        onEndPOI={onEndPOI}
-      />
-
       {/* 3. Main Stage: Left Extravagant Podium, Pure Gold Chronometer, Right Extravagant Podium */}
       <main className="relative z-10 w-full flex-1 min-h-0 max-w-[1920px] mx-auto px-2 sm:px-4 lg:px-6 xl:px-10 py-0 flex items-center justify-between gap-2 sm:gap-4">
         {/* Left Side: Extravagant Proposition Monument Podium */}
@@ -337,11 +344,13 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
           teamName={propTeamName}
           onUpdateTeamName={onUpdatePropTeamName}
           speakers={propSpeakers}
+          segments={segments}
+          activeSegment={activeSegment}
           activeSpeakerId={activeSpeaker.id}
-          isOpposingActiveSpeaker={activeSpeaker.team === 'opposition'}
-          activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
-          onCallPOI={() => onTriggerPOIRequest('proposition')}
-          onSelectSpeaker={(id) => onSelectIndex(speakingOrder.findIndex((s) => s.id === id))}
+          onSelectSpeaker={onSelectSpeaker}
+          onSelectSegment={(segmentId) =>
+            onSelectIndex(segments.findIndex((seg) => seg.id === segmentId))
+          }
           onUpdateSpeakerName={onUpdateSpeakerName}
         />
 
@@ -352,7 +361,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
             {/* Ambient Halo Face */}
             <div 
               className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-700 pointer-events-none ${
-                isPOIActive
+                isCrossExam
                   ? 'ring-4 ring-rose-500/50 shadow-[0_0_60px_rgba(225,29,72,0.3)]'
                   : isRunning
                   ? 'animate-halo-breathing'
@@ -594,11 +603,11 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                   <button
                     type="button"
                     onClick={handleOpenEditTime}
-                    title="Click to edit speech time"
+                    title="Click to edit this phase's time"
                     className="cursor-pointer hover:opacity-90 hover:scale-[1.015] transition-all duration-300 outline-none block"
                   >
                     <div
-                      key={activeSpeaker.id}
+                      key={activeSegment.id}
                       className={`font-num font-normal tracking-tight numerals-responsive select-none animate-numeral-crossfade ${
                         isCompleted
                           ? 'text-rose-600 animate-bounce'
@@ -616,10 +625,12 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                     <span className="font-cinzel text-xs sm:text-sm tracking-[0.25em] font-bold text-[#353e4d] uppercase">
                       {isCompleted
                         ? 'TIME EXPIRED'
-                        : isPOIActive
-                        ? 'POI IN PROGRESS · 15S MAX'
                         : !isRunning
                         ? 'TIMER PAUSED'
+                        : isCrossExam
+                        ? 'CROSS-QUESTIONING · ONE AT A TIME'
+                        : isReply
+                        ? 'REPLY · NO INTERRUPTIONS'
                         : 'SPEAKING TIME'}
                     </span>
                     <div className="mt-1 flex items-center justify-center gap-2 opacity-85">
@@ -694,7 +705,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
             <div className="flex flex-col items-center gap-1">
               <button
                 onClick={onReset}
-                title="Reset timer (R)"
+                title={`Reset ${SEGMENT_SHORT_LABELS[activeSegment.kind]} timer to ${formatTime(totalDuration)} (R)`}
                 className="group w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-[#fdfaf5] hover:bg-white border border-[#c5a059]/50 shadow-sm hover:shadow-md flex items-center justify-center text-[#18202d] transition-all duration-200 active:scale-90 cursor-pointer"
               >
                 <RotateCcw className="w-5 h-5 transition-transform duration-300 group-hover:-rotate-45" />
@@ -743,19 +754,19 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
             {/* Next Speaker */}
             <div className="flex flex-col items-center gap-1">
               <button
-                onClick={onNextSpeaker}
-                disabled={!hasNextSpeaker}
-                title={hasNextSpeaker ? 'Next Speaker (N)' : 'Final speech concluded'}
+                onClick={onNextSegment}
+                disabled={!canAdvance}
+                title={canAdvance ? `Advance to ${nextSegmentLabel} (N)` : 'Final speech concluded'}
                 className={`group w-12 h-12 sm:w-13 sm:h-13 rounded-full flex items-center justify-center transition-all duration-200 active:scale-90 ${
-                  hasNextSpeaker
+                  canAdvance
                     ? 'bg-[#fdfaf5] hover:bg-white border border-[#c5a059]/50 shadow-sm hover:shadow-md text-[#18202d] cursor-pointer'
                     : 'bg-[#e2ddd5]/40 border border-black/5 text-[#9ea7b5] cursor-not-allowed opacity-50'
                 }`}
               >
-                <SkipForward className={`w-5 h-5 transition-transform duration-300 ${hasNextSpeaker ? 'group-hover:translate-x-0.5' : ''}`} />
+                <SkipForward className={`w-5 h-5 transition-transform duration-300 ${canAdvance ? 'group-hover:translate-x-0.5' : ''}`} />
               </button>
-              <span className="font-cinzel text-[10px] tracking-widest text-[#5a6476] uppercase font-semibold">
-                Next
+              <span className="font-cinzel text-[10px] tracking-widest text-[#5a6476] uppercase font-semibold text-center leading-tight max-w-[72px]">
+                {canAdvance ? nextSegmentLabel : 'Next'}
               </span>
             </div>
           </div>
@@ -767,11 +778,13 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
           teamName={oppTeamName}
           onUpdateTeamName={onUpdateOppTeamName}
           speakers={oppSpeakers}
+          segments={segments}
+          activeSegment={activeSegment}
           activeSpeakerId={activeSpeaker.id}
-          isOpposingActiveSpeaker={activeSpeaker.team === 'proposition'}
-          activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
-          onCallPOI={() => onTriggerPOIRequest('opposition')}
-          onSelectSpeaker={(id) => onSelectIndex(speakingOrder.findIndex((s) => s.id === id))}
+          onSelectSpeaker={onSelectSpeaker}
+          onSelectSegment={(segmentId) =>
+            onSelectIndex(segments.findIndex((seg) => seg.id === segmentId))
+          }
           onUpdateSpeakerName={onUpdateSpeakerName}
         />
       </main>
@@ -786,54 +799,101 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
             style={{ width: `calc((100% - 64px) * ${progressPercent / 100})` }}
           />
 
-          {/* 6 Speeches (01 through 06 with Clear Numbers & Roles) */}
+          {/* 14 Phases: each speech carries its Q&A and Reply beads */}
           <div className="relative z-10 flex items-center justify-between w-full">
-            {speakingOrder.map((sp, idx) => {
-              const isActive = idx === currentIndex;
-              const isSpCompleted = sp.hasSpoken && !isActive;
+            {speakingOrder.map((sp, spIdx) => {
+              const ownSegments = segments
+                .map((seg, idx) => ({ seg, idx }))
+                .filter(({ seg }) => seg.speakerId === sp.id);
 
               return (
-                <button
-                  key={sp.id}
-                  onClick={() => onSelectIndex(idx)}
-                  className="group relative flex flex-col items-center justify-center focus:outline-none cursor-pointer transition-transform hover:scale-108 active:scale-95 px-1"
-                >
-                  {/* Numbered Circular Badge */}
-                  {isActive ? (
-                    <div className="relative flex items-center justify-center">
-                      <span className="absolute w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#c5a059]/40 animate-progress-ping pointer-events-none" />
-                      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-[#121620] flex items-center justify-center bg-gradient-to-b from-[#f7e6b5] to-[#c5a059] shadow-md">
-                        <span className="font-cinzel text-[10px] font-black text-[#121620]">
-                          {String(idx + 1).padStart(2, '0')}
-                        </span>
-                      </div>
-                    </div>
-                  ) : isSpCompleted ? (
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#e8ded0] border border-[#c5a059] flex items-center justify-center shadow-xs">
-                      <span className="font-cinzel text-[9px] font-bold text-[#69542a]">
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white border border-[#c5a059]/50 flex items-center justify-center shadow-2xs group-hover:border-[#121620] transition-colors">
-                      <span className="font-cinzel text-[9px] font-bold text-[#443825]">
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                    </div>
-                  )}
+                <div key={sp.id} className="flex items-start gap-0.5">
+                  {ownSegments.map(({ seg, idx }) => {
+                    const isActive = idx === currentSegmentIndex;
+                    const isSegCompleted = seg.hasRun && !isActive;
+                    const isSpeech = seg.kind === 'speech';
+                    const badgeText = isSpeech
+                      ? String(spIdx + 1).padStart(2, '0')
+                      : SEGMENT_GLYPHS[seg.kind];
 
-                  {/* Centered Diamond Accent & Role */}
-                  <div className="flex flex-col items-center mt-1">
-                    <span className={`text-[6px] sm:text-[7px] leading-none ${isActive ? 'text-[#8d6928]' : 'text-[#a18c66]'}`}>
-                      ◆
-                    </span>
-                    <span className={`font-cinzel text-[8px] sm:text-[9px] mt-0.5 tracking-wider uppercase ${
-                      isActive ? 'font-black text-[#121620]' : 'font-bold text-[#4c3e29]'
-                    }`}>
-                      {sp.roleAbbr}
-                    </span>
-                  </div>
-                </button>
+                    return (
+                      <button
+                        key={seg.id}
+                        onClick={() => onSelectIndex(idx)}
+                        title={`${sp.role} · ${SEGMENT_SHORT_LABELS[seg.kind]}`}
+                        className="group relative flex flex-col items-center justify-start focus:outline-none cursor-pointer transition-transform hover:scale-108 active:scale-95 px-0.5"
+                      >
+                        {/* Numbered Circular Badge (phases ride smaller) */}
+                        {isActive ? (
+                          <div className="relative flex items-center justify-center">
+                            <span className="absolute w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#c5a059]/40 animate-progress-ping pointer-events-none" />
+                            <div
+                              className={`rounded-full border-2 border-[#121620] flex items-center justify-center bg-gradient-to-b from-[#f7e6b5] to-[#c5a059] shadow-md ${
+                                isSpeech ? 'w-6 h-6 sm:w-7 sm:h-7' : 'w-5 h-5 sm:w-5.5 sm:h-5.5'
+                              }`}
+                            >
+                              <span
+                                className={`font-cinzel font-black text-[#121620] leading-none ${
+                                  isSpeech ? 'text-[10px]' : 'text-[8px]'
+                                }`}
+                              >
+                                {badgeText}
+                              </span>
+                            </div>
+                          </div>
+                        ) : isSegCompleted ? (
+                          <div
+                            className={`rounded-full bg-[#e8ded0] border border-[#c5a059] flex items-center justify-center shadow-xs ${
+                              isSpeech ? 'w-5 h-5 sm:w-6 sm:h-6' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'
+                            }`}
+                          >
+                            <span
+                              className={`font-cinzel font-bold text-[#69542a] leading-none ${
+                                isSpeech ? 'text-[9px]' : 'text-[7px]'
+                              }`}
+                            >
+                              {badgeText}
+                            </span>
+                          </div>
+                        ) : (
+                          <div
+                            className={`rounded-full bg-white border border-[#c5a059]/50 flex items-center justify-center shadow-2xs group-hover:border-[#121620] transition-colors ${
+                              isSpeech ? 'w-5 h-5 sm:w-6 sm:h-6' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'
+                            }`}
+                          >
+                            <span
+                              className={`font-cinzel font-bold text-[#443825] leading-none ${
+                                isSpeech ? 'text-[9px]' : 'text-[7px]'
+                              }`}
+                            >
+                              {badgeText}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Role under the speech bead only, so the cluster stays legible */}
+                        {isSpeech && (
+                          <div className="flex flex-col items-center mt-1">
+                            <span
+                              className={`text-[6px] sm:text-[7px] leading-none ${
+                                isActive ? 'text-[#8d6928]' : 'text-[#a18c66]'
+                              }`}
+                            >
+                              ◆
+                            </span>
+                            <span
+                              className={`font-cinzel text-[8px] sm:text-[9px] mt-0.5 tracking-wider uppercase whitespace-nowrap ${
+                                isActive ? 'font-black text-[#121620]' : 'font-bold text-[#4c3e29]'
+                              }`}
+                            >
+                              {sp.roleAbbr}
+                            </span>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               );
             })}
           </div>

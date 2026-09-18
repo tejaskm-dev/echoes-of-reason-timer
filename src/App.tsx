@@ -1,27 +1,31 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Header } from './components/Header';
 import { MotionBanner } from './components/MotionBanner';
 import { TeamPanel } from './components/TeamPanel';
 import { DebateTimer } from './components/DebateTimer';
-import { POIPanel } from './components/POIPanel';
+import { CrossExamPanel } from './components/CrossExamPanel';
 import { ProgressIndicator } from './components/ProgressIndicator';
 import { Footer } from './components/Footer';
 import { ShortcutsModal } from './components/ShortcutsModal';
 import { DebateCompletedModal } from './components/DebateCompletedModal';
 import { RulesModal } from './components/RulesModal';
 import { GrandFinalScreen } from './components/GrandFinalScreen';
-import type { Speaker, TimerStatus, POIState, RoundStage, TeamType } from './types/debate';
-import { 
-  playDebateBell, 
-  playDoubleBell, 
-  playTactileClick, 
-  setSoundEnabled as setAudioEngineSound 
+import type { Speaker, TimerStatus, RoundStage, DebateSegment } from './types/debate';
+import {
+  buildSegments,
+  SEGMENT_SHORT_LABELS,
+  SPEECH_DURATION,
+} from './utils/segments';
+import {
+  playDebateBell,
+  playDoubleBell,
+  playTactileClick,
+  setSoundEnabled as setAudioEngineSound,
 } from './utils/audio';
 
-const SPEAKER_DURATION = 240; // 4 minutes
-const POI_DURATION = 15; // 15 seconds
-
-// Initial 6 speakers ordered in Asian Parliamentary Speaking Flow (per rules PDF)
+// Six speakers in official Asian Parliamentary order. Timing lives on the
+// segments built from this roster (3:00 speech, then 1:00 cross-questioning
+// and 1:00 reply for the four main speeches) — see utils/segments.ts.
 const INITIAL_SPEAKERS: Speaker[] = [
   {
     id: 'prop-1',
@@ -31,10 +35,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     role: 'Prime Minister',
     roleAbbr: 'PM',
     name: 'Speaker 1',
-    timeRemaining: SPEAKER_DURATION,
-    totalDuration: SPEAKER_DURATION,
-    hasSpoken: false,
-    poisAccepted: 0,
+    hasCrossExam: true,
   },
   {
     id: 'opp-1',
@@ -44,10 +45,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     role: 'Leader of Opposition',
     roleAbbr: 'LO',
     name: 'Speaker 1',
-    timeRemaining: SPEAKER_DURATION,
-    totalDuration: SPEAKER_DURATION,
-    hasSpoken: false,
-    poisAccepted: 0,
+    hasCrossExam: true,
   },
   {
     id: 'prop-2',
@@ -57,10 +55,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     role: 'Deputy Prime Minister',
     roleAbbr: 'DPM',
     name: 'Speaker 2',
-    timeRemaining: SPEAKER_DURATION,
-    totalDuration: SPEAKER_DURATION,
-    hasSpoken: false,
-    poisAccepted: 0,
+    hasCrossExam: true,
   },
   {
     id: 'opp-2',
@@ -70,10 +65,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     role: 'Deputy Leader of Opp',
     roleAbbr: 'DLO',
     name: 'Speaker 2',
-    timeRemaining: SPEAKER_DURATION,
-    totalDuration: SPEAKER_DURATION,
-    hasSpoken: false,
-    poisAccepted: 0,
+    hasCrossExam: true,
   },
   {
     id: 'opp-3',
@@ -83,10 +75,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     role: 'Opposition Closing',
     roleAbbr: 'Opp Closing',
     name: 'Speaker 3',
-    timeRemaining: SPEAKER_DURATION,
-    totalDuration: SPEAKER_DURATION,
-    hasSpoken: false,
-    poisAccepted: 0,
+    hasCrossExam: false,
   },
   {
     id: 'prop-3',
@@ -96,10 +85,7 @@ const INITIAL_SPEAKERS: Speaker[] = [
     role: 'Proposition Closing',
     roleAbbr: 'Prop Closing',
     name: 'Speaker 3',
-    timeRemaining: SPEAKER_DURATION,
-    totalDuration: SPEAKER_DURATION,
-    hasSpoken: false,
-    poisAccepted: 0,
+    hasCrossExam: false,
   },
 ];
 
@@ -142,10 +128,11 @@ export default function App() {
     }
   }, []);
 
-  // Speakers State in official flow
+  // Roster (identity only) and the 14-segment running order that carries all timing
   const [speakingOrder, setSpeakingOrder] = useState<Speaker[]>(INITIAL_SPEAKERS);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  
+  const [segments, setSegments] = useState<DebateSegment[]>(() => buildSegments(INITIAL_SPEAKERS));
+  const [currentSegmentIndex, setCurrentSegmentIndex] = useState<number>(0);
+
   // Timer State
   const [timerStatus, setTimerStatus] = useState<TimerStatus>('idle');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
@@ -156,20 +143,38 @@ export default function App() {
   const [isRulesOpen, setIsRulesOpen] = useState<boolean>(false);
   const [isCompletedModalOpen, setIsCompletedModalOpen] = useState<boolean>(false);
 
-  // Active Speaker
-  const activeSpeaker = speakingOrder[currentIndex];
+  // Active segment and the speaker it belongs to
+  const activeSegment = segments[currentSegmentIndex] ?? segments[0];
+  const activeSpeaker =
+    speakingOrder.find((s) => s.id === activeSegment.speakerId) ?? speakingOrder[0];
 
-  // POI State
-  const [poiState, setPoiState] = useState<POIState>({
-    status: 'idle',
-    requestingTeam: activeSpeaker.team === 'proposition' ? 'opposition' : 'proposition',
-    requestingSpeakerNumber: 1,
-    timeRemaining: POI_DURATION,
-  });
+  const nextSegment: DebateSegment | undefined = segments[currentSegmentIndex + 1];
 
-  // Ref tracking for precision timestamp calculation & 1-minute warning bell
+  // "Q&A" / "Reply" while still on the same speaker, then "Next Speaker", and
+  // "Conclude" on the final phase so the debate can actually be closed out.
+  const nextSegmentLabel = useMemo(() => {
+    if (!nextSegment) return 'Conclude';
+    return nextSegment.speakerId === activeSegment.speakerId
+      ? SEGMENT_SHORT_LABELS[nextSegment.kind]
+      : 'Next Speaker';
+  }, [nextSegment, activeSegment.speakerId]);
+
+  // Advancing stays available on the last phase (it concludes the debate) and
+  // only switches off once that final phase has been run.
+  const canAdvance = Boolean(nextSegment) || !activeSegment.hasRun;
+
+  // Cross-questioning and reply take the motion's slot while they run
+  const isQuestionPhase = activeSegment.kind !== 'speech';
+
+  // Ref tracking for precision timestamp calculation & the phase warning bell
   const lastTickRef = useRef<number | null>(null);
-  const rungOneMinWarningRef = useRef<boolean>(false);
+  const rungWarningRef = useRef<boolean>(false);
+
+  // Latest segments, so moderator handlers stay stable across timer ticks
+  const segmentsRef = useRef(segments);
+  useEffect(() => {
+    segmentsRef.current = segments;
+  }, [segments]);
 
   // Sound toggle sync
   const toggleSound = useCallback(() => {
@@ -180,32 +185,46 @@ export default function App() {
     });
   }, []);
 
-  // Update a speaker's remaining time & speech duration properly
-  const updateSpeakerTime = useCallback((speakerId: string, time: number, newTotalDuration?: number) => {
-    const clampedTime = Math.max(0, Math.round(time));
-    setSpeakingOrder((prev) =>
-      prev.map((s) => {
-        if (s.id !== speakerId) return s;
-        const updatedTotal = newTotalDuration !== undefined
-          ? Math.max(clampedTime, Math.round(newTotalDuration))
-          : Math.max(s.totalDuration || SPEAKER_DURATION, clampedTime);
-        return {
-          ...s,
-          timeRemaining: clampedTime,
-          totalDuration: updatedTotal,
-          hasSpoken: clampedTime === 0,
-        };
-      })
-    );
-    // If setting positive time on completed, restore timer to paused/idle
-    if (clampedTime > 0) {
-      setTimerStatus((curr) => (curr === 'completed' ? 'paused' : curr));
-    }
-    // Reset warning bell flag if adjusted back above 60 seconds
-    if (clampedTime > 60) {
-      rungOneMinWarningRef.current = false;
-    }
-  }, []);
+  /**
+   * The warning bell fires one minute out on a 3:00 speech and thirty seconds
+   * out on the 1:00 cross-questioning and reply phases.
+   */
+  const warningThresholdFor = (totalDuration: number) => (totalDuration >= 120 ? 60 : 30);
+
+  // Update a segment's remaining time & (optionally) its configured length
+  const updateSegmentTime = useCallback(
+    (segmentId: string, time: number, newTotalDuration?: number) => {
+      const clampedTime = Math.max(0, Math.round(time));
+      setSegments((prev) =>
+        prev.map((seg) => {
+          if (seg.id !== segmentId) return seg;
+          const updatedTotal =
+            newTotalDuration !== undefined
+              ? Math.max(clampedTime, Math.round(newTotalDuration))
+              : Math.max(seg.totalDuration, clampedTime);
+          return {
+            ...seg,
+            timeRemaining: clampedTime,
+            totalDuration: updatedTotal,
+            // Putting time back on a phase re-arms it, so Reset genuinely lets
+            // a phase be re-run (including the final one, to re-open the recap)
+            hasRun: clampedTime === 0,
+          };
+        })
+      );
+      // If setting positive time on completed, restore timer to paused/idle
+      if (clampedTime > 0) {
+        setTimerStatus((curr) => (curr === 'completed' ? 'paused' : curr));
+      }
+      // Re-arm the warning bell if adjusted back above its threshold
+      const target = segmentsRef.current.find((seg) => seg.id === segmentId);
+      const effectiveTotal = newTotalDuration ?? target?.totalDuration ?? clampedTime;
+      if (clampedTime > warningThresholdFor(effectiveTotal)) {
+        rungWarningRef.current = false;
+      }
+    },
+    []
+  );
 
   // Update a speaker's name
   const updateSpeakerName = useCallback((speakerId: string, newName: string) => {
@@ -214,12 +233,12 @@ export default function App() {
     );
   }, []);
 
-  // Reset 1-minute warning bell whenever speaker changes
+  // Re-arm the warning bell whenever the floor moves to a new segment
   useEffect(() => {
-    rungOneMinWarningRef.current = false;
-  }, [currentIndex]);
+    rungWarningRef.current = false;
+  }, [currentSegmentIndex]);
 
-  // 1. High-Precision Main Speaker Timer Loop
+  // High-Precision Segment Timer Loop
   useEffect(() => {
     if (timerStatus !== 'running') {
       lastTickRef.current = null;
@@ -233,201 +252,130 @@ export default function App() {
       const delta = lastTickRef.current ? (now - lastTickRef.current) / 1000 : 1;
       lastTickRef.current = now;
 
-      setSpeakingOrder((prevSpeakers) => {
-        const current = prevSpeakers[currentIndex];
-        if (!current) return prevSpeakers;
+      setSegments((prevSegments) => {
+        const current = prevSegments[currentSegmentIndex];
+        if (!current) return prevSegments;
 
         const prevTime = current.timeRemaining;
         const newTime = Math.max(0, prevTime - delta);
+        const threshold = warningThresholdFor(current.totalDuration);
 
-        // General 1-minute remaining warning bell (only if speech total is at least 2 minutes)
-        if (prevTime > 60 && newTime <= 60 && (current.totalDuration || SPEAKER_DURATION) >= 120 && !rungOneMinWarningRef.current) {
-          rungOneMinWarningRef.current = true;
-          playDebateBell(880, 2.0);
+        // Single warning chime as the phase enters its final stretch
+        if (
+          prevTime > threshold &&
+          newTime <= threshold &&
+          current.totalDuration > threshold &&
+          !rungWarningRef.current
+        ) {
+          rungWarningRef.current = true;
+          playDebateBell(current.kind === 'speech' ? 880 : 760, 1.6);
         }
 
-        // Double bell at 00:00 - time expired
+        // Double bell at 00:00 - phase expired
         if (newTime === 0 && prevTime > 0) {
           setTimerStatus('completed');
           playDoubleBell();
         }
 
-        return prevSpeakers.map((s, idx) =>
-          idx === currentIndex
-            ? { ...s, timeRemaining: newTime, hasSpoken: newTime === 0 ? true : s.hasSpoken }
-            : s
+        return prevSegments.map((seg, idx) =>
+          idx === currentSegmentIndex
+            ? { ...seg, timeRemaining: newTime, hasRun: newTime === 0 ? true : seg.hasRun }
+            : seg
         );
       });
     }, 200);
 
     return () => clearInterval(interval);
-  }, [timerStatus, currentIndex]);
-
-  // 2. High-Precision POI Timer Loop (Parallel, non-blocking)
-  useEffect(() => {
-    if (poiState.status !== 'active') return;
-
-    let lastPoiTick = performance.now();
-
-    const interval = setInterval(() => {
-      const now = performance.now();
-      const delta = (now - lastPoiTick) / 1000;
-      lastPoiTick = now;
-
-      setPoiState((prev) => {
-        if (prev.status !== 'active') return prev;
-        const newTime = Math.max(0, prev.timeRemaining - delta);
-
-        if (newTime === 0 && prev.timeRemaining > 0) {
-          // POI elapsed
-          playDebateBell(660, 2.0);
-          return {
-            ...prev,
-            status: 'idle',
-            timeRemaining: POI_DURATION,
-          };
-        }
-
-        return {
-          ...prev,
-          timeRemaining: newTime,
-        };
-      });
-    }, 200);
-
-    return () => clearInterval(interval);
-  }, [poiState.status]);
+  }, [timerStatus, currentSegmentIndex]);
 
   // Moderator Controls: Start / Pause
   const handleStartPause = useCallback(() => {
     playTactileClick();
     if (timerStatus === 'running') {
       setTimerStatus('paused');
-    } else {
-      if (activeSpeaker.timeRemaining <= 0) {
-        const targetDuration = activeSpeaker.totalDuration || SPEAKER_DURATION;
-        updateSpeakerTime(activeSpeaker.id, targetDuration, targetDuration);
-      }
-      setTimerStatus('running');
+      return;
     }
-  }, [timerStatus, activeSpeaker, updateSpeakerTime]);
+    const current = segmentsRef.current[currentSegmentIndex];
+    // Restarting an expired phase puts its full time back on the clock
+    if (current && current.timeRemaining <= 0) {
+      updateSegmentTime(current.id, current.totalDuration, current.totalDuration);
+    }
+    setTimerStatus('running');
+  }, [timerStatus, currentSegmentIndex, updateSegmentTime]);
 
-  // Moderator Controls: Reset
+  // Moderator Controls: Reset the current phase to its full length
   const handleReset = useCallback(() => {
     playTactileClick();
+    const current = segmentsRef.current[currentSegmentIndex];
+    if (!current) return;
     setTimerStatus('idle');
-    const targetDuration = activeSpeaker.totalDuration || SPEAKER_DURATION;
-    updateSpeakerTime(activeSpeaker.id, targetDuration, targetDuration);
-    rungOneMinWarningRef.current = false;
-  }, [activeSpeaker.id, activeSpeaker.totalDuration, updateSpeakerTime]);
+    updateSegmentTime(current.id, current.totalDuration, current.totalDuration);
+    rungWarningRef.current = false;
+  }, [currentSegmentIndex, updateSegmentTime]);
 
-  // Moderator Controls: Next Speaker (follows official Asian Parliamentary flow)
-  const handleNextSpeaker = useCallback(() => {
+  // Moderator Controls: advance through the running order one phase at a time
+  const handleNextSegment = useCallback(() => {
     playTactileClick();
-    // Mark current speaker as spoken
-    setSpeakingOrder((prev) =>
-      prev.map((s, idx) => (idx === currentIndex ? { ...s, hasSpoken: true } : s))
+    // Mark the phase just finished as run
+    setSegments((prev) =>
+      prev.map((seg, idx) => (idx === currentSegmentIndex ? { ...seg, hasRun: true } : seg))
     );
 
-    if (currentIndex < speakingOrder.length - 1) {
-      const nextIndex = currentIndex + 1;
-      setCurrentIndex(nextIndex);
+    const all = segmentsRef.current;
+    if (currentSegmentIndex < all.length - 1) {
+      const nextIndex = currentSegmentIndex + 1;
+      setCurrentSegmentIndex(nextIndex);
       setTimerStatus('idle');
-      if (speakingOrder[nextIndex].timeRemaining === 0) {
-        const nextDuration = speakingOrder[nextIndex].totalDuration || SPEAKER_DURATION;
-        updateSpeakerTime(speakingOrder[nextIndex].id, nextDuration, nextDuration);
+      const upcoming = all[nextIndex];
+      // Re-entering a phase that already ran puts its full time back
+      if (upcoming.timeRemaining === 0) {
+        updateSegmentTime(upcoming.id, upcoming.totalDuration, upcoming.totalDuration);
       }
     } else {
-      // Completed all 6 speeches!
+      // All 14 phases done — the debate is over
       setTimerStatus('completed');
       setIsCompletedModalOpen(true);
     }
-  }, [currentIndex, speakingOrder, updateSpeakerTime]);
+  }, [currentSegmentIndex, updateSegmentTime]);
 
-  // Direct Speaker Selection by ID
+  const handlePrevSegment = useCallback(() => {
+    if (currentSegmentIndex === 0) return;
+    playTactileClick();
+    setTimerStatus('idle');
+    setCurrentSegmentIndex(currentSegmentIndex - 1);
+  }, [currentSegmentIndex]);
+
+  // Jump straight to a phase from a stepper bead
+  const handleSelectSegmentIndex = useCallback(
+    (idx: number) => {
+      if (idx < 0 || idx >= segmentsRef.current.length || idx === currentSegmentIndex) return;
+      playTactileClick();
+      setTimerStatus('idle');
+      setCurrentSegmentIndex(idx);
+    },
+    [currentSegmentIndex]
+  );
+
+  // Jump to a speaker's first unfinished phase (podium row click)
   const handleSelectSpeaker = useCallback(
     (speakerId: string) => {
-      const idx = speakingOrder.findIndex((s) => s.id === speakerId);
-      if (idx !== -1 && idx !== currentIndex) {
-        playTactileClick();
-        setTimerStatus('idle');
-        setCurrentIndex(idx);
-      }
+      const own = segmentsRef.current
+        .map((seg, idx) => ({ seg, idx }))
+        .filter(({ seg }) => seg.speakerId === speakerId);
+      if (own.length === 0) return;
+      const target = own.find(({ seg }) => !seg.hasRun) ?? own[0];
+      handleSelectSegmentIndex(target.idx);
     },
-    [speakingOrder, currentIndex]
+    [handleSelectSegmentIndex]
   );
-
-  // POI Controls - Can be called by either team!
-  const handleTriggerPOIRequest = useCallback(
-    (callingTeam: TeamType) => {
-      playDebateBell(700, 1.2);
-      setPoiState({
-        status: 'requested',
-        requestingTeam: callingTeam,
-        requestingSpeakerNumber: 1,
-        timeRemaining: POI_DURATION,
-      });
-    },
-    []
-  );
-
-  // Direct quick-trigger POI
-  const handleQuickPOI = useCallback(() => {
-    const opposingTeam: TeamType = activeSpeaker.team === 'proposition' ? 'opposition' : 'proposition';
-    handleTriggerPOIRequest(opposingTeam);
-  }, [activeSpeaker.team, handleTriggerPOIRequest]);
-
-  const handleAllowPOI = useCallback(() => {
-    playDebateBell(880, 2.5); // Clear brass chime
-    // Increment speaker's accepted POI counter to track compliance with rule
-    setSpeakingOrder((prev) =>
-      prev.map((s, idx) => (idx === currentIndex ? { ...s, poisAccepted: s.poisAccepted + 1 } : s))
-    );
-    setPoiState((prev) => ({
-      ...prev,
-      status: 'active',
-      timeRemaining: POI_DURATION,
-    }));
-  }, [currentIndex]);
-
-  const handleDeclinePOI = useCallback(() => {
-    playTactileClick();
-    setPoiState((prev) => ({
-      ...prev,
-      status: 'idle',
-      timeRemaining: POI_DURATION,
-    }));
-  }, []);
-
-  const handleEndPOI = useCallback(() => {
-    playTactileClick();
-    setPoiState((prev) => ({
-      ...prev,
-      status: 'idle',
-      timeRemaining: POI_DURATION,
-    }));
-  }, []);
 
   // Restart Entire Debate
   const handleRestartDebate = useCallback(() => {
     playTactileClick();
-    setSpeakingOrder(
-      INITIAL_SPEAKERS.map((s) => ({
-        ...s,
-        timeRemaining: s.totalDuration || SPEAKER_DURATION,
-        totalDuration: s.totalDuration || SPEAKER_DURATION,
-        hasSpoken: false,
-        poisAccepted: 0,
-      }))
-    );
-    setCurrentIndex(0);
+    setSpeakingOrder(INITIAL_SPEAKERS);
+    setSegments(buildSegments(INITIAL_SPEAKERS));
+    setCurrentSegmentIndex(0);
     setTimerStatus('idle');
-    setPoiState({
-      status: 'idle',
-      requestingTeam: 'opposition',
-      requestingSpeakerNumber: 1,
-      timeRemaining: POI_DURATION,
-    });
     setIsCompletedModalOpen(false);
   }, []);
 
@@ -452,23 +400,17 @@ export default function App() {
           break;
         case 'KeyN':
           e.preventDefault();
-          if (currentIndex < speakingOrder.length - 1) {
-            handleNextSpeaker();
+          if (canAdvance) {
+            handleNextSegment();
           }
           break;
-        case 'KeyP':
+        case 'KeyB':
           e.preventDefault();
-          if (poiState.status === 'idle') {
-            handleQuickPOI();
-          } else if (poiState.status === 'requested') {
-            handleAllowPOI();
-          }
+          handlePrevSegment();
           break;
         case 'Escape':
           e.preventDefault();
-          if (poiState.status !== 'idle') {
-            handleEndPOI();
-          } else if (isShortcutsOpen) {
+          if (isShortcutsOpen) {
             setIsShortcutsOpen(false);
           } else if (isRulesOpen) {
             setIsRulesOpen(false);
@@ -490,14 +432,10 @@ export default function App() {
   }, [
     handleStartPause,
     handleReset,
-    handleNextSpeaker,
-    handleQuickPOI,
-    handleAllowPOI,
-    handleEndPOI,
+    handleNextSegment,
+    handlePrevSegment,
     toggleSound,
-    currentIndex,
-    speakingOrder.length,
-    poiState.status,
+    canAdvance,
     isShortcutsOpen,
     isRulesOpen,
     isCompletedModalOpen,
@@ -530,7 +468,7 @@ export default function App() {
     <>
       <div className="relative w-full h-screen overflow-hidden">
         {/* 1. Semifinals Mode View */}
-        <div 
+        <div
           className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
             screenMode === 'semifinals' ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'
           }`}
@@ -548,29 +486,29 @@ export default function App() {
               onSelectScreenMode={handleSelectScreenMode}
             />
 
-            {/* Grand Heraldic Motion Banner */}
-            <MotionBanner
-              motion={motion}
-              onUpdateMotion={setMotion}
-              onSelectMatchPreset={(preset) => {
-                setMotion(preset.motion);
-                setPropTeamName(preset.propTeam);
-                setOppTeamName(preset.oppTeam);
-              }}
-            />
-
-            {/* Prominent POI HUD Overlay */}
-            <POIPanel
-              poiState={poiState}
-              activeSpeaker={activeSpeaker}
-              roundStage={roundStage}
-              onAllowPOI={handleAllowPOI}
-              onDeclinePOI={handleDeclinePOI}
-              onEndPOI={handleEndPOI}
-            />
+            {/* Grand Heraldic Motion Banner — yields to the phase banner during
+                cross-questioning and reply, so nothing is ever overlaid */}
+            {isQuestionPhase ? (
+              <CrossExamPanel
+                activeSegment={activeSegment}
+                activeSpeaker={activeSpeaker}
+                nextSegmentLabel={nextSegmentLabel}
+                onAdvance={handleNextSegment}
+              />
+            ) : (
+              <MotionBanner
+                motion={motion}
+                onUpdateMotion={setMotion}
+                onSelectMatchPreset={(preset) => {
+                  setMotion(preset.motion);
+                  setPropTeamName(preset.propTeam);
+                  setOppTeamName(preset.oppTeam);
+                }}
+              />
+            )}
 
             {/* Main Debate Stage: Massive Centered Timer with Symmetrical Podiums */}
-            <main className="w-full flex-1 max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 py-0.5 flex flex-col justify-center items-center">
+            <main className="w-full flex-1 max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 py-0 flex flex-col justify-center items-center">
               <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-3 xl:gap-8">
                 {/* Left Edge Podium: Proposition */}
                 <div className="podium-responsive shrink-0 flex justify-center lg:justify-start order-2 lg:order-1">
@@ -579,11 +517,13 @@ export default function App() {
                     teamName={propTeamName}
                     teamSubtitle="PROPOSITION"
                     speakers={propSpeakers}
+                    segments={segments}
+                    activeSegment={activeSegment}
                     activeSpeakerId={activeSpeaker.id}
-                    isOpposingActiveSpeaker={activeSpeaker.team === 'opposition'}
-                    activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
-                    onCallPOI={() => handleTriggerPOIRequest('proposition')}
                     onSelectSpeaker={handleSelectSpeaker}
+                    onSelectSegment={(segmentId) =>
+                      handleSelectSegmentIndex(segments.findIndex((s) => s.id === segmentId))
+                    }
                     onUpdateSpeakerName={updateSpeakerName}
                   />
                 </div>
@@ -592,31 +532,31 @@ export default function App() {
                 <div className="flex-1 w-full max-w-[960px] xl:max-w-[1080px] 2xl:max-w-[1160px] flex flex-col items-center justify-center order-1 lg:order-2">
                   <DebateTimer
                     activeSpeaker={activeSpeaker}
+                    activeSegment={activeSegment}
                     roundStage={roundStage}
                     propTeamName={propTeamName}
                     oppTeamName={oppTeamName}
                     onSelectRound={handleSelectRound}
                     timerStatus={timerStatus}
-                    timeRemaining={activeSpeaker.timeRemaining}
-                    totalDuration={activeSpeaker.totalDuration || SPEAKER_DURATION}
-                    poiState={poiState}
+                    timeRemaining={activeSegment.timeRemaining}
+                    totalDuration={activeSegment.totalDuration || SPEECH_DURATION}
                     onStartPause={handleStartPause}
                     onReset={handleReset}
-                    onNextSpeaker={handleNextSpeaker}
-                    hasNextSpeaker={currentIndex < speakingOrder.length - 1}
-                    onUpdateTime={(newTime, newTotal) => updateSpeakerTime(activeSpeaker.id, newTime, newTotal)}
+                    onNextSegment={handleNextSegment}
+                    canAdvance={canAdvance}
+                    nextSegmentLabel={nextSegmentLabel}
+                    onUpdateTime={(newTime, newTotal) =>
+                      updateSegmentTime(activeSegment.id, newTime, newTotal)
+                    }
                   />
 
                   {/* Stepper directly below timer */}
-                  <div className="w-full mt-1.5 sm:mt-2">
+                  <div className="w-full mt-0.5">
                     <ProgressIndicator
                       speakingOrder={speakingOrder}
-                      currentIndex={currentIndex}
-                      onSelectIndex={(idx) => {
-                        playTactileClick();
-                        setTimerStatus('idle');
-                        setCurrentIndex(idx);
-                      }}
+                      segments={segments}
+                      currentSegmentIndex={currentSegmentIndex}
+                      onSelectIndex={handleSelectSegmentIndex}
                     />
                   </div>
                 </div>
@@ -628,11 +568,13 @@ export default function App() {
                     teamName={oppTeamName}
                     teamSubtitle="OPPOSITION"
                     speakers={oppSpeakers}
+                    segments={segments}
+                    activeSegment={activeSegment}
                     activeSpeakerId={activeSpeaker.id}
-                    isOpposingActiveSpeaker={activeSpeaker.team === 'proposition'}
-                    activeSpeakerTimeRemaining={activeSpeaker.timeRemaining}
-                    onCallPOI={() => handleTriggerPOIRequest('opposition')}
                     onSelectSpeaker={handleSelectSpeaker}
+                    onSelectSegment={(segmentId) =>
+                      handleSelectSegmentIndex(segments.findIndex((s) => s.id === segmentId))
+                    }
                     onUpdateSpeakerName={updateSpeakerName}
                   />
                 </div>
@@ -645,7 +587,7 @@ export default function App() {
         </div>
 
         {/* 2. Grand Finale Mode View */}
-        <div 
+        <div
           className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
             screenMode === 'grand_final' ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'
           }`}
@@ -665,24 +607,18 @@ export default function App() {
             onUpdatePropTeamName={setGfPropTeamName}
             onUpdateOppTeamName={setGfOppTeamName}
             speakingOrder={speakingOrder}
-            currentIndex={currentIndex}
-            onSelectIndex={(idx) => {
-              playTactileClick();
-              setTimerStatus('idle');
-              setCurrentIndex(idx);
-            }}
+            segments={segments}
+            currentSegmentIndex={currentSegmentIndex}
+            onSelectIndex={handleSelectSegmentIndex}
+            onSelectSpeaker={handleSelectSpeaker}
             onUpdateSpeakerName={updateSpeakerName}
-            onUpdateSpeakerTime={updateSpeakerTime}
+            onUpdateSegmentTime={updateSegmentTime}
             timerStatus={timerStatus}
             onStartPause={handleStartPause}
             onReset={handleReset}
-            onNextSpeaker={handleNextSpeaker}
-            hasNextSpeaker={currentIndex < speakingOrder.length - 1}
-            poiState={poiState}
-            onTriggerPOIRequest={handleTriggerPOIRequest}
-            onAllowPOI={handleAllowPOI}
-            onDeclinePOI={handleDeclinePOI}
-            onEndPOI={handleEndPOI}
+            onNextSegment={handleNextSegment}
+            canAdvance={canAdvance}
+            nextSegmentLabel={nextSegmentLabel}
           />
         </div>
       </div>
@@ -703,6 +639,7 @@ export default function App() {
         onClose={() => setIsCompletedModalOpen(false)}
         onRestartDebate={handleRestartDebate}
         speakers={speakingOrder}
+        segments={segments}
       />
     </>
   );

@@ -302,26 +302,29 @@ export const FiligreeCornerOrnament: React.FC<{
 };
 
 /**
- * Imperial Brass POI Medallion Emblem
+ * Imperial Brass Cross-Questioning Medallion Emblem
  */
-export const POIMedallionEmblem: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+export const CrossExamMedallionEmblem: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
   <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={`shrink-0 ${className}`}>
     <defs>
-      <radialGradient id="poiMedallionGrad" cx="35%" cy="35%" r="65%">
+      <radialGradient id="crossExamMedallionGrad" cx="35%" cy="35%" r="65%">
         <stop offset="0%" stopColor="#fff8e1" />
         <stop offset="40%" stopColor="#f5df9b" />
         <stop offset="75%" stopColor="#d4af37" />
         <stop offset="100%" stopColor="#7a5513" />
       </radialGradient>
     </defs>
-    <circle cx="16" cy="16" r="15" fill="url(#poiMedallionGrad)" stroke="#c5a059" strokeWidth="1.5" />
+    <circle cx="16" cy="16" r="15" fill="url(#crossExamMedallionGrad)" stroke="#c5a059" strokeWidth="1.5" />
     <circle cx="16" cy="16" r="12" fill="none" stroke="#68470c" strokeWidth="1" strokeDasharray="1.5 2" />
-    {/* Roman Laurel Accent inside Seal */}
-    <path d="M9 16 C9 12, 12 9, 16 9 C20 9, 23 12, 23 16" stroke="#4a3207" strokeWidth="1.2" strokeLinecap="round" />
-    {/* Raised Hand of Interjection */}
-    <path 
-      d="M14 11 C14 10.4, 14.4 10, 15 10 C15.6 10, 16 10.4, 16 11 L16 15 L17 13 C17.3 12.5, 17.9 12.3, 18.4 12.6 C18.8 12.9, 19 13.4, 18.9 13.9 L18 17 C17.6 18.5, 16.3 19.5, 14.7 19.5 L13 19.5 C11.9 19.5, 11 18.6, 11 17.5 L11 14 C11 13.4, 11.4 13, 12 13 C12.6 13, 13 13.4, 13 14 L13 15" 
-      fill="#4a3207" 
+    {/* Two opposed speech cartouches: the question and the reply */}
+    <path
+      d="M9.5 12.5 C9.5 11.7, 10.2 11, 11 11 L17.5 11 C18.3 11, 19 11.7, 19 12.5 L19 15.5 C19 16.3, 18.3 17, 17.5 17 L13 17 L10.5 19 L10.5 17 C9.9 17 9.5 16.5, 9.5 15.9 Z"
+      fill="#4a3207"
+    />
+    <path
+      d="M22.5 16 C22.5 15.4, 22.1 15, 21.5 15 L16.5 15 C15.9 15, 15.5 15.4, 15.5 16 L15.5 19 C15.5 19.6, 15.9 20, 16.5 20 L20 20 L22 21.8 L22 20 C22.3 20, 22.5 19.6, 22.5 19.2 Z"
+      fill="#7a5513"
+      opacity="0.85"
     />
   </svg>
 );
@@ -637,3 +640,200 @@ export const ImperialDebateSeal: React.FC<{ className?: string }> = ({ className
     </g>
   </svg>
 );
+
+/* ------------------------------------------------------------------ *
+ * Cross-questioning regalia
+ *
+ * The cross-questioning banner takes the motion cartouche's place on the
+ * stage, so it is built from the same vocabulary — gilded rules, filigree
+ * corners, engraved emblems — rather than a plain rounded box.
+ * ------------------------------------------------------------------ */
+
+/**
+ * Running laurel garland frieze. Tiles horizontally through an SVG pattern in
+ * CSS pixel units, so the motif keeps a constant size at any banner width.
+ * A meander fret collapses into noise at this height; laurel stays legible and
+ * echoes the wreaths on the podiums and the chronometer base.
+ */
+export const LaurelGarlandBand: React.FC<{ className?: string; flip?: boolean }> = ({
+  className = 'w-full h-3.5',
+  flip = false,
+}) => {
+  const uid = flip ? 'garlandDown' : 'garlandUp';
+  return (
+    <svg
+      width="100%"
+      height="100%"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`pointer-events-none select-none ${className}`}
+      style={{ transform: flip ? 'scaleY(-1)' : undefined }}
+    >
+      <defs>
+        <linearGradient id={`${uid}Gold`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#9c7531" />
+          <stop offset="25%" stopColor="#e8c97e" />
+          <stop offset="50%" stopColor="#fff3cf" />
+          <stop offset="75%" stopColor="#e8c97e" />
+          <stop offset="100%" stopColor="#9c7531" />
+        </linearGradient>
+        <pattern id={`${uid}Tile`} patternUnits="userSpaceOnUse" width="26" height="14">
+          {/* Bound stem */}
+          <path d="M0 7 H26" stroke={`url(#${uid}Gold)`} strokeWidth="1.1" strokeLinecap="round" />
+          {/* Leaves springing alternately from the stem */}
+          <ellipse cx="4.5" cy="3.8" rx="3.4" ry="1.5" fill={`url(#${uid}Gold)`} transform="rotate(-32 4.5 3.8)" />
+          <ellipse cx="10.5" cy="10.2" rx="3.4" ry="1.5" fill={`url(#${uid}Gold)`} transform="rotate(32 10.5 10.2)" />
+          <ellipse cx="16.5" cy="3.8" rx="3.4" ry="1.5" fill={`url(#${uid}Gold)`} transform="rotate(-32 16.5 3.8)" />
+          <ellipse cx="22.5" cy="10.2" rx="3.4" ry="1.5" fill={`url(#${uid}Gold)`} transform="rotate(32 22.5 10.2)" />
+          {/* Berry pair at the binding */}
+          <circle cx="13" cy="5.2" r="1.15" fill={`url(#${uid}Gold)`} />
+          <circle cx="13" cy="8.8" r="1.15" fill={`url(#${uid}Gold)`} />
+        </pattern>
+      </defs>
+      <rect width="100%" height="14" fill={`url(#${uid}Tile)`} />
+    </svg>
+  );
+};
+
+/**
+ * Crossed quills struck on a gold medallion — the mark of questioning.
+ * The device is cut dark into a bright face so it stays legible at 40px
+ * against the dark plaque.
+ */
+export const CrossedQuillsEmblem: React.FC<{ className?: string }> = ({ className = 'w-9 h-9' }) => (
+  <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className={`shrink-0 ${className}`}>
+    <defs>
+      <radialGradient id="quillFace" cx="34%" cy="28%" r="76%">
+        <stop offset="0%" stopColor="#fff8e2" />
+        <stop offset="38%" stopColor="#f3dd9e" />
+        <stop offset="76%" stopColor="#d4af37" />
+        <stop offset="100%" stopColor="#8a6119" />
+      </radialGradient>
+    </defs>
+
+    {/* Struck face & raised bezel */}
+    <circle cx="24" cy="24" r="22" fill="url(#quillFace)" stroke="#5a3f0e" strokeWidth="1.4" />
+    <circle cx="24" cy="24" r="19" fill="none" stroke="#6b4c12" strokeWidth="0.9" strokeOpacity="0.55" strokeDasharray="2.4 2.4" />
+
+    {/* Crossed quills, cut into the face. Each is a full-length shaft with the
+        vane hugging its upper half, so the pair reads as a clean X at 40px
+        rather than two vanes meeting in a wishbone. */}
+    <g stroke="#42300c" strokeLinecap="round" strokeLinejoin="round">
+      <g transform="rotate(-34 24 24)">
+        {/* shaft & nib */}
+        <path d="M24 7.5 L24 36.5" strokeWidth="2.5" />
+        <path d="M24 36.5 L22.6 41 L25.4 41 Z" fill="#42300c" strokeWidth="0.8" />
+        {/* vane on the outer side */}
+        <path d="M23.2 8.4 C18.2 12.4, 15.8 19.2, 16.6 26.8 L23.2 22.4 Z" fill="#42300c" strokeWidth="0.9" />
+        <path d="M21.4 12.4 C19.6 16.6, 18.6 20.8, 18.6 24.6" stroke="#f3dd9e" strokeWidth="0.85" strokeOpacity="0.85" fill="none" />
+      </g>
+      <g transform="rotate(34 24 24)">
+        <path d="M24 7.5 L24 36.5" strokeWidth="2.5" />
+        <path d="M24 36.5 L22.6 41 L25.4 41 Z" fill="#42300c" strokeWidth="0.8" />
+        <path d="M24.8 8.4 C29.8 12.4, 32.2 19.2, 31.4 26.8 L24.8 22.4 Z" fill="#42300c" strokeWidth="0.9" />
+        <path d="M26.6 12.4 C28.4 16.6, 29.4 20.8, 29.4 24.6" stroke="#f3dd9e" strokeWidth="0.85" strokeOpacity="0.85" fill="none" />
+      </g>
+    </g>
+
+    {/* Boss at the crossing */}
+    <circle cx="24" cy="24" r="3.4" fill="#42300c" />
+    <circle cx="24" cy="24" r="1.7" fill="#f3dd9e" />
+  </svg>
+);
+
+/**
+ * A rostrum throwing voice, struck on gold — the mark of the uninterrupted reply.
+ */
+export const ReplyRostrumEmblem: React.FC<{ className?: string }> = ({ className = 'w-9 h-9' }) => (
+  <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className={`shrink-0 ${className}`}>
+    <defs>
+      <radialGradient id="rostrumFace" cx="34%" cy="28%" r="76%">
+        <stop offset="0%" stopColor="#fff8e2" />
+        <stop offset="38%" stopColor="#f3dd9e" />
+        <stop offset="76%" stopColor="#d4af37" />
+        <stop offset="100%" stopColor="#8a6119" />
+      </radialGradient>
+    </defs>
+
+    <circle cx="24" cy="24" r="22" fill="url(#rostrumFace)" stroke="#5a3f0e" strokeWidth="1.4" />
+    <circle cx="24" cy="24" r="19" fill="none" stroke="#6b4c12" strokeWidth="0.9" strokeOpacity="0.55" strokeDasharray="2.4 2.4" />
+
+    {/* Canted desk on a fluted plinth */}
+    <g fill="#42300c" stroke="#42300c" strokeLinejoin="round" strokeLinecap="round">
+      {/* Reading desk, canted toward the floor */}
+      <path d="M15 22.4 L28.2 19.4 L29.2 23 L16 26 Z" strokeWidth="0.9" />
+      {/* Column and stepped base */}
+      <path d="M22 26.4 L22 33.4" strokeWidth="2.6" />
+      <path d="M17.6 34.6 L26.4 34.6" strokeWidth="2.6" />
+    </g>
+    <g stroke="#f3dd9e" strokeWidth="0.85" strokeOpacity="0.8">
+      <path d="M20.9 27.6 L20.9 32.6" />
+      <path d="M23.1 27.6 L23.1 32.6" />
+    </g>
+
+    {/* Voice carrying outward */}
+    <g stroke="#42300c" strokeLinecap="round" fill="none">
+      <path d="M32.6 15.4 C35.4 17.8, 36.2 21.2, 34.9 24.4" strokeWidth="2.1" />
+      <path d="M36.4 12.6 C40.6 16.4, 41.4 22.4, 38.4 27.2" strokeWidth="1.4" strokeOpacity="0.58" />
+    </g>
+  </svg>
+);
+
+/**
+ * Countdown rail with struck lozenge terminals and a travelling jewel head.
+ * The terminals are fixed-size SVGs so only the channel stretches.
+ */
+const RailLozengeCap: React.FC = () => (
+  <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 shrink-0">
+    <defs>
+      <linearGradient id="railCapGold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#fff3cf" />
+        <stop offset="55%" stopColor="#d9b56a" />
+        <stop offset="100%" stopColor="#7e5d1d" />
+      </linearGradient>
+    </defs>
+    <path d="M6 0.6 L11.4 6 L6 11.4 L0.6 6 Z" fill="url(#railCapGold)" stroke="#5a3f0e" strokeWidth="0.7" strokeLinejoin="round" />
+    <path d="M6 2.6 L9.4 6 L6 6 Z" fill="#fffaf0" fillOpacity="0.75" />
+  </svg>
+);
+
+export const GildedCountdownRail: React.FC<{ fraction: number; className?: string }> = ({
+  fraction,
+  className = '',
+}) => {
+  const pct = Math.max(0, Math.min(1, fraction)) * 100;
+
+  return (
+    <div className={`flex items-center gap-1.5 ${className}`}>
+      <RailLozengeCap />
+      <div className="relative flex-1 h-2.5">
+        {/* Recessed channel */}
+        <svg viewBox="0 0 400 10" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="railChannel" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#000000" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0.2" />
+            </linearGradient>
+            <linearGradient id="railFill" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#7e5d1d" />
+              <stop offset="45%" stopColor="#d9b56a" />
+              <stop offset="100%" stopColor="#fff3cf" />
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="400" height="10" rx="5" fill="url(#railChannel)" stroke="#c5a059" strokeWidth="0.8" strokeOpacity="0.45" />
+          <rect x="1" y="1" width={Math.max(0, (pct / 100) * 398)} height="8" rx="4" fill="url(#railFill)" className="transition-all duration-200" />
+        </svg>
+        {/* Travelling jewel head */}
+        <span
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full transition-all duration-200"
+          style={{
+            left: `${pct}%`,
+            background: 'radial-gradient(circle at 34% 30%, #fffaf0 0%, #f0d89c 45%, #c5a059 100%)',
+            boxShadow: '0 0 6px rgba(240,216,156,0.9), 0 0 2px rgba(0,0,0,0.5)',
+          }}
+        />
+      </div>
+      <RailLozengeCap />
+    </div>
+  );
+};

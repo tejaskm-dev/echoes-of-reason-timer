@@ -2,6 +2,17 @@ export type TeamType = 'proposition' | 'opposition';
 
 export type RoleAbbr = 'PM' | 'LO' | 'DPM' | 'DLO' | 'Opp Closing' | 'Prop Closing';
 
+/**
+ * A speech is split into up to three consecutively timed phases.
+ *  - speech : the speaker's own 3:00 address
+ *  - cross  : 1:00 in which the opposing bench cross-questions the speaker
+ *  - reply  : 1:00 in which the speaker answers, uninterrupted
+ *
+ * Closing speeches (Opp Closing, Prop Closing) run straight through and
+ * therefore only ever own a `speech` segment.
+ */
+export type SegmentKind = 'speech' | 'cross' | 'reply';
+
 export interface Speaker {
   id: string;
   team: TeamType;
@@ -10,24 +21,24 @@ export interface Speaker {
   role: string; // e.g. "Prime Minister"
   roleAbbr: RoleAbbr;
   name: string;
-  timeRemaining: number; // in seconds (240 = 4 mins)
-  totalDuration: number; // total duration of speech in seconds (defaults to 240)
-  hasSpoken: boolean;
-  poisAccepted: number; // Rule: Must accept at least one POI per speech in PM, LO, DPM, DLO
+  /** Closings take no questions, so only the four main speeches carry cross-questioning. */
+  hasCrossExam: boolean;
+}
+
+/** One independently timed block of the debate. Segments own all timing state. */
+export interface DebateSegment {
+  id: string; // `${speakerId}:${kind}`
+  speakerId: string;
+  kind: SegmentKind;
+  orderIndex: number; // 1 to 14 across the whole debate
+  timeRemaining: number; // seconds
+  totalDuration: number; // configured length of this segment in seconds
+  hasRun: boolean;
 }
 
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'completed';
 
-export type POIStatus = 'idle' | 'requested' | 'active';
-
-export interface POIState {
-  status: POIStatus;
-  requestingTeam: TeamType;
-  requestingSpeakerNumber: number;
-  timeRemaining: number; // in seconds (15 = 15s)
-}
-
-export type RoundStage = 
+export type RoundStage =
   | 'Round 1: Qualifier'
   | 'Round 2: Qualifier'
   | 'Round 3: Semifinal'

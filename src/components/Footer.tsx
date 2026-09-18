@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="w-full px-6 md:px-12 py-1 flex items-center justify-between gap-4 select-none">
+    <footer className="w-full px-6 md:px-12 py-0.5 flex items-center justify-between gap-4 select-none">
       {/* 1. Bottom Left: Quote */}
       <div className="font-serif-display italic text-[#555e6d] text-xs sm:text-[13px] leading-tight">
         “Different perspectives. One stage.”

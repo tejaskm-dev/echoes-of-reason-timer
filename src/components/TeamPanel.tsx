@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
-import type { Speaker, TeamType } from '../types/debate';
+import type { DebateSegment, Speaker, TeamType } from '../types/debate';
 import { formatTimeCompact } from '../utils/time';
+import {
+  SEGMENT_SHORT_LABELS,
+  isSpeakerComplete,
+  speakerDisplaySegment,
+} from '../utils/segments';
 import { ClassicalPillarWatermark } from './ClassicalDecors';
-import { Check, Edit2, Hand, Mic } from 'lucide-react';
+import { Check, Edit2, MessagesSquare, Mic } from 'lucide-react';
 
 interface TeamPanelProps {
   teamType: TeamType;
   teamName: string;
   teamSubtitle: string;
   speakers: Speaker[];
+  segments: DebateSegment[];
+  activeSegment: DebateSegment;
   activeSpeakerId: string;
-  isOpposingActiveSpeaker: boolean;
-  activeSpeakerTimeRemaining?: number;
-  onCallPOI: () => void;
   onSelectSpeaker: (speakerId: string) => void;
+  onSelectSegment: (segmentId: string) => void;
   onUpdateSpeakerName: (speakerId: string, newName: string) => void;
 }
 
@@ -22,11 +27,11 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   teamName,
   teamSubtitle,
   speakers,
+  segments,
+  activeSegment,
   activeSpeakerId,
-  isOpposingActiveSpeaker,
-  activeSpeakerTimeRemaining,
-  onCallPOI,
   onSelectSpeaker,
+  onSelectSegment,
   onUpdateSpeakerName,
 }) => {
   const isProposition = teamType === 'proposition';
@@ -46,6 +51,17 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
     setEditingId(null);
   };
 
+  // This bench does the questioning whenever the floor belongs to the other side
+  const holder = speakers.find((s) => s.id === activeSpeakerId);
+  const isOpposingActiveSpeaker = !holder;
+  const activeSpeakerHasCrossExam = segments.some(
+    (seg) => seg.speakerId === activeSpeakerId && seg.kind === 'cross'
+  );
+  const crossSegment = segments.find(
+    (seg) => seg.speakerId === activeSpeakerId && seg.kind === 'cross'
+  );
+  const showCrossCard = isOpposingActiveSpeaker && activeSpeakerHasCrossExam;
+
   return (
     <div className="w-full podium-responsive flex flex-col select-none">
       {/* 1. Top Arch Header (Classical Podium Arch - Fluid Responsive) */}
@@ -56,9 +72,9 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
       >
         {/* Subtle Ionic/Corinthian Pillar Watermark in arch */}
         <div className="absolute top-0 inset-x-0 flex justify-center pointer-events-none opacity-20">
-          <ClassicalPillarWatermark 
-            className={`w-52 h-52 -translate-y-8 ${isProposition ? 'text-blue-100' : 'text-rose-100'}`} 
-            opacity={0.16} 
+          <ClassicalPillarWatermark
+            className={`w-52 h-52 -translate-y-8 ${isProposition ? 'text-blue-100' : 'text-rose-100'}`}
+            opacity={0.16}
           />
         </div>
 
@@ -85,6 +101,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
         {speakers.map((speaker, index) => {
           const isActive = speaker.id === activeSpeakerId;
           const isEditing = editingId === speaker.id;
+          const display = speakerDisplaySegment(segments, speaker.id, activeSegment.id);
+          const allRun = isSpeakerComplete(segments, speaker.id);
 
           return (
             <div
@@ -143,7 +161,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                     >
                       {speaker.name}
                     </span>
-                    
+
                     {/* Role badge */}
                     <span
                       className={`text-[9px] font-cinzel tracking-wider px-1.5 py-0.5 rounded font-bold uppercase ${
@@ -157,11 +175,15 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                       {speaker.roleAbbr}
                     </span>
 
-                    {/* Speaking Now beacon tag when active */}
+                    {/* Live phase tag when this speaker holds the floor */}
                     {isActive && (
                       <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[9px] font-cinzel font-bold border border-amber-400/40 shadow-xs">
-                        <Mic className="w-2.5 h-2.5" />
-                        <span>Speaking</span>
+                        {activeSegment.kind === 'cross' ? (
+                          <MessagesSquare className="w-2.5 h-2.5" />
+                        ) : (
+                          <Mic className="w-2.5 h-2.5" />
+                        )}
+                        <span>{SEGMENT_SHORT_LABELS[activeSegment.kind]}</span>
                         <div className="flex items-end gap-[2px] h-2.5 w-3 ml-0.5 pb-0.5">
                           <span className="w-0.5 bg-amber-300 rounded-full animate-soundwave-1" />
                           <span className="w-0.5 bg-amber-300 rounded-full animate-soundwave-2" />
@@ -181,28 +203,32 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 )}
               </div>
 
-              {/* Dot & Time */}
+              {/* Status dot & time left on this speaker's live phase */}
               <div className="flex items-center gap-2.5 shrink-0 pl-1">
-                {/* Glowing Dot */}
                 <div
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     isActive
                       ? isProposition
                         ? 'bg-blue-400 shadow-[0_0_14px_#60a5fa] ring-4 ring-blue-400/40'
                         : 'bg-rose-400 shadow-[0_0_14px_#fb7185] ring-4 ring-rose-400/40'
-                      : !isProposition && index === 0
-                      ? 'bg-[#d97788]'
+                      : allRun
+                      ? 'bg-[#c5a059]'
                       : 'bg-[#9ea6b5]'
                   }`}
+                  title={
+                    display
+                      ? `${SEGMENT_SHORT_LABELS[display.kind]} · ${formatTimeCompact(display.timeRemaining)}`
+                      : undefined
+                  }
                 />
 
-                {/* Remaining Time */}
+                {/* Remaining Time of the displayed phase */}
                 <span
                   className={`font-num text-sm md:text-base tracking-wider tabular-nums font-semibold ${
                     isActive ? 'text-white' : 'text-[#202530]'
                   }`}
                 >
-                  {formatTimeCompact(speaker.timeRemaining)}
+                  {formatTimeCompact(display?.timeRemaining ?? 0)}
                 </span>
               </div>
             </div>
@@ -210,36 +236,61 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
         })}
       </div>
 
-      {/* 3. Authentic Classical POI Card (Appears on the OPPOSING team's podium) */}
-      {isOpposingActiveSpeaker && (activeSpeakerTimeRemaining === undefined || activeSpeakerTimeRemaining > 0) && (
+      {/* 3. Cross-Questioning Card (appears on the bench that holds the questions) */}
+      {showCrossCard && crossSegment && (
         <div className="mt-3.5 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div className="w-full rounded-2xl bg-[#faf6ee]/95 border-2 border-[#c5a059] px-4 py-3 flex items-center justify-between gap-3 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div
+            className={`w-full rounded-2xl px-3 py-2.5 flex items-center justify-between gap-2 shadow-lg hover:shadow-xl transition-all duration-300 border-2 ${
+              activeSegment.kind === 'cross'
+                ? 'bg-[#1b2230] border-amber-300 text-amber-100'
+                : 'bg-[#faf6ee]/95 border-[#c5a059]'
+            }`}
+          >
             <div className="flex items-center gap-3 min-w-0">
-              {/* Gold Seal with Hand Icon */}
-              <div className="w-10 h-10 rounded-full bg-[#1b2230] border border-[#c5a059] flex items-center justify-center text-amber-300 shrink-0 shadow-xs">
-                <Hand className="w-5 h-5 animate-pulse" />
+              {/* Gold Seal with Question Icon */}
+              <div className="w-8 h-8 rounded-full bg-[#1b2230] border border-[#c5a059] flex items-center justify-center text-amber-300 shrink-0 shadow-xs">
+                <MessagesSquare
+                  className={`w-4 h-4 ${activeSegment.kind === 'cross' ? 'animate-pulse' : ''}`}
+                />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="font-cinzel text-xs font-bold text-[#1b2230] tracking-wider uppercase leading-tight truncate">
-                  Point of Information
+                <span
+                  className={`font-cinzel text-[11px] font-bold tracking-wide uppercase leading-tight ${
+                    activeSegment.kind === 'cross' ? 'text-amber-100' : 'text-[#1b2230]'
+                  }`}
+                >
+                  Cross-Questioning
                 </span>
-                <span className="text-[11px] font-serif-display italic text-[#7a5c24] mt-0.5 truncate">
-                  15s Max · Available Now
+                <span
+                  className={`text-[10px] font-serif-display italic mt-0.5 leading-tight ${
+                    activeSegment.kind === 'cross' ? 'text-amber-200/85' : 'text-[#7a5c24]'
+                  }`}
+                >
+                  {activeSegment.kind === 'cross'
+                    ? 'Live · one at a time'
+                    : activeSegment.kind === 'reply'
+                    ? 'Reply · uninterrupted'
+                    : '1:00 · after this speech'}
                 </span>
               </div>
             </div>
 
-            {/* Action Button */}
+            {/* Jump to the cross-questioning phase */}
             <button
-              onClick={onCallPOI}
-              title="Rise to offer a Point of Information (15s)"
-              className="px-4 py-2 rounded-full bg-[#141822] hover:bg-[#252f42] text-amber-200 hover:text-white border border-[#c5a059] font-cinzel text-[11px] tracking-wider uppercase font-bold shadow-md hover:shadow-xl hover:shadow-[#c5a059]/20 btn-spring cursor-pointer shrink-0 flex items-center gap-1.5"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectSegment(crossSegment.id);
+              }}
+              title="Go to the 1-minute cross-questioning phase"
+              className="px-3 py-1.5 rounded-full bg-[#141822] hover:bg-[#252f42] text-amber-200 hover:text-white border border-[#c5a059] font-cinzel text-[10px] tracking-wider uppercase font-bold shadow-md hover:shadow-xl hover:shadow-[#c5a059]/20 btn-spring cursor-pointer shrink-0 flex items-center gap-1.5"
             >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-              </span>
-              <span>Offer POI</span>
+              {activeSegment.kind === 'cross' && (
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                </span>
+              )}
+              <span>{activeSegment.kind === 'cross' ? 'Live' : 'Q&A'}</span>
             </button>
           </div>
         </div>

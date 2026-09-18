@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, SkipForward, Hand, Edit2, Check, X, ChevronUp, ChevronDown, Clock } from 'lucide-react';
-import type { Speaker, TimerStatus, RoundStage, POIState } from '../types/debate';
+import { RotateCcw, SkipForward, MessagesSquare, Mic, Edit2, Check, X, ChevronUp, ChevronDown, Clock } from 'lucide-react';
+import type { Speaker, TimerStatus, RoundStage, DebateSegment } from '../types/debate';
 import { formatTime } from '../utils/time';
+import { SEGMENT_SHORT_LABELS } from '../utils/segments';
 import { GoldDiamond } from './ClassicalDecors';
 import { playTactileClick } from '../utils/audio';
 
 interface DebateTimerProps {
   activeSpeaker: Speaker;
+  activeSegment: DebateSegment;
   roundStage: RoundStage;
   propTeamName?: string;
   oppTeamName?: string;
@@ -14,16 +16,19 @@ interface DebateTimerProps {
   timerStatus: TimerStatus;
   timeRemaining: number;
   totalDuration: number;
-  poiState: POIState;
   onStartPause: () => void;
   onReset: () => void;
-  onNextSpeaker: () => void;
-  hasNextSpeaker: boolean;
+  onNextSegment: () => void;
+  /** False once the final phase has been run and the debate is closed out. */
+  canAdvance: boolean;
+  /** "Q&A" / "Reply" / "Next Speaker" / "Conclude" — where advance goes next. */
+  nextSegmentLabel?: string;
   onUpdateTime: (newSeconds: number, newTotalDuration?: number) => void;
 }
 
 export const DebateTimer: React.FC<DebateTimerProps> = ({
   activeSpeaker,
+  activeSegment,
   roundStage,
   propTeamName,
   oppTeamName,
@@ -31,17 +36,25 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
   timerStatus,
   timeRemaining,
   totalDuration,
-  poiState,
   onStartPause,
   onReset,
-  onNextSpeaker,
-  hasNextSpeaker,
+  onNextSegment,
+  canAdvance,
+  nextSegmentLabel,
   onUpdateTime,
 }) => {
   const isRunning = timerStatus === 'running';
   const isCompleted = timeRemaining <= 0;
   const isProp = activeSpeaker.team === 'proposition';
-  const isPOIActive = poiState.status === 'active';
+  const isCrossExam = activeSegment.kind === 'cross';
+  const isReply = activeSegment.kind === 'reply';
+
+  // During cross-questioning the opposing bench holds the floor, not the speaker
+  const floorIsProp = isCrossExam ? !isProp : isProp;
+  const floorTeam = floorIsProp
+    ? (propTeamName || 'Team 1').toUpperCase()
+    : (oppTeamName || 'Team 2').toUpperCase();
+  const floorSide = floorIsProp ? 'PROPOSITION' : 'OPPOSITION';
 
   // Timer editing state (using string states to prevent backspace lockup)
   const [isEditingTime, setIsEditingTime] = useState(false);
@@ -170,9 +183,9 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center select-none py-0.5 px-2 w-full max-w-[860px] xl:max-w-[960px]">
+    <div className="flex flex-col items-center justify-center select-none py-0 px-2 w-full max-w-[860px] xl:max-w-[960px]">
       {/* 1. Single Compact Integrated Round & Active Speaker Headline */}
-      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-1">
+      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 sm:gap-x-3 mb-1">
         <button
           onClick={handleNextRound}
           title="Click to cycle rounds: Semifinal -> Grand Final -> Qualifier"
@@ -186,24 +199,40 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
 
         <span className="text-[#c5a059] opacity-60 font-serif text-xs">·</span>
 
-        <h3 key={activeSpeaker.id} className="animate-numeral-crossfade font-cinzel text-xs sm:text-sm md:text-base tracking-[0.2em] uppercase font-bold text-[#141820] flex items-center gap-1.5 text-center">
-          <span className={isProp ? 'text-blue-950 font-extrabold' : 'text-rose-950 font-extrabold'}>
-            {isProp
-              ? `${(propTeamName || 'TEAM 1').toUpperCase()} · PROPOSITION`
-              : `${(oppTeamName || 'TEAM 2').toUpperCase()} · OPPOSITION`}
+        <h3 key={activeSegment.id} className="animate-numeral-crossfade font-cinzel text-[11px] lg:text-xs xl:text-sm 2xl:text-base tracking-[0.16em] xl:tracking-[0.2em] uppercase font-bold text-[#141820] flex items-center justify-center gap-1.5 text-center whitespace-nowrap">
+          <span className={floorIsProp ? 'text-blue-950 font-extrabold' : 'text-rose-950 font-extrabold'}>
+            {/* The team name lives on the podium a few inches away, so it is
+                dropped here below 1440px rather than wrapping the whole row */}
+            <span className="hidden min-[1440px]:inline">{floorTeam} · </span>
+            {floorSide}
           </span>
           <span className="text-[#c5a059] font-normal">·</span>
-          <span className="text-[#2b3342]">{activeSpeaker.role.toUpperCase()}</span>
+          <span className="text-[#2b3342]">
+            {isCrossExam ? `QUESTIONS ${activeSpeaker.roleAbbr.toUpperCase()}` : activeSpeaker.role.toUpperCase()}
+          </span>
+          {activeSegment.kind !== 'speech' && (
+            <span
+              className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] tracking-[0.18em] font-extrabold border ${
+                isCrossExam
+                  ? 'bg-amber-400/20 text-[#6b4c12] border-amber-500/50'
+                  : 'bg-[#1b2230]/10 text-[#2b3342] border-[#c5a059]/60'
+              }`}
+            >
+              {SEGMENT_SHORT_LABELS[activeSegment.kind].toUpperCase()}
+            </span>
+          )}
         </h3>
       </div>
 
       {/* 3. Massive Circular Timer Display (65-75% Dominant Central Focal Point) */}
-      <div className="relative clock-dial-responsive flex items-center justify-center my-0.5">
+      <div className="relative clock-dial-responsive flex items-center justify-center my-0">
         {/* Ambient Frosted Halo Face */}
         <div 
           className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-700 pointer-events-none ${
-            isPOIActive 
-              ? 'ring-4 ring-rose-500/50 shadow-[0_0_60px_rgba(225,29,72,0.3)]' 
+            isCrossExam
+              ? 'ring-4 ring-amber-500/50 shadow-[0_0_60px_rgba(197,160,89,0.35)]'
+              : isReply
+              ? 'ring-4 ring-[#1b2230]/25 shadow-[0_0_50px_rgba(27,34,48,0.18)]'
               : isRunning
               ? 'animate-halo-breathing'
               : 'shadow-[0_24px_60px_-12px_rgba(30,25,18,0.12)]'
@@ -367,12 +396,22 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
 
         {/* Center Timer Display & Interactive Adjuster */}
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
-          {/* Active POI Banner Inside Face if POI is running */}
-          {isPOIActive && (
-            <div className="mb-2 px-4 py-1 rounded-full bg-rose-900/90 text-amber-200 border border-amber-300/40 animate-pulse flex items-center gap-2 shadow-lg">
-              <Hand className="w-4 h-4 text-amber-300" />
+          {/* Phase banner inside the dial during cross-questioning and reply */}
+          {(isCrossExam || isReply) && (
+            <div
+              className={`mb-2 px-4 py-1 rounded-full border flex items-center gap-2 shadow-lg ${
+                isCrossExam
+                  ? 'bg-[#4a3207]/90 text-amber-200 border-amber-300/40 animate-pulse'
+                  : 'bg-[#1b2230]/90 text-amber-100 border-[#c5a059]/50'
+              }`}
+            >
+              {isCrossExam ? (
+                <MessagesSquare className="w-4 h-4 text-amber-300" />
+              ) : (
+                <Mic className="w-4 h-4 text-amber-300" />
+              )}
               <span className="font-cinzel text-xs tracking-widest uppercase font-bold">
-                POI Active · 15s Max
+                {isCrossExam ? 'Cross-Questioning · 1:00' : 'Reply · Uninterrupted'}
               </span>
             </div>
           )}
@@ -383,7 +422,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-[#c5a059]" />
                 <span className="font-cinzel text-xs uppercase font-bold text-[#7a5c24] tracking-widest">
-                  Edit Speaker Timer
+                  Edit {SEGMENT_SHORT_LABELS[activeSegment.kind]} Timer
                 </span>
               </div>
               
@@ -469,11 +508,11 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
               {/* Quick Preset Buttons */}
               <div className="flex flex-wrap items-center justify-center gap-1 mt-0.5">
                 {[
-                  { label: '4:00 (Standard)', m: 4, s: 0 },
-                  { label: '5:00', m: 5, s: 0 },
-                  { label: '3:00', m: 3, s: 0 },
+                  { label: '3:00 (Speech)', m: 3, s: 0 },
+                  { label: '1:00 (Q&A)', m: 1, s: 0 },
+                  { label: '1:00 (Reply)', m: 1, s: 0 },
                   { label: '2:00', m: 2, s: 0 },
-                  { label: '1:00', m: 1, s: 0 },
+                  { label: '0:45', m: 0, s: 45 },
                   { label: '0:30', m: 0, s: 30 },
                 ].map((p, idx) => (
                   <button
@@ -511,11 +550,11 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
               <button
                 type="button"
                 onClick={handleOpenEditTime}
-                title="Click to manually edit speech time"
+                title="Click to manually edit this phase's time"
                 className="cursor-pointer hover:opacity-90 hover:scale-[1.015] transition-all duration-300 outline-none block"
               >
                 <div
-                  key={activeSpeaker.id}
+                  key={activeSegment.id}
                   className={`font-num font-normal tracking-tight numerals-responsive select-none animate-numeral-crossfade ${
                     isCompleted
                       ? 'text-rose-600 animate-bounce'
@@ -601,10 +640,12 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
             <span className="font-cinzel text-xs sm:text-sm tracking-[0.25em] font-semibold text-[#5a6476] uppercase">
               {isCompleted
                 ? 'TIME EXPIRED'
-                : isPOIActive
-                ? 'POI IN PROGRESS · 15S MAX'
                 : !isRunning
                 ? 'TIMER PAUSED'
+                : isCrossExam
+                ? 'CROSS-QUESTIONING · ONE AT A TIME'
+                : isReply
+                ? 'REPLY · NO INTERRUPTIONS'
                 : 'SPEAKING TIME'}
             </span>
             <div className="mt-1 flex items-center justify-center gap-2 opacity-70">
@@ -622,7 +663,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
         <div className="flex flex-col items-center gap-1">
           <button
             onClick={onReset}
-            title="Reset timer to 04:00 (R)"
+            title={`Reset ${SEGMENT_SHORT_LABELS[activeSegment.kind]} timer to ${formatTime(totalDuration)} (R)`}
             className="group w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#eae3d6]/85 hover:bg-white border border-white/80 shadow-xs hover:shadow-md flex items-center justify-center text-[#373f4e] hover:text-[#11151c] transition-all duration-200 active:scale-90 cursor-pointer"
             aria-label="Reset Timer"
           >
@@ -674,20 +715,20 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
         {/* Next Speaker Button */}
         <div className="flex flex-col items-center gap-1">
           <button
-            onClick={onNextSpeaker}
-            disabled={!hasNextSpeaker}
-            title={hasNextSpeaker ? 'Move to next speaker (N)' : 'Debate completed'}
+            onClick={onNextSegment}
+            disabled={!canAdvance}
+            title={canAdvance ? `Advance to ${nextSegmentLabel} (N)` : 'Debate completed'}
             className={`group w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-200 active:scale-90 ${
-              hasNextSpeaker
+              canAdvance
                 ? 'bg-[#eae3d6]/85 hover:bg-white border border-white/80 shadow-xs hover:shadow-md text-[#373f4e] hover:text-[#11151c] cursor-pointer'
                 : 'bg-[#e2ddd5]/40 border border-black/5 text-[#9ea7b5] cursor-not-allowed opacity-50'
             }`}
-            aria-label="Next Speaker"
+            aria-label={canAdvance ? `Advance to ${nextSegmentLabel}` : 'Debate completed'}
           >
-            <SkipForward className={`w-5 h-5 transition-transform duration-300 ${hasNextSpeaker ? 'group-hover:translate-x-0.5' : ''}`} />
+            <SkipForward className={`w-5 h-5 transition-transform duration-300 ${canAdvance ? 'group-hover:translate-x-0.5' : ''}`} />
           </button>
-          <span className="font-cinzel text-[10px] tracking-widest text-[#697384] uppercase font-semibold">
-            Next
+          <span className="font-cinzel text-[10px] tracking-widest text-[#697384] uppercase font-semibold text-center leading-tight max-w-[72px]">
+            {canAdvance ? nextSegmentLabel : 'Next'}
           </span>
         </div>
       </div>
