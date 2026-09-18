@@ -225,7 +225,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
       </div>
 
       {/* 3. Massive Circular Timer Display (65-75% Dominant Central Focal Point) */}
-      <div className="relative clock-dial-responsive flex items-center justify-center my-0">
+      <div className="relative clock-dial-responsive flex items-center justify-center my-0 group/timer timer-morph-dial cursor-default">
         {/* Ambient Frosted Halo Face */}
         <div 
           className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-700 pointer-events-none ${
@@ -546,7 +546,7 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
             </div>
           ) : (
             /* Clickable Numerals & Quick Adjustment Bar */
-            <div className="relative z-20 flex flex-col items-center select-none">
+            <div className="relative z-20 flex flex-col items-center select-none timer-morph-content">
               <button
                 type="button"
                 onClick={handleOpenEditTime}
@@ -568,9 +568,13 @@ export const DebateTimer: React.FC<DebateTimerProps> = ({
                 </div>
               </button>
 
-              {/* Prominent Classical Quick Time Adjustment Controls */}
+              {/* Quick Time Adjustment Controls - revealed on timer hover */}
               <div 
-                className="relative z-30 flex items-center justify-center gap-1.5 sm:gap-2 mt-3 sm:mt-3.5 bg-[#ede4d4]/95 border border-[#c5a059]/50 rounded-full px-2 py-1.5 shadow-sm backdrop-blur-xs transition-transform duration-300 hover:scale-[1.02]"
+                className={`relative z-30 flex items-center justify-center gap-1.5 sm:gap-2 mt-2.5 sm:mt-3 bg-[#ede4d4]/95 border border-[#c5a059]/50 rounded-full px-2 py-1.5 shadow-sm backdrop-blur-xs transition-all duration-300 ${
+                  isEditingTime
+                    ? 'opacity-100 scale-100'
+                    : 'opacity-0 translate-y-1.5 scale-95 pointer-events-none group-hover/timer:opacity-100 group-hover/timer:translate-y-0 group-hover/timer:scale-100 group-hover/timer:pointer-events-auto'
+                }`}
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* -1m */}

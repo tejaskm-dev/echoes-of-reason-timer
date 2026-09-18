@@ -103,27 +103,27 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
     const len = motion.trim().length;
     if (len <= 55) {
       return {
-        fontSize: 'clamp(1.45rem, 1.15rem + 1.2vw, 2.35rem)',
+        fontSize: 'clamp(1.6rem, 1.28rem + 1.25vw, 2.6rem)',
         lineHeight: '1.2',
       };
     } else if (len <= 95) {
       return {
-        fontSize: 'clamp(1.25rem, 1.0rem + 1.0vw, 2.05rem)',
+        fontSize: 'clamp(1.38rem, 1.12rem + 1.0vw, 2.25rem)',
         lineHeight: '1.22',
       };
     } else if (len <= 150) {
       return {
-        fontSize: 'clamp(1.1rem, 0.88rem + 0.8vw, 1.75rem)',
-        lineHeight: '1.24',
+        fontSize: 'clamp(1.22rem, 0.98rem + 0.85vw, 1.95rem)',
+        lineHeight: '1.25',
       };
     } else if (len <= 220) {
       return {
-        fontSize: 'clamp(1.0rem, 0.82rem + 0.6vw, 1.45rem)',
+        fontSize: 'clamp(1.08rem, 0.88rem + 0.65vw, 1.6rem)',
         lineHeight: '1.26',
       };
     } else {
       return {
-        fontSize: 'clamp(0.9rem, 0.75rem + 0.45vw, 1.25rem)',
+        fontSize: 'clamp(0.95rem, 0.78rem + 0.45vw, 1.35rem)',
         lineHeight: '1.28',
       };
     }
@@ -316,7 +316,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
             onClick={handleOpenEditMotion}
             className="mt-0.5"
           >
-            <div className="max-h-[85px] sm:max-h-[105px] md:max-h-[125px] overflow-y-auto px-1 sm:px-3 custom-scrollbar flex items-center justify-center w-full">
+            <div className="overflow-hidden no-scrollbar px-2 sm:px-4 flex items-center justify-center w-full py-1">
               <p 
                 style={{ 
                   fontSize: optimalMotionStyle.fontSize, 
@@ -324,9 +324,9 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                 }}
                 className="font-serif-display text-[#0a0e17] font-semibold italic text-center leading-snug transition-transform group-hover:scale-[1.008] drop-shadow-2xs"
               >
-                <span className="text-[#c5a059] font-serif not-italic mr-1 select-none">“</span>
+                <span className="text-[#c5a059] font-serif not-italic mr-1.5 select-none text-[1.12em] leading-none align-baseline">“</span>
                 {motion}
-                <span className="text-[#c5a059] font-serif not-italic ml-1 select-none">”</span>
+                <span className="text-[#c5a059] font-serif not-italic ml-1.5 select-none text-[1.12em] leading-none align-baseline">”</span>
               </p>
             </div>
             <span className="text-[9px] font-cinzel text-[#886729] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex items-center gap-1">
@@ -357,7 +357,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
         {/* Center Arena: Pure Gold Metallic Chronometer & Symmetrical Control Deck */}
         <div className="flex-1 flex flex-col items-center justify-center max-w-[820px] xl:max-w-[880px] px-1 sm:px-2">
           {/* Circular Chronometer Dial */}
-          <div className="relative clock-dial-responsive flex items-center justify-center my-0.5">
+          <div className="relative clock-dial-responsive flex items-center justify-center my-0.5 group/timer timer-morph-dial cursor-default">
             {/* Ambient Halo Face */}
             <div 
               className={`absolute inset-2 sm:inset-3 rounded-full clock-face-halo transition-all duration-700 pointer-events-none ${
@@ -598,7 +598,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="relative z-20 flex flex-col items-center select-none">
+                <div className="relative z-20 flex flex-col items-center select-none timer-morph-content">
                   {/* High-Contrast Numerals (Deep Onyx #0a0d14) */}
                   <button
                     type="button"
@@ -640,9 +640,13 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                     </div>
                   </div>
 
-                  {/* Sleek High-Contrast Quick Adjust Buttons Bar */}
+                  {/* Sleek High-Contrast Quick Adjust Buttons Bar - revealed on timer hover */}
                   <div 
-                    className="relative z-30 flex items-center justify-center gap-1 mt-2 bg-[#fdfaf5]/90 border border-[#c5a059]/45 rounded-full px-2 py-0.5 shadow-2xs backdrop-blur-xs transition-transform duration-300 hover:scale-[1.02]"
+                    className={`relative z-30 flex items-center justify-center gap-1 mt-2 bg-[#fdfaf5]/90 border border-[#c5a059]/45 rounded-full px-2 py-0.5 shadow-2xs backdrop-blur-xs transition-all duration-300 ${
+                      isEditingTime
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 translate-y-1.5 scale-95 pointer-events-none group-hover/timer:opacity-100 group-hover/timer:translate-y-0 group-hover/timer:scale-100 group-hover/timer:pointer-events-auto'
+                    }`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button

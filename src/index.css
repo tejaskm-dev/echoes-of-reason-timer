@@ -223,26 +223,61 @@
  * without ever pushing the stepper or footer off a short one.
  */
 :root {
-  --stage-chrome: calc(316px + 4vw);
+  --stage-chrome: calc(330px + 3vw);
 }
 
 .clock-dial-responsive {
-  width: min(900px, calc(100vh - var(--stage-chrome)), 46vw);
-  height: min(900px, calc(100vh - var(--stage-chrome)), 46vw);
-  min-width: 260px;
-  min-height: 260px;
+  /* Default for compact laptops & viewports under 880px height */
+  width: min(510px, calc(100vh - var(--stage-chrome)), 40vw);
+  height: min(510px, calc(100vh - var(--stage-chrome)), 40vw);
+  min-width: 250px;
+  min-height: 250px;
 }
 
-@media (max-height: 860px) {
+/* 1080p displays (height >= 880px and width >= 1500px): grand, majestic, prominent ~600px-620px */
+@media (min-height: 880px) and (min-width: 1500px) {
   .clock-dial-responsive {
-    min-width: 240px;
-    min-height: 240px;
+    width: min(620px, calc(100vh - 390px), 36vw);
+    height: min(620px, calc(100vh - 390px), 36vw);
+  }
+}
+
+/* 1440p displays (height >= 1200px and width >= 2200px): grand imperial rotunda ~750px-770px */
+@media (min-height: 1200px) and (min-width: 2200px) {
+  .clock-dial-responsive {
+    width: min(770px, calc(100vh - 470px), 33vw);
+    height: min(770px, calc(100vh - 470px), 33vw);
   }
 }
 
 .numerals-responsive {
-  font-size: clamp(4.2rem, 14.5vh, 12rem);
+  font-size: clamp(4.0rem, 13vh, 10.5rem);
   line-height: 0.92;
+}
+
+/* ==========================================================================
+   SLOW LUXURY HOVER MORPH SYSTEM
+   Timer is noticeably larger at rest and slowly, smoothly morphs to interactive mode on hover
+   ========================================================================== */
+
+.timer-morph-dial {
+  transform: scale(1.08);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.65s ease;
+  will-change: transform;
+}
+
+.group\/timer:hover .timer-morph-dial {
+  transform: scale(1);
+}
+
+.timer-morph-content {
+  transform: scale(1.12);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.group\/timer:hover .timer-morph-content {
+  transform: scale(1) translateY(-6px);
 }
 
 /* ==========================================================================
@@ -292,12 +327,21 @@
 }
 
 .motion-text-responsive {
-  font-size: clamp(1.15rem, 1.95vw, 2.35rem);
-  line-height: 1.15;
+  font-size: clamp(1.35rem, 2.15vw, 2.65rem);
+  line-height: 1.18;
+}
+
+/* Hide scrollbar completely while maintaining clean layout */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .podium-responsive {
-  width: clamp(260px, 19.5vw, 360px);
+  width: clamp(260px, 17.5vw, 345px);
 }
 
 @media (max-height: 780px) {

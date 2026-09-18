@@ -28,8 +28,8 @@ export const SEMIFINAL_MOTIONS: MotionPreset[] = [
     matchTitle: 'Semifinal 2: Utopia vs She He He',
     propTeam: 'Team Utopia',
     oppTeam: 'Team She He He',
-    motion: "This house would allow governments to use captured criminals' brain data (with consent, in exchange for reduced sentences) to train crime-prediction AI.",
-    explainer: 'This debate looks at whether the state should be allowed to use consenting prisoners\' brain data to build AI systems that predict future crime. It balances the potential to prevent crime before it happens against the risk of exploiting people who have little real power to refuse.',
+    motion: 'This house would allow open borders—permitting anyone to migrate and work in any country, with no restrictions on citizenship or labor market access.',
+    explainer: 'This motion examines absolute freedom of movement versus state sovereignty. It balances the moral case for eliminating arbitrary geographic inequality against concerns over labor market disruption, resource strain, and cultural cohesion. Both sides have empirically grounded, ethically defensible positions.',
   },
 ];
 
@@ -42,7 +42,8 @@ interface MotionBannerProps {
 export const MotionBanner: React.FC<MotionBannerProps> = ({ motion, onUpdateMotion, onSelectMatchPreset }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputVal, setInputVal] = useState(motion);
-  const [selectedPresetId, setSelectedPresetId] = useState<string>('semi-1');
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('semi-2');
+  const [showExplainer, setShowExplainer] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleOpenEdit = () => {
@@ -174,21 +175,50 @@ export const MotionBanner: React.FC<MotionBannerProps> = ({ motion, onUpdateMoti
           </div>
         </div>
       ) : (
-        <div
-          onClick={handleOpenEdit}
-          title="Click to edit debate motion"
-          className="group relative cursor-pointer px-5 py-1.5 rounded-2xl hover:bg-white/50 border border-transparent hover:border-[#c5a059]/30 shadow-none hover:shadow-md transition-all duration-300 flex flex-col items-center"
-        >
-          {/* Big Majestic Motion Display without excessive vertical footprint */}
-          <h2 className="font-serif-display motion-text-responsive font-normal text-[#0d1118] italic text-center max-w-4xl tracking-tight transition-all duration-300 group-hover:scale-[1.01] group-hover:text-black">
-            “{motion}”
-          </h2>
+        <div className="flex flex-col items-center w-full">
+          <div
+            onClick={handleOpenEdit}
+            title="Click to edit debate motion"
+            className="group relative cursor-pointer px-5 py-1.5 rounded-2xl hover:bg-white/50 border border-transparent hover:border-[#c5a059]/30 shadow-none hover:shadow-md transition-all duration-300 flex flex-col items-center"
+          >
+            {/* Big Majestic Motion Display without excessive vertical footprint */}
+            <h2 className="font-serif-display motion-text-responsive font-normal text-[#0d1118] italic text-center max-w-4xl tracking-tight transition-all duration-300 group-hover:scale-[1.01] group-hover:text-black">
+              “{motion}”
+            </h2>
 
-          {/* Subdued hover edit prompt with spring entrance */}
-          <div className="flex items-center gap-1 text-[10px] font-cinzel text-[#886729] font-bold mt-0.5 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-1 group-hover:translate-y-0">
-            <Edit3 className="w-2.5 h-2.5 text-[#c5a059]" />
-            <span>Click to Edit</span>
+            {/* Subdued hover edit prompt with spring entrance */}
+            <div className="flex items-center gap-1 text-[10px] font-cinzel text-[#886729] font-bold mt-0.5 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-1 group-hover:translate-y-0">
+              <Edit3 className="w-2.5 h-2.5 text-[#c5a059]" />
+              <span>Click to Edit</span>
+            </div>
           </div>
+
+          {/* Context & Explainer Toggle */}
+          {(() => {
+            const currentPreset = SEMIFINAL_MOTIONS.find(
+              (p) => p.motion === motion || p.id === selectedPresetId
+            );
+            if (!currentPreset?.explainer) return null;
+            return (
+              <div className="flex flex-col items-center mt-0.5">
+                <button
+                  type="button"
+                  onClick={() => setShowExplainer((prev) => !prev)}
+                  className="px-2.5 py-0.5 rounded-full bg-[#ede5d8]/80 hover:bg-[#ede5d8] text-[#7a5e27] hover:text-[#523d13] text-[10px] font-cinzel font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-xs flex items-center gap-1"
+                >
+                  <span>{showExplainer ? '▲ Hide Explainer' : '▼ View Motion Explainer'}</span>
+                </button>
+                {showExplainer && (
+                  <div className="mt-1.5 p-3 max-w-2xl bg-[#fbf9f4]/98 backdrop-blur-md rounded-xl border border-[#c5a059]/40 shadow-md text-xs text-[#2b3342] leading-relaxed font-sans-ui text-center animate-in fade-in duration-200">
+                    <span className="font-bold text-[#8d6928] uppercase font-cinzel tracking-wider mr-1">
+                      Explainer:
+                    </span>
+                    {currentPreset.explainer}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
     </section>
