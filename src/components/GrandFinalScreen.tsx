@@ -103,27 +103,27 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
     const len = motion.trim().length;
     if (len <= 55) {
       return {
-        fontSize: 'clamp(1.45rem, 1.15rem + 1.2vw, 2.35rem)',
-        lineHeight: '1.2',
+        fontSize: 'clamp(1.75rem, 1.35rem + 1.4vw, 2.85rem)',
+        lineHeight: '1.18',
       };
     } else if (len <= 95) {
       return {
-        fontSize: 'clamp(1.25rem, 1.0rem + 1.0vw, 2.05rem)',
-        lineHeight: '1.22',
+        fontSize: 'clamp(1.5rem, 1.2rem + 1.2vw, 2.45rem)',
+        lineHeight: '1.20',
       };
     } else if (len <= 150) {
       return {
-        fontSize: 'clamp(1.1rem, 0.88rem + 0.8vw, 1.75rem)',
+        fontSize: 'clamp(1.32rem, 1.05rem + 1.0vw, 2.2rem)',
         lineHeight: '1.24',
       };
     } else if (len <= 220) {
       return {
-        fontSize: 'clamp(1.0rem, 0.82rem + 0.6vw, 1.45rem)',
+        fontSize: 'clamp(1.15rem, 0.92rem + 0.75vw, 1.8rem)',
         lineHeight: '1.26',
       };
     } else {
       return {
-        fontSize: 'clamp(0.9rem, 0.75rem + 0.45vw, 1.25rem)',
+        fontSize: 'clamp(1.0rem, 0.82rem + 0.5vw, 1.45rem)',
         lineHeight: '1.28',
       };
     }
@@ -316,7 +316,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
             onClick={handleOpenEditMotion}
             className="mt-0.5"
           >
-            <div className="max-h-[85px] sm:max-h-[105px] md:max-h-[125px] overflow-y-auto px-1 sm:px-3 custom-scrollbar flex items-center justify-center w-full">
+            <div className="max-h-[110px] sm:max-h-[135px] md:max-h-[160px] overflow-y-auto px-1 sm:px-3 custom-scrollbar flex items-center justify-center w-full">
               <p 
                 style={{ 
                   fontSize: optimalMotionStyle.fontSize, 
@@ -324,9 +324,9 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
                 }}
                 className="font-serif-display text-[#0a0e17] font-semibold italic text-center leading-snug transition-transform group-hover:scale-[1.008] drop-shadow-2xs"
               >
-                <span className="text-[#c5a059] font-serif not-italic mr-1 select-none">“</span>
+                <span className="text-[#c5a059] font-serif not-italic mr-1.5 select-none text-[1.12em] leading-none align-baseline">“</span>
                 {motion}
-                <span className="text-[#c5a059] font-serif not-italic ml-1 select-none">”</span>
+                <span className="text-[#c5a059] font-serif not-italic ml-1.5 select-none text-[1.12em] leading-none align-baseline">”</span>
               </p>
             </div>
             <span className="text-[9px] font-cinzel text-[#886729] font-bold opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex items-center gap-1">

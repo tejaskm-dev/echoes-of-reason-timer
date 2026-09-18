@@ -97,7 +97,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
       </div>
 
       {/* 2. Speaker Row Pills Below the Arch */}
-      <div className="mt-2.5 sm:mt-3 flex flex-col gap-2 sm:gap-2.5 w-full">
+      <div className="mt-2.5 sm:mt-3 flex flex-col gap-2.5 sm:gap-3 w-full">
         {speakers.map((speaker, index) => {
           const isActive = speaker.id === activeSpeakerId;
           const isEditing = editingId === speaker.id;
@@ -108,7 +108,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             <div
               key={speaker.id}
               onClick={() => onSelectSpeaker(speaker.id)}
-              className={`group relative flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl cursor-pointer podium-speaker-row speaker-card-fluid ${
+              className={`group relative flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl cursor-pointer podium-speaker-row speaker-card-fluid ${
                 isActive
                   ? isProposition
                     ? 'speaker-pill-active-prop text-white'
@@ -119,7 +119,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
               {/* Speaker Number & Name */}
               <div className="flex items-center gap-3.5 min-w-0">
                 <span
-                  className={`font-cinzel text-xs tracking-wider font-bold transition-colors ${
+                  className={`font-cinzel text-xs sm:text-sm tracking-wider font-black transition-colors shrink-0 ${
                     isActive
                       ? isProposition
                         ? 'text-blue-300'
@@ -154,7 +154,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 ) : (
                   <div className="flex items-center gap-2 group/name min-w-0">
                     <span
-                      className={`text-sm md:text-base font-normal tracking-wide truncate max-w-[110px] xl:max-w-[130px] ${
+                      className={`text-base md:text-lg font-normal tracking-wide truncate max-w-[125px] xl:max-w-[155px] ${
                         isActive ? 'text-white font-bold' : 'text-[#202530] font-semibold'
                       }`}
                       title={`${speaker.name} (${speaker.role})`}
@@ -164,7 +164,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
 
                     {/* Role badge */}
                     <span
-                      className={`text-[9px] font-cinzel tracking-wider px-1.5 py-0.5 rounded font-bold uppercase ${
+                      className={`text-[10px] sm:text-[11px] font-cinzel tracking-wider px-2 py-0.5 rounded-md font-bold uppercase shrink-0 ${
                         isActive
                           ? isProposition
                             ? 'bg-blue-600/80 text-white shadow-xs'
@@ -177,7 +177,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
 
                     {/* Live phase tag when this speaker holds the floor */}
                     {isActive && (
-                      <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[9px] font-cinzel font-bold border border-amber-400/40 shadow-xs">
+                      <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[9px] font-cinzel font-bold border border-amber-400/40 shadow-xs shrink-0">
                         {activeSegment.kind === 'cross' ? (
                           <MessagesSquare className="w-2.5 h-2.5" />
                         ) : (
@@ -206,7 +206,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
               {/* Status dot & time left on this speaker's live phase */}
               <div className="flex items-center gap-2.5 shrink-0 pl-1">
                 <div
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  className={`w-3.5 h-3.5 rounded-full transition-all duration-300 ${
                     isActive
                       ? isProposition
                         ? 'bg-blue-400 shadow-[0_0_14px_#60a5fa] ring-4 ring-blue-400/40'
@@ -224,7 +224,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
 
                 {/* Remaining Time of the displayed phase */}
                 <span
-                  className={`font-num text-sm md:text-base tracking-wider tabular-nums font-semibold ${
+                  className={`font-num text-base md:text-lg tracking-wider tabular-nums font-semibold ${
                     isActive ? 'text-white' : 'text-[#202530]'
                   }`}
                 >

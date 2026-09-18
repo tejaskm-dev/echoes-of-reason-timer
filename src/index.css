@@ -327,8 +327,8 @@
 }
 
 .motion-text-responsive {
-  font-size: clamp(1.15rem, 1.95vw, 2.35rem);
-  line-height: 1.15;
+  font-size: clamp(1.35rem, 2.15vw, 2.65rem);
+  line-height: 1.18;
 }
 
 .podium-responsive {

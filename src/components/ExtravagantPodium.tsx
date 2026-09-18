@@ -152,7 +152,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
           </div>
 
           {/* 3 Opulent Bevelled Speaker Inlays */}
-          <div className="flex flex-col gap-1.5 my-0.5">
+          <div className="flex flex-col gap-2 sm:gap-2.5 my-1">
             {speakers.map((sp, idx) => {
               const isActive = sp.id === activeSpeakerId;
               const isEditingSp = editingSpeakerId === sp.id;
@@ -163,7 +163,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                 <div
                   key={sp.id}
                   onClick={() => onSelectSpeaker(sp.id)}
-                  className={`flex items-center justify-between px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl cursor-pointer speaker-card-fluid ${
+                  className={`flex items-center justify-between px-4 sm:px-4.5 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl cursor-pointer speaker-card-fluid ${
                     isActive
                       ? isProp
                         ? 'bg-gradient-to-r from-white via-[#f0f6ff] to-white border-1.5 border-blue-500/70 shadow-[0_6px_20px_-2px_rgba(59,130,246,0.38),0_0_0_1px_rgba(255,255,255,0.9)_inset] scale-[1.025] speaker-row-active-anim'
@@ -174,12 +174,12 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                   {/* Left: Medallion Number, Name, Role Badge, Active Equalizer */}
                   <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     {/* Gilded Roman Number Medallion */}
-                    <div className={`w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-full border flex items-center justify-center shadow-2xs ${
+                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border flex items-center justify-center shadow-2xs shrink-0 ${
                       isActive 
                         ? 'border-[#c5a059] bg-gradient-to-b from-[#f5e09b] to-[#c5a059] text-[#121620]'
                         : 'border-[#c5a059]/40 bg-[#faf7f2] text-[#554325]'
                     }`}>
-                      <span className="font-cinzel text-[10px] sm:text-[11px] font-black leading-none">
+                      <span className="font-cinzel text-[11px] sm:text-xs font-black leading-none">
                         {String(idx + 1).padStart(2, '0')}
                       </span>
                     </div>
@@ -211,15 +211,15 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                         </button>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1.5 min-w-0 group/sp">
-                        <span className={`text-sm sm:text-base font-serif-display font-semibold truncate max-w-[125px] sm:max-w-[160px] xl:max-w-[185px] ${
+                      <div className="flex items-center gap-2 min-w-0 group/sp">
+                        <span className={`text-base sm:text-[17px] xl:text-lg font-serif-display font-semibold truncate max-w-[135px] sm:max-w-[170px] xl:max-w-[200px] ${
                           isActive ? 'text-[#0c1017] font-bold' : 'text-[#2b3342]'
                         }`}>
                           {sp.name}
                         </span>
 
                         {/* Heraldic Role Badge */}
-                        <span className={`text-[9px] sm:text-[10px] font-cinzel font-bold uppercase px-1.5 py-0.5 rounded border ${
+                        <span className={`text-[10px] sm:text-[11px] font-cinzel font-bold uppercase px-2 py-0.5 rounded-md border shrink-0 ${
                           isProp 
                             ? 'bg-blue-50 text-blue-950 border-blue-200' 
                             : 'bg-rose-50 text-rose-950 border-rose-200'
@@ -229,7 +229,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
 
                         {/* Active Soundwave Indicator */}
                         {isActive && (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-amber-400/25 text-[#7c5b1d] text-[8px] font-cinzel font-bold border border-amber-400/40">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/25 text-[#7c5b1d] text-[9px] sm:text-[10px] font-cinzel font-bold border border-amber-400/40 shrink-0">
                             {activeSegment.kind === 'cross' ? (
                               <MessagesSquare className="w-2.5 h-2.5" />
                             ) : (
@@ -260,8 +260,8 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                   </div>
 
                   {/* Right: Phase Pips (S/Q/R) & Remaining Time of the Live Phase */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    <div className="flex items-center gap-0.5">
+                  <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                    <div className="flex items-center gap-1">
                       {ownSegments.map((seg) => {
                         const isSegActive = seg.id === activeSegment.id;
                         return (
@@ -273,7 +273,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                               onSelectSegment(seg.id);
                             }}
                             title={`${SEGMENT_SHORT_LABELS[seg.kind]} · ${formatTimeCompact(seg.timeRemaining)}`}
-                            className={`w-4 h-4 rounded-full flex items-center justify-center font-cinzel text-[7px] font-black leading-none transition-all duration-200 cursor-pointer hover:scale-125 ${
+                            className={`w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-cinzel text-[8px] sm:text-[9px] font-black leading-none transition-all duration-200 cursor-pointer hover:scale-125 ${
                               isSegActive
                                 ? 'bg-gradient-to-b from-[#f5e09b] to-[#c5a059] text-[#121620] ring-2 ring-[#c5a059]/45'
                                 : seg.hasRun
@@ -286,7 +286,7 @@ export const ExtravagantPodium: React.FC<ExtravagantPodiumProps> = ({
                         );
                       })}
                     </div>
-                    <span className="font-num text-sm font-semibold tabular-nums text-[#0c1017]">
+                    <span className="font-num text-base sm:text-lg font-semibold tabular-nums text-[#0c1017]">
                       {formatTimeCompact(display?.timeRemaining ?? 0)}
                     </span>
                   </div>
