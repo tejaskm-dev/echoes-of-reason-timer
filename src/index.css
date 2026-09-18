@@ -331,6 +331,15 @@
   line-height: 1.18;
 }
 
+/* Hide scrollbar completely while maintaining clean layout */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .podium-responsive {
   width: clamp(260px, 17.5vw, 345px);
 }

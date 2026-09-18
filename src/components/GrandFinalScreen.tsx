@@ -103,27 +103,27 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
     const len = motion.trim().length;
     if (len <= 55) {
       return {
-        fontSize: 'clamp(1.75rem, 1.35rem + 1.4vw, 2.85rem)',
-        lineHeight: '1.18',
+        fontSize: 'clamp(1.6rem, 1.28rem + 1.25vw, 2.6rem)',
+        lineHeight: '1.2',
       };
     } else if (len <= 95) {
       return {
-        fontSize: 'clamp(1.5rem, 1.2rem + 1.2vw, 2.45rem)',
-        lineHeight: '1.20',
+        fontSize: 'clamp(1.38rem, 1.12rem + 1.0vw, 2.25rem)',
+        lineHeight: '1.22',
       };
     } else if (len <= 150) {
       return {
-        fontSize: 'clamp(1.32rem, 1.05rem + 1.0vw, 2.2rem)',
-        lineHeight: '1.24',
+        fontSize: 'clamp(1.22rem, 0.98rem + 0.85vw, 1.95rem)',
+        lineHeight: '1.25',
       };
     } else if (len <= 220) {
       return {
-        fontSize: 'clamp(1.15rem, 0.92rem + 0.75vw, 1.8rem)',
+        fontSize: 'clamp(1.08rem, 0.88rem + 0.65vw, 1.6rem)',
         lineHeight: '1.26',
       };
     } else {
       return {
-        fontSize: 'clamp(1.0rem, 0.82rem + 0.5vw, 1.45rem)',
+        fontSize: 'clamp(0.95rem, 0.78rem + 0.45vw, 1.35rem)',
         lineHeight: '1.28',
       };
     }
@@ -316,7 +316,7 @@ export const GrandFinalScreen: React.FC<GrandFinalScreenProps> = ({
             onClick={handleOpenEditMotion}
             className="mt-0.5"
           >
-            <div className="max-h-[110px] sm:max-h-[135px] md:max-h-[160px] overflow-y-auto px-1 sm:px-3 custom-scrollbar flex items-center justify-center w-full">
+            <div className="overflow-hidden no-scrollbar px-2 sm:px-4 flex items-center justify-center w-full py-1">
               <p 
                 style={{ 
                   fontSize: optimalMotionStyle.fontSize, 
